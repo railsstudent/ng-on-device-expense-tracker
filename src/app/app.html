@@ -1,0 +1,135 @@
+<main
+  class="min-h-screen flex flex-col items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-brand-bg to-slate-950"
+>
+  <!-- Container -->
+  <div
+    class="w-full max-w-2xl bg-brand-card backdrop-blur-md rounded-2xl p-8 border border-white/10 shadow-2xl transition-all duration-300 hover:shadow-brand-accent/20 hover:border-white/20"
+  >
+    <!-- Title -->
+    <div class="text-center mb-8">
+      <div
+        class="inline-flex items-center justify-center p-3 bg-brand-accent/10 rounded-full mb-4 border border-brand-accent/20"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-10 w-10 text-brand-accent animate-pulse"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      </div>
+      <h1
+        class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-accent bg-clip-text text-transparent"
+      >
+        {{ title() }}
+      </h1>
+      <p class="text-slate-400 mt-2 text-sm font-medium tracking-wide uppercase">
+        On-Device Offline-First Expense Tracker Workspace
+      </p>
+    </div>
+
+    <!-- Status Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <!-- Status: Tailwind CSS -->
+      <div
+        class="bg-white/5 border border-white/5 rounded-xl p-5 flex flex-col items-center text-center transition-transform hover:-translate-y-1"
+      >
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Tailwind v4</span>
+        <div
+          class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-accent/10 border border-brand-accent/20 text-brand-accent font-bold text-xs"
+        >
+          <span class="relative flex h-2 w-2">
+            <span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-accent opacity-75"
+            ></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-brand-accent"></span>
+          </span>
+          ACTIVE
+        </div>
+      </div>
+
+      <!-- Status: SQLite WASM -->
+      <div
+        class="bg-white/5 border border-white/5 rounded-xl p-5 flex flex-col items-center text-center transition-transform hover:-translate-y-1"
+      >
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">SQLite WASM</span>
+        @if (dbStatus()) {
+          <div
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-success/10 border border-brand-success/20 text-brand-success font-bold text-xs"
+          >
+            CONNECTED
+          </div>
+        } @else {
+          <div
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 font-bold text-xs"
+          >
+            CONNECTING...
+          </div>
+        }
+      </div>
+
+      <!-- Status: Service Worker -->
+      <div
+        class="bg-white/5 border border-white/5 rounded-xl p-5 flex flex-col items-center text-center transition-transform hover:-translate-y-1"
+      >
+        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">PWA Offline</span>
+        <div
+          class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 font-bold text-xs truncate max-w-full"
+          [title]="swStatus()"
+        >
+          {{ swStatus() }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech Stack details -->
+    <div class="border-t border-white/10 pt-6">
+      <h3 class="text-sm font-semibold text-slate-200 mb-3 uppercase tracking-wider">
+        Workspace Features & Integration Specs:
+      </h3>
+      <ul class="space-y-2 text-sm text-slate-400">
+        <li class="flex items-start gap-2.5">
+          <span class="text-brand-accent mt-0.5">✔</span>
+          <span><strong>Angular 22</strong> standalone shell with optimized zoneless-ready change detection.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="text-brand-accent mt-0.5">✔</span>
+          <span
+            ><strong>SQLite WASM Database</strong> configured with Origin Private File System (OPFS) and active
+            COOP/COEP headers.</span
+          >
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="text-brand-accent mt-0.5">✔</span>
+          <span
+            ><strong>Angular Service Worker (PWA)</strong> configured to prefetch stylesheets and code for fully offline
+            accessibility.</span
+          >
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="text-brand-accent mt-0.5">✔</span>
+          <span><strong>ESLint Flat Config v9</strong> wired for separate TS and HTML checks.</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <span class="text-brand-accent mt-0.5">✔</span>
+          <span
+            ><strong>Local Git Quality Gate</strong>: Husky hook, ESM `lint-staged.config.mjs`, `commitlint.config.mjs`,
+            and `.prettierrc` for strict network-free pre-commit processing.</span
+          >
+        </li>
+      </ul>
+    </div>
+
+    <!-- Router outlet placeholder for routing -->
+    <div class="hidden">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</main>
