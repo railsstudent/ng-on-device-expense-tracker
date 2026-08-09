@@ -1,1 +1,1 @@
-npx --no lint-staged --config lint-staged.config.mjs
+npx --no lint-staged
