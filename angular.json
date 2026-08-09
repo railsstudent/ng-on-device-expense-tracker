@@ -31,7 +31,7 @@
               }
             ],
             "styles": ["src/styles.css"],
-            "scripts": ["src/assets/FileProxyCache.min.js"]
+            "scripts": []
           },
           "configurations": {
             "production": {

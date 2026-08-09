@@ -16,6 +16,7 @@
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/app/*"],
+      "@/assets/*": ["./src/assets/*"],
       "@/public/*": ["./public/*"]
     }
   },

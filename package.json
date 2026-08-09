@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:file": "vitest run --globals",
     "lint": "ng lint",
     "prepare": "husky",
     "preview": "npm run build && npx serve dist/ng-on-device-expense-tracker/browser -p 8080",
