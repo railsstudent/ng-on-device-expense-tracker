@@ -30,7 +30,8 @@
                 "output": "assets/sqlite-wasm"
               }
             ],
-            "styles": ["src/styles.css"]
+            "styles": ["src/styles.css"],
+            "scripts": ["src/assets/FileProxyCache.min.js"]
           },
           "configurations": {
             "production": {
