@@ -22,6 +22,7 @@ export class AiModelCacheService {
   public readonly speed = this.#speed.asReadonly();
 
   constructor() {
+    FileProxyCache.setCacheName('JMWebAIModels');
     this.checkInitialCacheState();
   }
 
@@ -71,6 +72,8 @@ export class AiModelCacheService {
     if (!this.cacheStorage) {
       throw new Error('Cache Storage is not supported in this environment.');
     }
+
+    FileProxyCache.setCacheName('JMWebAIModels');
 
     this.#status.set('downloading');
     this.#progress.set(0);
