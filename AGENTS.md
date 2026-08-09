@@ -9,6 +9,7 @@ Follow this directory layout and architectural pattern when adding new files:
 - **`src/app/core/`**: Core feature logic, singleton services, guards, and startup initializers.
 - **`src/app/features/`**: Feature-specific components, routing, and modules (e.g., dashboard, settings).
 - **`src/app/shared/`**: Reusable components, directives, pipes, domain models, and shared utilities.
+  - Shared/domain TypeScript interfaces and model files should be created inside `src/app/shared/interfaces/` using the naming convention `<domain-name>.interface.ts`.
 
 ## Agent skills
 

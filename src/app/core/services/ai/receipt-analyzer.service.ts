@@ -2,13 +2,7 @@ import { Service, inject, signal } from '@angular/core';
 import { AiModelCacheService } from './ai-model-cache.service';
 import * as Tesseract from 'tesseract.js';
 import { Engine, Conversation, Message } from '@litert-lm/core';
-
-export interface ExtractedExpense {
-  merchantName: string;
-  amount: number;
-  transactionDate: string;
-  category: string;
-}
+import { ExtractedExpense } from '../../../shared/interfaces/expense.interface';
 
 @Service()
 export class ReceiptAnalyzerService {

@@ -1,15 +1,6 @@
 import { Service, signal, inject } from '@angular/core';
 import { WINDOW, CACHE_STORAGE } from '../../consts/window.const';
-
-interface FileProxyCacheStatic {
-  loadFromURL(url: string, progressCallback: (text: string) => void): Promise<string>;
-  setCacheName(name: string): void;
-  setShardSize(size: number): void;
-  enableDebug(enabled: boolean): void;
-}
-declare const FileProxyCache: FileProxyCacheStatic;
-
-export type CacheStatus = 'not-downloaded' | 'downloading' | 'cached';
+import { CacheStatus } from '../../../shared/interfaces/cache-status.interface';
 
 @Service()
 export class AiModelCacheService {
