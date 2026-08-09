@@ -34,6 +34,7 @@ Define the schema inside `src/app/shared/db/schema.ts` with the following struct
 - Register `SqliteService` with Angular 22's `@Service()` decorator.
 - Use a private `#db` property of type `SqliteRemoteDatabase` to hold the Drizzle client.
 - Expose Drizzle through a safe, public read-only getter `get db()`. This getter will throw a clear exception if accessed before database initialization succeeds.
+- **Auto-Provisioning**: Execute the raw SQL schema creation statements (`CREATE TABLE IF NOT EXISTS expenses (...)`) programmatically inside `initialize()` immediately after connecting, before setting the connection signal state to true.
 
 ### 3. Background Web Worker
 
