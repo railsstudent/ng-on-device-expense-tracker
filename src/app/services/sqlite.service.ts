@@ -3,16 +3,15 @@ import { Service, signal } from '@angular/core';
 @Service()
 export class SqliteService {
   private worker: Worker | null = null;
-  public isConnected = signal(false);
-  private messageCallbacks = new Map<
-    string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { resolve: (data: any) => void; reject: (err: any) => void }
-  >();
+  #isConnected = signal(false);
+  isConnected = this.#isConnected.asReadonly();
+  private messageCallbacks = new Map<string, { resolve: (data: unknown) => void; reject: (err: unknown) => void }>();
   private messageIdCounter = 0;
 
   public async initialize(): Promise<void> {
-    if (this.worker) return;
+    if (this.worker) {
+      return;
+    }
 
     return new Promise((resolve, reject) => {
       try {
@@ -34,7 +33,7 @@ export class SqliteService {
             }
           } else if (type === 'init') {
             if (success) {
-              this.isConnected.set(true);
+              this.#isConnected.set(true);
               console.log('SQLite Custom Worker initialized successfully with OPFS SAH Pool!');
               resolve();
             } else {
@@ -56,13 +55,12 @@ export class SqliteService {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public async exec(sql: string, bind?: any[]): Promise<any> {
+  public async exec(sql: string, bind?: unknown[] | Record<string, unknown>): Promise<unknown> {
     if (!this.worker) {
       throw new Error('SQLite Worker not initialized yet.');
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<unknown>((resolve, reject) => {
       const messageId = `msg#${++this.messageIdCounter}`;
       this.messageCallbacks.set(messageId, { resolve, reject });
       this.worker!.postMessage({ type: 'exec', sql, bind, messageId });
