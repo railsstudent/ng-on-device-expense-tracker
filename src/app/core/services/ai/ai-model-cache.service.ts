@@ -73,8 +73,6 @@ export class AiModelCacheService {
       throw new Error('Cache Storage is not supported in this environment.');
     }
 
-    FileProxyCache.setCacheName('JMWebAIModels');
-
     this.#status.set('downloading');
     this.#progress.set(0);
     this.#speed.set(0);
