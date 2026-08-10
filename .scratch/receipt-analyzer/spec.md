@@ -143,3 +143,4 @@ src/app/
 - [ ] Traditional Chinese receipt text is successfully analyzed, and mapped to English category keys.
 - [ ] Human-in-the-loop review form accurately reflects the extracted signals, allowing manual overrides.
 - [ ] Clicking "Save" persists the row into IndexedDB and resets the uploader UI gracefully.
+- [ ] Typography & Icons setup: Local `@fontsource` packages (`hanken-grotesk`, `inter`, `geist`, `material-symbols-outlined`) are installed and imported at the top of `src/styles.css` to enable 100% offline layout styling and iconography.
