@@ -20,7 +20,7 @@ When writing or refactoring TypeScript code, you MUST adhere to the following ru
    - **Private Helper Methods**: Always use standard TypeScript `private` modifiers (e.g. `private runOcr(...)`, `private cleanupResources(...)`).
 2. **If Statement Bodies**: Every `if` statement block must be enclosed in curly braces `{}` (no dangling `if` statements).
 3. **Loop & Mathematical Increments**: Never use `++` or `--` increment/decrement operators. Write explicit re-assignments instead (e.g. `i = i + 1;` or `x = x + 1;`).
-4. **Strict Type Safety**: Never use `as any` in spec or service files to bypass TypeScript validation. Use strict casting or double-casting (`as unknown as T`) to ensure linter compliance.
+4. **Strict Type Safety**: Explicit `any` type usage is strictly forbidden in application, service, or spec files due to strict ESLint rules. If an absolute edge-case warrants its usage, it must be explicitly suppressed with an `/* eslint-disable */` or `// eslint-disable-next-line` comment. Use standard types, `unknown`, or double-casting (`as unknown as T`) to ensure linter and type-safety compliance.
 5. **Single-line Function & Computed Signal Shortcuts**: For functions or computed signals that fit on a single line, you MUST use the arrow function implicit-return shortcut (i.e. omit the curly braces, `return` keyword, and semicolon inside the function body).
    - **Correct**: `public readonly status = computed(() => this.#state().status);`
    - **Incorrect**: `public readonly status = computed(() => { return this.#state().status; });`

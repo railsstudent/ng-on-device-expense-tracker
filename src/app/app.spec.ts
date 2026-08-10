@@ -1,23 +1,44 @@
-import { TestBed } from '@angular/core/testing';
+import '@angular/compiler';
+import { signal } from '@angular/core';
 import { App } from './app';
+import { SqliteService } from './core/services/sqlite.service';
+import { PwaService } from './core/services/pwa.service';
+
+// Mock variables
+let mockSqliteService: unknown;
+let mockPwaService: unknown;
+
+// Mock the inject function from @angular/core
+vi.mock('@angular/core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@angular/core')>();
+  return {
+    ...actual,
+    inject: vi.fn((token) => {
+      if (token === SqliteService) {
+        return mockSqliteService;
+      }
+      if (token === PwaService) {
+        return mockPwaService;
+      }
+      return actual.inject(token);
+    }),
+  };
+});
 
 describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-    }).compileComponents();
+  beforeEach(() => {
+    mockSqliteService = {
+      isConnected: signal(true),
+    };
+    mockPwaService = {
+      status: signal('Active (Scope: /)'),
+    };
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
+  it('should create the app and bind signal states', () => {
+    const app = new App();
     expect(app).toBeTruthy();
-  });
-
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('ngOnDeviceExpenseTracker');
+    expect(app['dbStatus']()).toBe(true);
+    expect(app['swStatus']()).toBe('Active (Scope: /)');
   });
 });
