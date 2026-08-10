@@ -7,3 +7,10 @@ export interface ExtractedExpense {
   transactionDate: string;
   category: string;
 }
+
+/**
+ * Represents an expense entry stored in the local database.
+ */
+export interface Expense extends ExtractedExpense {
+  id?: number;
+}

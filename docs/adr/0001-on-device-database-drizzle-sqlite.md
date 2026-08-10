@@ -1,6 +1,6 @@
 # On-Device SQLite Database with Drizzle ORM and `@Service()` Decorator
 
-**Status**: accepted
+**Status**: superseded by [ADR 0003](0003-use-indexeddb-with-dexie.md)
 
 We decided to use an on-device SQLite database via WebAssembly (OPFS SAH Pool VFS Web Worker) paired with Drizzle ORM's `sqlite-proxy` driver for safe, local-first transaction storage. To maintain robust software encapsulation and prevent uninitialized state access, the Drizzle database client is fully hidden inside the private `#db` field of the SQLite service and exposed through a safe `get db()` getter. Additionally, we use the newly introduced Angular 22 `@Service()` decorator over the legacy `@Injectable()` to register the service with modern dependency injection defaults.
 

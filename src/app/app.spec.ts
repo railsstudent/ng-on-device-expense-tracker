@@ -1,11 +1,11 @@
 import '@angular/compiler';
 import { signal } from '@angular/core';
 import { App } from './app';
-import { SqliteService } from './core/services/sqlite.service';
+import { DatabaseService } from './core/services/database.service';
 import { PwaService } from './core/services/pwa.service';
 
 // Mock variables
-let mockSqliteService: unknown;
+let mockDatabaseService: unknown;
 let mockPwaService: unknown;
 
 // Mock the inject function from @angular/core
@@ -14,8 +14,8 @@ vi.mock('@angular/core', async (importOriginal) => {
   return {
     ...actual,
     inject: vi.fn((token) => {
-      if (token === SqliteService) {
-        return mockSqliteService;
+      if (token === DatabaseService) {
+        return mockDatabaseService;
       }
       if (token === PwaService) {
         return mockPwaService;
@@ -27,7 +27,7 @@ vi.mock('@angular/core', async (importOriginal) => {
 
 describe('App', () => {
   beforeEach(() => {
-    mockSqliteService = {
+    mockDatabaseService = {
       isConnected: signal(true),
     };
     mockPwaService = {

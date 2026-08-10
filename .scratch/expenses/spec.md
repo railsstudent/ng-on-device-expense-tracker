@@ -1,59 +1,69 @@
-# Specification: On-Device SQLite & Drizzle ORM Database Layer
+# Specification: On-Device IndexedDB & Dexie.js Database Layer
 
 ## Problem Statement
 
-Users need a way to store and query their expense transaction logs securely and permanently inside their local browser. Traditional web databases (like LocalStorage or generic IndexedDB) lack support for relational schemas, structured index queries, and compile-time type checking. Users want a type-safe, SQL-compliant local database that persists their data completely offline without any cloud server dependencies.
+Users need a secure, zero-dependency, and highly concurrent way to store, update, and query their expense transaction logs locally inside their browser completely offline.
+
+While SQLite WASM provides relational SQL, its single-threaded exclusive OS-level file locking (via OPFS SyncAccessHandles inside Web Workers) causes frequent locking collisions and crashes during development (HMR / browser hot-reloads) or when navigating between multiple tabs or ports (like port `4200` and `8080`) on `localhost`.
+
+The storage layer must support native browser concurrency, have zero lock contention, and expose a clean, type-safe CRUD repository interface that enables fast date-range querying for local LLM analysis, while allowing for easy future migration to a Docker-hosted Relational Database (RDBMS).
 
 ## Solution
 
-Implement an on-device database layer utilizing **SQLite Wasm** (running inside a background Web Worker with OPFS SAH Pool storage) and expose a type-safe querying client on the Angular main thread using **Drizzle ORM's `sqlite-proxy`** driver. This provides a robust, SQL-compliant storage engine that supports standard SQL queries, auto-increments, and compile-time type-safety while keeping database I/O off the browser's UI thread.
+Implement an on-device database layer utilizing browser-native **IndexedDB** wrapped by **Dexie.js**. This provides a robust, lightweight, and concurrent object storage engine that supports asynchronous transactions and type-safe query interfaces on the main thread without requiring background Web Workers, WASM binaries, or custom server headers.
 
 ## User Stories
 
-1. As a developer, I want to define my database schema inside TypeScript using Drizzle core tables, so that my schema acts as the single source of truth for both types and migrations.
-2. As an expense-tracking user, I want my transaction logs to be persisted in a local SQL database, so that my expenses are preserved across browser restarts and refreshes.
-3. As an expense-tracking user, I want to view my transaction logs sorted by purchase date, so that I can easily review my spending history.
-4. As an expense-tracking user, I want to add new expenses safely without risking SQL Injection, so that my database records remain intact and secure.
-5. As an expense-tracking user, I want to query my transaction logs by category or cost thresholds, so that I can get targeted financial insights from my database.
+1. **Concurrent Multiple Tabs**: As an expense-tracking user, I want to open multiple browser tabs or switch local development ports without encountering database locking crashes or errors, so that my app works seamlessly under any browser layout.
+2. **Date-Filtered Querying (AI Ready)**: As an expense-tracking user, I want to filter my transactions by date range (monthly or quarterly), so that I can send a compact ledger summary to my local Gemma model for spending insights.
+3. **Complete Persistence**: As an expense-tracking user, I want my transaction logs to be persisted securely, so that my data is preserved perfectly across browser restarts, reloads, and computer crashes.
+4. **No Boilerplate Bootstrap**: As a developer, I want the database and schema to be fully established _before_ the application boots up, so that my views and components can query the database instantly without having to write try/catch loaders or async spinner states in `ngOnInit()`.
+5. **Easy Future Migration**: As a developer, I want my storage layer to be fully decoupled from the UI, so that I can easily migrate to a Docker-hosted PostgreSQL or MySQL database in the future by simply swapping the service's internal fetching code.
 
 ## Implementation Decisions
 
-### 1. Schema Definition (Drizzle ORM)
+### 1. Database Schema & Models
 
-Define the schema inside `src/app/shared/db/schema.ts` with the following structure:
+- **Domain Model Extension**: Define the type-safe storage model by extending `ExtractedExpense` from `expense.interface.ts`:
 
-- **`expenses` table**:
-  - `id`: Integer Primary Key, Auto-incremented.
-  - `merchantName`: Text, non-null (corresponds to `merchant_name` in DB).
-  - `amount`: Real, non-null.
-  - `transactionDate`: Text, non-null (ISO Date String YYYY-MM-DD).
-  - `category`: Text, non-null.
+  ```typescript
+  export interface Expense extends ExtractedExpense {
+    id?: number; // Auto-incremented primary key
+  }
+  ```
 
-### 2. Encapsulated DB Service (Angular 22)
+- **Dexie Definition**:
+  - **Database Name**: `expenses_tracker_db`
+  - **Stores**: `expenses: '++id, transactionDate, category'`
+  - Properties like `merchantName` and `amount` are stored natively as decimal numbers and strings inside the JSON objects without needing explicit index registration.
 
-- Register `SqliteService` with Angular 22's `@Service()` decorator.
-- Use a private `#db` property of type `SqliteRemoteDatabase` to hold the Drizzle client.
-- Expose Drizzle through a safe, public read-only getter `get db()`. This getter will throw a clear exception if accessed before database initialization succeeds.
-- **Auto-Provisioning**: Execute the raw SQL schema creation statements (`CREATE TABLE IF NOT EXISTS expenses (...)`) programmatically inside `initialize()` immediately after connecting, before setting the connection signal state to true.
+### 2. File Organization (One Class Per File)
 
-### 3. Background Web Worker
+- **`AppDatabase`** ([`src/app/core/db/app-database.ts`](file:///Users/connieleung/Documents/ws_jsangular2/ng-on-device-expense-tracker/src/app/core/db/app-database.ts)): Contains exclusively the `Dexie`-extending database connection and schema class.
+- **`DatabaseService`** ([`src/app/core/services/database.service.ts`](file:///Users/connieleung/Documents/ws_jsangular2/ng-on-device-expense-tracker/src/app/core/services/database.service.ts)): Contains exclusively the Angular `@Service()` service exposing explicit type-safe CRUD repository methods:
+  - `select(): Promise<Expense[]>` (fetches all expenses)
+  - `insert(expense: ExtractedExpense): Promise<number>` (returns the newly generated ID)
+  - `update(id: number, expense: Partial<ExtractedExpense>): Promise<void>`
+  - `delete(id: number): Promise<void>`
+  - `selectByDateRange(startDate: string, endDate: string): Promise<Expense[]>`
 
-- Offload all SQLite execution (DB mounting and query execution) to `sqlite-custom-worker.js`.
-- Communicate via asynchronous `postMessage` passing unique `messageId` keys to prevent blocking the UI thread.
-- Use `installOpfsSAHPoolVfs` to establish high-performance local storage without requiring server-side COOP/COEP isolation headers.
+### 3. Bootstrap Integration (`provideAppInitializer`)
+
+- Add `DatabaseService` initialization to Angular's bootstrap chain in [`app.config.ts`](file:///Users/connieleung/Documents/ws_jsangular2/ng-on-device-expense-tracker/src/app/app.config.ts) using `provideAppInitializer(() => inject(DatabaseService).initialize())`.
+- This establishes the database schema and validates the IndexedDB connection before the main component tree renders.
 
 ## Testing Decisions
 
-### 1. Schema Validation Tests
+### 1. Unit Testing Specifications
 
-- Assert that inserting objects violating type definitions (e.g. string amount or null categories) are rejected by Drizzle/SQLite at runtime.
-- Verify that `CREATE TABLE IF NOT EXISTS` is run automatically and runs successfully on empty databases.
+- Mock the global IndexedDB instance or Dexie calls inside `app.spec.ts` using clean Vitest mocking spies.
+- Assert that all database initialization stages and query methods resolve cleanly under Vitest without loading real browser index structures.
 
-### 2. Guard/Getter Tests
+### 2. Verification Self-Tests
 
-- Assert that calling `sqliteService.db` before `sqliteService.initialize()` has resolved successfully throws the expected uninitialized database exception.
+- Implement a clean self-test in `AppComponent`'s `ngOnInit()` to verify IndexedDB inserts and selects, displaying successful transactions in the developer console.
 
 ## Out of Scope
 
-- Local AI model processing, LiteRT.js, OCR, and receipt image uploading (these will be treated as higher-level features in a separate, subsequent specification).
-- Synchronizing database files across multiple user devices or cloud servers.
+- Syncing IndexedDB with a remote cloud server (this is purely on-device).
+- Adding complex user authentication guards for database access.
