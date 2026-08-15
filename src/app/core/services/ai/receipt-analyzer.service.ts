@@ -1,4 +1,5 @@
 import { Service, inject, signal, computed, OnDestroy } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { AiModelCacheService } from './ai-model-cache.service';
 import { Engine, Conversation, Message } from '@litert-lm/core';
 import { ExtractedExpense } from '@/shared/interfaces/expense.interface';
@@ -18,6 +19,7 @@ import {
 export class ReceiptAnalyzerService implements OnDestroy {
   readonly #cacheService = inject(AiModelCacheService);
   readonly #window = inject(WINDOW);
+  readonly #document = inject(DOCUMENT);
 
   // Single backing state signal
   readonly #state = signal<ReceiptAnalysisState>(createIdleAnalysisState());
@@ -94,7 +96,7 @@ export class ReceiptAnalyzerService implements OnDestroy {
       this.#state.set(createProcessingAnalysisState('scanning'));
       const origin = this.#window?.location?.origin || '';
       const localLangPath = origin ? `${origin}/assets/tessdata/` : '/assets/tessdata/';
-      const ocrText = await runOcr(imageFile, ['eng', 'chi_tra'], localLangPath);
+      const ocrText = await runOcr(imageFile, ['eng', 'chi_tra', 'chi_sim'], localLangPath, this.#document);
 
       await this.initializeEngine(localBlobUrl);
       const conversationInstance = await this.#engine!.createConversation();

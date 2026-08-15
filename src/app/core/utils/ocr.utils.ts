@@ -21,11 +21,12 @@ export async function runOcr(
   imageFile: File | Blob | string,
   langs: OcrLanguage[] = ['eng', 'chi_tra', 'chi_sim'],
   langPath = '/assets/tessdata/',
+  doc?: Document,
 ): Promise<string> {
   const { imageUrl, shouldRevoke } = constructImageUrl(imageFile);
   const processedCanvas = await (async () => {
     try {
-      return await processImageInCanvas(imageUrl);
+      return await processImageInCanvas(imageUrl, doc);
     } finally {
       if (shouldRevoke) {
         URL.revokeObjectURL(imageUrl);
