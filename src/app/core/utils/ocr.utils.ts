@@ -34,23 +34,25 @@ export async function runOcr(
     }
   })();
 
-  const worker = await createWorker(langs.join('+'), 1, {
-    langPath,
-    gzip: false,
-  });
+  const worker = await createWorker(langs.join('+'), 1, { langPath, gzip: false });
+  try {
+    let ocrResult = await worker.recognize(processedCanvas || imageFile);
+    let ocrText = ocrResult.data.text;
 
-  const sourceToRecognize = processedCanvas || imageFile;
-  console.log('sourceToRecognize', sourceToRecognize);
-  const ocrResult = await worker.recognize(sourceToRecognize);
-  await worker.terminate();
+    // Graceful Multi-Pass Fallback: If OCR on the preprocessed canvas returned too little text (e.g. under 30 chars),
+    // the contrast stretching or downscaling might have degraded or washed out characters.
+    // Instantly retry OCR on the original raw image file to guarantee successful extraction!
+    if (processedCanvas && (!ocrText || ocrText.trim().length < 30)) {
+      console.warn('[runOcr] Insufficient text from canvas. Retrying raw...');
+      ocrResult = await worker.recognize(imageFile);
+      ocrText = ocrResult.data.text;
+    }
 
-  const ocrText = ocrResult.data.text;
-  if (!ocrText || ocrText.trim() === '') {
-    throw new Error(
-      'OCR did not find any recognizable text in the receipt image. ' +
-        'Please ensure the image has clear, legible text, and try again.',
-    );
+    if (!ocrText || ocrText.trim() === '') {
+      throw new Error('OCR did not find any recognizable text in the receipt image.');
+    }
+    return ocrText;
+  } finally {
+    await worker.terminate();
   }
-
-  return ocrText;
 }
