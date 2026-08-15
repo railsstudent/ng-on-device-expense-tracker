@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { runOcr } from './ocr.utils';
-import { createWorker } from 'tesseract.js';
 
 const mockRecognize = vi.fn();
 const mockTerminate = vi.fn();
@@ -11,6 +10,7 @@ const mockCreateWorker = vi.fn().mockResolvedValue({
 
 vi.mock('tesseract.js', () => {
   return {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createWorker: (...args: any[]) => mockCreateWorker(...args),
   };
 });
@@ -70,22 +70,20 @@ describe('ocrUtils', () => {
     await expect(runOcr(dummyBlob)).rejects.toThrow('Tesseract library loading failed');
   });
 
-  it('should successfully resolve absolute langPath if window is passed', async () => {
+  it('should successfully use custom langPath if passed as third parameter', async () => {
     const mockText = 'Test Text';
     mockRecognize.mockResolvedValue({
       data: { text: mockText },
     });
 
-    const mockWindow = {
-      location: {
-        origin: 'http://localhost:4200'
-      }
-    } as unknown as Window;
+    await runOcr(dummyBlob, ['eng'], 'http://localhost:4200/assets/tessdata/');
 
-    await runOcr(dummyBlob, ['eng'], mockWindow);
-
-    expect(mockCreateWorker).toHaveBeenCalledWith('eng', 1, expect.objectContaining({
-      langPath: 'http://localhost:4200/assets/tessdata/'
-    }));
+    expect(mockCreateWorker).toHaveBeenCalledWith(
+      'eng',
+      1,
+      expect.objectContaining({
+        langPath: 'http://localhost:4200/assets/tessdata/',
+      }),
+    );
   });
 });

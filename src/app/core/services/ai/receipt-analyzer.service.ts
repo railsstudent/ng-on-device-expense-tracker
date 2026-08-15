@@ -81,7 +81,6 @@ export class ReceiptAnalyzerService implements OnDestroy {
     if (this.#isAnalyzing) {
       throw new Error('A receipt analysis is already in progress. Please wait for it to complete.');
     }
-
     this.#isAnalyzing = true;
     this.#state.set(createProcessingAnalysisState('initializing'));
     let conversation: Conversation | null = null;
@@ -89,50 +88,22 @@ export class ReceiptAnalyzerService implements OnDestroy {
     try {
       const localBlobUrl = await this.#cacheService.getModelUrl();
       if (!localBlobUrl) {
-        throw new Error(
-          'Gemma 4 local weights are not cached in the browser yet. ' +
-            'Please ensure the model is downloaded and cached before initiating receipt scans.',
-        );
+        throw new Error('Gemma 4 local weights are not cached in the browser yet. Please download them first.');
       }
 
       this.#state.set(createProcessingAnalysisState('scanning'));
-      const ocrText = await runOcr(imageFile, ['eng', 'chi_tra'], this.#window);
-      console.log('Tesseract OCR Raw Text Result:\n', ocrText);
+      const origin = this.#window?.location?.origin || '';
+      const localLangPath = origin ? `${origin}/assets/tessdata/` : '/assets/tessdata/';
+      const ocrText = await runOcr(imageFile, ['eng', 'chi_tra'], localLangPath);
 
       await this.initializeEngine(localBlobUrl);
-
       const conversationInstance = await this.#engine!.createConversation();
       if (!conversationInstance) {
         throw new Error('Failed to create a local Gemma 4 conversation session.');
       }
       conversation = conversationInstance;
 
-      let generatedText = '';
-      let cleanJson = '';
-      let extractedExpense: ExtractedExpense | null = null;
-      let lastError: Error | null = null;
-
-      for (let attempt = 1; attempt <= 2; attempt = attempt + 1) {
-        try {
-          generatedText = await this.runGemmaParsing(conversationInstance, ocrText);
-          console.log(`Gemma 4 Raw Output (Attempt ${attempt}):`, generatedText);
-          cleanJson = sanitizeJsonString(generatedText);
-          extractedExpense = JSON.parse(cleanJson);
-          break; // Succeeded! Break loop
-        } catch (parseErr) {
-          console.warn(`JSON parsing failed on attempt ${attempt}:`, parseErr);
-          lastError = parseErr instanceof Error ? parseErr : new Error(String(parseErr));
-          if (attempt === 1) {
-            // Signal a brief pause or simply log before retrying
-            this.#state.set(createProcessingAnalysisState('parsing'));
-          }
-        }
-      }
-
-      if (!extractedExpense) {
-        throw new Error(`Failed to parse valid JSON metadata after 2 attempts. Last error: ${lastError?.message}`);
-      }
-
+      const extractedExpense = await this.runGemmaParsingWithRetry(conversationInstance, ocrText);
       this.#state.set(createCompletedAnalysisState());
       return extractedExpense;
     } catch (err) {
@@ -144,6 +115,33 @@ export class ReceiptAnalyzerService implements OnDestroy {
       this.#isAnalyzing = false;
       await this.cleanupResources(conversation);
     }
+  }
+
+  /**
+   * Private helper to execute Gemma JSON parsing and retry loops on OCR text.
+   */
+  private async runGemmaParsingWithRetry(
+    conversationInstance: Conversation,
+    ocrText: string,
+  ): Promise<ExtractedExpense> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= 2; attempt = attempt + 1) {
+      try {
+        const generatedText = await this.runGemmaParsing(conversationInstance, ocrText);
+        console.log(`Gemma 4 Raw Output (Attempt ${attempt}):`, generatedText);
+        const cleanJson = sanitizeJsonString(generatedText);
+        return JSON.parse(cleanJson) as ExtractedExpense;
+      } catch (parseErr) {
+        console.warn(`JSON parsing failed on attempt ${attempt}:`, parseErr);
+        lastError = parseErr instanceof Error ? parseErr : new Error(String(parseErr));
+        if (attempt === 1) {
+          this.#state.set(createProcessingAnalysisState('parsing'));
+        }
+      }
+    }
+
+    throw new Error(`Failed to parse valid JSON metadata after 2 attempts. Last error: ${lastError?.message}`);
   }
 
   /**

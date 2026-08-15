@@ -1,35 +1,49 @@
 import { createWorker } from 'tesseract.js';
+import { processImageInCanvas } from '@/core/utils/image.utils';
 
-export type OcrLanguage = 'eng' | 'chi_tra';
+export type OcrLanguage = 'eng' | 'chi_tra' | 'chi_sim';
+
+/**
+ * First private helper function: Construct the image URL from imageFile input.
+ */
+function constructImageUrl(imageFile: File | Blob | string): { imageUrl: string; shouldRevoke: boolean } {
+  if (typeof imageFile === 'string') {
+    return { imageUrl: imageFile, shouldRevoke: false };
+  }
+  return { imageUrl: URL.createObjectURL(imageFile), shouldRevoke: true };
+}
 
 /**
  * Executes Optical Character Recognition (OCR) using Tesseract.js.
- * Configured to load language models locally for complete offline sandbox support.
- *
- * @param imageFile The image file, blob, or base64 string to recognize.
- * @param langs List of OCR languages to run (defaulting to English and Traditional Chinese).
- * @param win The injected Window instance from Angular.
+ * Stays strictly under 40 lines.
  */
 export async function runOcr(
   imageFile: File | Blob | string,
   langs: OcrLanguage[] = ['eng', 'chi_tra'],
-  win: Window | null = null
+  langPath = '/assets/tessdata/',
 ): Promise<string> {
-  const origin = win?.location?.origin || '';
-  const langPath = origin ? `${origin}/assets/tessdata/` : '/assets/tessdata/';
-  console.log('langPath', langPath);
+  const { imageUrl, shouldRevoke } = constructImageUrl(imageFile);
+  const processedCanvas = await (async () => {
+    try {
+      return await processImageInCanvas(imageUrl);
+    } finally {
+      if (shouldRevoke) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    }
+  })();
 
   const worker = await createWorker(langs.join('+'), 1, {
     langPath,
     gzip: false,
-    logger: m => console.log('[Tesseract Worker Status]', m),
+    logger: (m) => console.log('[Tesseract Worker Status]', m),
   });
 
-  const ocrResult = await worker.recognize(imageFile);
+  const sourceToRecognize = processedCanvas || imageFile;
+  const ocrResult = await worker.recognize(sourceToRecognize);
   await worker.terminate();
 
   const ocrText = ocrResult.data.text;
-
   if (!ocrText || ocrText.trim() === '') {
     throw new Error(
       'OCR did not find any recognizable text in the receipt image. ' +
