@@ -19,7 +19,7 @@ function constructImageUrl(imageFile: File | Blob | string): { imageUrl: string;
  */
 export async function runOcr(
   imageFile: File | Blob | string,
-  langs: OcrLanguage[] = ['eng', 'chi_tra'],
+  langs: OcrLanguage[] = ['eng', 'chi_tra', 'chi_sim'],
   langPath = '/assets/tessdata/',
 ): Promise<string> {
   const { imageUrl, shouldRevoke } = constructImageUrl(imageFile);

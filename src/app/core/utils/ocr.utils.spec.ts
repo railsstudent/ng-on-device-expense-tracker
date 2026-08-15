@@ -34,7 +34,7 @@ describe('ocrUtils', () => {
 
     const result = await runOcr(dummyBlob);
 
-    expect(mockCreateWorker).toHaveBeenCalledWith('eng+chi_tra', 1, expect.any(Object));
+    expect(mockCreateWorker).toHaveBeenCalledWith('eng+chi_tra+chi_sim', 1, expect.any(Object));
     expect(mockRecognize).toHaveBeenCalledWith(dummyBlob);
     expect(mockTerminate).toHaveBeenCalled();
     expect(result).toBe(mockText);
