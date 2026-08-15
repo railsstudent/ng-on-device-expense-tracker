@@ -31,8 +31,8 @@ graph TD
 
 We will create a domain-specific facade service `ExpenseService` in `src/app/features/expense/services/expense.service.ts`:
 
-- **State Management**: Holds writable signals for current extraction results (`merchantName`, `amount`, `transactionDate`, `category`), download progress, parsing state, and list of saved expenses.
-- **Coordination**: Orchestrates the backend services (`AiModelCacheService`, `ReceiptAnalyzerService`, `DatabaseService`) to provide a clean, single-point-of-contact API for the UI.
+- **State Management**: Holds writable signals for current extraction results (`merchantName`, `amount`, `transactionDate`, `category`, `isReceipt`), download progress, parsing state, and list of saved expenses.
+- **Coordination**: Orchestrates the backend services (`AiModelCacheService`, `ReceiptAnalyzerService`, `DatabaseService`) to provide a clean, single-point-of-contact API for the UI. Allows non-blocking defaults to load when `isReceipt` evaluates to false.
 
 ### 2. Standardized Localization Categories
 
@@ -78,3 +78,5 @@ To support future-proof page transitions and distinct history/insight views, we 
 - **High Performance**: Pure signal-based change-detection minimizes zone execution overhead and creates silky-smooth animations.
 - **Deterministic Testing**: Unit testing `ExpenseService` can be accomplished with simple mocks of `DatabaseService` and `ReceiptAnalyzerService`.
 - **Memory & Performance Protection**: Enforcing a strict 20MB maximum size limit on the local image uploader acts as a defensive shield, preventing high-resolution mobile photos from causing WebWorker/browser thread out-of-memory crashes. Adding progressive FileReader progress feedback mitigates UI-freeze states for larger files while maintaining flicker-free loads on small ones.
+- **Resilient Parsing Retry Policy**: Incorporates an automatic, transparent 2-attempt retry loop on Gemma JSON parsing. This mitigates occasional local GPU context failures or truncated outputs without degrading user experience or adding excessive latency.
+- **Fail-Safe Receipt Verification**: Leverages an explicit `isReceipt` boolean flag returned by the model. When `false`, the UI displays a clean, non-blocking informational warning banner rather than throwing error page interrupts, letting the user manually edit details within the same unified layout.

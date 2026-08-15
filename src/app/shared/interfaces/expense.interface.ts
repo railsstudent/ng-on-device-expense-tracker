@@ -6,6 +6,7 @@ export interface ExtractedExpense {
   amount: number;
   transactionDate: string;
   category: string;
+  isReceipt?: boolean; // True if the parsed file represents a valid receipt
 }
 
 /**

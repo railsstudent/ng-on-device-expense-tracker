@@ -5,6 +5,15 @@
   </div>
 
   <form class="verification-form" (submit)="$event.preventDefault(); onSubmit()">
+    @if (hasExtracted() && !isReceipt()) {
+      <div class="warning-alert-banner">
+        <span class="material-symbols-outlined alert-icon">warning</span>
+        <div class="alert-content">
+          This image doesn't look like a valid receipt. Fallback defaults have been loaded, but feel free to modify and save manually!
+        </div>
+      </div>
+    }
+
     <!-- Merchant Name -->
     <div class="form-field">
       <label class="field-label" for="merchant-input">MERCHANT NAME / 商家名稱</label>

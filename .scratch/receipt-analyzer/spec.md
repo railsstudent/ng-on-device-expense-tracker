@@ -65,6 +65,7 @@ We adopt a split-screen desktop layout, utilizing the **Facade Pattern** to deco
 
 - **Right Column (Review Form - Width: 50% - 60%)**:
   - **`HumanInTheLoopForm`**: Rendered as a card with an active slate-200 border. Form inputs bind to type-safe Angular 22 Signals:
+    - **isReceipt Warning Alert**: A conditional, slide-in warn banner displayed at the top of the form only if `isReceipt` evaluates to false. Displays: _"⚠️ This image doesn't look like a valid receipt. Fallback defaults have been loaded, but feel free to modify and save manually!"_
     - **Merchant Name**: Writable string signal. Requires length > 0.
     - **Amount**: Writable numeric signal. Must be non-null and greater than 0.
     - **Transaction Date**: Writable date-string signal (YYYY-MM-DD format).
@@ -76,6 +77,8 @@ We adopt a split-screen desktop layout, utilizing the **Facade Pattern** to deco
       - `"shopping"`: Shopping & Entertainment / 購物與娛樂
       - `"other"`: Other / 其他
   - **Action Button**: A prominent "Save Expense" primary button. Disabled if form validation fails. Clicking it invokes the `ExpenseService` to write the entry to IndexedDB, resetting the form and uploader.
+
+- **`Parsing Retry Loop Policy`**: The parsing pipeline inside `ReceiptAnalyzerService` executes a transparent **2-attempt retry loop** around Gemma generation and JSON parsing. If the model emits a truncated block or syntax failure on attempt 1, it immediately retries once. Only if both attempts fail does the pipeline throw a user-facing error.
 
 ### 3.3 Angular Router Integration
 

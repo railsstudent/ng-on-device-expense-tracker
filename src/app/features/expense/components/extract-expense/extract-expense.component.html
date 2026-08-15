@@ -9,10 +9,16 @@
       <app-image-uploader (imageSelected)="onImageSelected($event)"></app-image-uploader>
 
       <!-- Manual AI Scan Action Button -->
-      <button class="ocr-trigger-button" [disabled]="!selectedImageBase64()" (click)="triggerLocalOcr()">
-        <span class="material-symbols-outlined">analytics</span>
-        Extract Expense with AI
+      <button class="ocr-trigger-button" [disabled]="!selectedImageBase64() || isProcessing()" (click)="triggerLocalOcr()">
+        <span class="material-symbols-outlined" [class.rotating]="isProcessing()">analytics</span>
+        {{ isProcessing() ? 'EXTRACTING WITH AI...' : 'Extract Expense with AI' }}
       </button>
+
+      @if (isProcessing()) {
+        <div class="ocr-status-text">
+          {{ statusText() }}
+        </div>
+      }
     </div>
 
     <!-- Right Area (Form Zone - 7 Columns) -->
@@ -23,6 +29,8 @@
         [(amount)]="amount"
         [(transactionDate)]="transactionDate"
         [(category)]="selectedCategory"
+        [(isReceipt)]="isReceipt"
+        [(hasExtracted)]="hasExtracted"
         (saved)="onFormSaved($event)"
       ></app-review-form>
     </div>

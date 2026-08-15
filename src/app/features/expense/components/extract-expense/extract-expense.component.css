@@ -43,6 +43,23 @@
   @apply rotate-12 scale-110;
 }
 
+.ocr-status-text {
+  @apply text-xs text-indigo-500 font-mono tracking-wide text-center mt-1;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating {
+  animation: spin 1.5s linear infinite;
+}
+
 /* Responsive Tablet & Mobile Mode */
 @media (max-width: 1024px) {
   .left-panel {

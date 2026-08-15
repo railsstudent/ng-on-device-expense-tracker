@@ -13,6 +13,8 @@ export class ReviewFormComponent {
   public readonly amount = model(12.5);
   public readonly transactionDate = model('2026-05-14');
   public readonly category = model('dining');
+  public readonly isReceipt = model(false);
+  public readonly hasExtracted = model(false);
 
   // Modern output event signal
   public readonly saved = output<{

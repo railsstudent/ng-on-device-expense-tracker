@@ -11,7 +11,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
         <!-- Left Side: Logo -->
         <div class="nav-logo" routerLink="/extract">
           <span class="material-symbols-outlined logo-icon">bolt</span>
-          <span class="logo-text">Expense Tracker</span>
+          <span class="logo-text">Aether Expense</span>
         </div>
 
         <!-- Center: Route Links -->
