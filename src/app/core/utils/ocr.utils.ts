@@ -37,10 +37,10 @@ export async function runOcr(
   const worker = await createWorker(langs.join('+'), 1, {
     langPath,
     gzip: false,
-    logger: (m) => console.log('[Tesseract Worker Status]', m),
   });
 
   const sourceToRecognize = processedCanvas || imageFile;
+  console.log('sourceToRecognize', sourceToRecognize);
   const ocrResult = await worker.recognize(sourceToRecognize);
   await worker.terminate();
 

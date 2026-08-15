@@ -97,6 +97,7 @@ export class ReceiptAnalyzerService implements OnDestroy {
       const origin = this.#window?.location?.origin || '';
       const localLangPath = origin ? `${origin}/assets/tessdata/` : '/assets/tessdata/';
       const ocrText = await runOcr(imageFile, ['eng', 'chi_tra', 'chi_sim'], localLangPath, this.#document);
+      console.log('Tesseract OCR Raw Text Result:\n', ocrText);
 
       await this.initializeEngine(localBlobUrl);
       const conversationInstance = await this.#engine!.createConversation();
