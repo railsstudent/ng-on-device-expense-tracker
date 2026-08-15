@@ -31,6 +31,21 @@ module.exports = defineConfig([
           style: 'kebab-case',
         },
       ],
+      'max-lines-per-function': [
+        'error',
+        {
+          max: 40,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+
+    },
+  },
+  {
+    files: ['**/*.spec.ts'],
+    rules: {
+      'max-lines-per-function': 'off',
     },
   },
   {

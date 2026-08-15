@@ -1,0 +1,13 @@
+@reference "../../../../../styles.css";
+
+.app-footer {
+  @apply w-full bg-slate-50 border-t border-slate-200 py-4 px-6 flex justify-center items-center box-border;
+}
+
+.footer-container {
+  @apply max-w-7xl w-full text-center;
+}
+
+.footer-text {
+  @apply font-sans text-xs font-normal text-slate-500 m-0 tracking-wider uppercase;
+}

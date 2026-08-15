@@ -1,0 +1,186 @@
+.review-details-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0; /* Slate-200 */
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.card-header {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+}
+
+.form-title {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a; /* Slate-950 */
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+.form-subtitle {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #64748b; /* Slate-500 */
+  margin: 0;
+}
+
+.verification-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-label {
+  font-family: 'Geist', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569; /* Slate-600 */
+  letter-spacing: 0.05em;
+}
+
+/* Inputs, wrappers, icons, active focus glows */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8; /* Slate-400 */
+  font-size: 20px;
+  pointer-events: none;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #cbd5e1; /* Slate-300 */
+  border-radius: 8px;
+  padding: 0 12px 0 40px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #0f172a;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #6366f1; /* Indigo-500 */
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15); /* Soft Indigo Focus Glow */
+}
+
+/* Amount specific formatting */
+.amount-prefix {
+  position: absolute;
+  left: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.amount-input-field {
+  padding-left: 28px;
+  font-family: 'Geist', monospace;
+  font-weight: 600;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+/* Submit Save Button with loader spinner */
+.form-actions {
+  margin-top: 8px;
+}
+
+.save-btn {
+  width: 100%;
+  height: 46px;
+  background-color: #6366f1; /* Indigo-600 */
+  border: none;
+  border-radius: 8px;
+  font-family: 'Geist', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.15);
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.1s ease;
+}
+
+.save-btn:hover:not(:disabled) {
+  background-color: #4f46e5; /* Indigo-700 */
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.save-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.save-btn:disabled {
+  background-color: #cbd5e1;
+  box-shadow: none;
+  cursor: not-allowed;
+  color: #94a3b8;
+}
+
+.save-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+/* Loading Spinner spin animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating {
+  animation: spin 1.5s linear infinite;
+}

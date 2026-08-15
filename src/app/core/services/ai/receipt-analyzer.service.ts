@@ -47,23 +47,44 @@ export class ReceiptAnalyzerService implements OnDestroy {
     }
   });
 
+  private async initializeEngine(localBlobUrl: string): Promise<void> {
+    if (!this.#engine) {
+      this.#state.set(createProcessingAnalysisState('initializing'));
+      this.#engine = await Engine.create({
+        model: localBlobUrl,
+        mainExecutorSettings: {
+          maxNumTokens: 2048,
+        },
+      });
+    }
+    if (!this.#engine) {
+      throw new Error('Failed to initialize the local Gemma 4 WebGPU engine.');
+    }
+  }
+
+  private async runGemmaParsing(conversation: Conversation, ocrText: string): Promise<string> {
+    this.#state.set(createProcessingAnalysisState('parsing'));
+    const currentDateString = new Date().toISOString().split('T')[0];
+    const promptText = `${RECEIPT_SYSTEM_PROMPT(currentDateString)}\n\nHere is the raw OCR text of the receipt:\n${ocrText}`;
+
+    const response: Message = await conversation.sendMessage(promptText);
+    return this.extractResponseText(response);
+  }
+
   /**
    * Orchestrates the complete OCR and local AI parsing pipeline.
    * Extracts text, initializes Gemma 4 (cached on service lifecycle), prompts for JSON, and parses result.
    */
   public async analyzeReceipt(imageFile: File | Blob): Promise<ExtractedExpense> {
-    // Proactively block concurrent execution triggers
     if (this.#isAnalyzing) {
       throw new Error('A receipt analysis is already in progress. Please wait for it to complete.');
     }
 
     this.#isAnalyzing = true;
     this.#state.set(createProcessingAnalysisState('initializing'));
-
     let conversation: Conversation | null = null;
 
     try {
-      // 1. Step 1: Check if the AI model is cached locally
       const localBlobUrl = await this.#cacheService.getModelUrl();
       if (!localBlobUrl) {
         throw new Error(
@@ -72,41 +93,20 @@ export class ReceiptAnalyzerService implements OnDestroy {
         );
       }
 
-      // 2. Step 2: Execute Optical Character Recognition (OCR) using the multilingual runOcr utility
       this.#state.set(createProcessingAnalysisState('scanning'));
       const ocrText = await runOcr(imageFile);
 
-      // 3. Step 3: Initialize Google's on-device LiteRT-LM Engine if not already cached
-      if (!this.#engine) {
-        this.#state.set(createProcessingAnalysisState('initializing'));
-        this.#engine = await Engine.create({
-          model: localBlobUrl,
-          mainExecutorSettings: {
-            maxNumTokens: 2048,
-          },
-        });
-      }
+      await this.initializeEngine(localBlobUrl);
 
-      if (!this.#engine) {
-        throw new Error('Failed to initialize the local Gemma 4 WebGPU engine.');
-      }
-
-      // 4. Step 4: Create a safe conversation session
-      conversation = await this.#engine.createConversation();
-      if (!conversation) {
+      const conversationInstance = await this.#engine!.createConversation();
+      if (!conversationInstance) {
         throw new Error('Failed to create a local Gemma 4 conversation session.');
       }
+      conversation = conversationInstance;
 
-      // 5. Step 5: Send the prompt and wait for the response
-      this.#state.set(createProcessingAnalysisState('parsing'));
-      const currentDateString = new Date().toISOString().split('T')[0];
-      const promptText = `${RECEIPT_SYSTEM_PROMPT(currentDateString)}\n\nHere is the raw OCR text of the receipt:\n${ocrText}`;
-
-      const response: Message = await conversation.sendMessage(promptText);
-      const generatedText = this.extractResponseText(response);
+      const generatedText = await this.runGemmaParsing(conversationInstance, ocrText);
       console.log('Gemma 4 Raw Output:', generatedText);
 
-      // 6. Step 6: Parse and sanitize the JSON output
       const cleanJson = sanitizeJsonString(generatedText);
       const extractedExpense: ExtractedExpense = JSON.parse(cleanJson);
 
@@ -118,7 +118,6 @@ export class ReceiptAnalyzerService implements OnDestroy {
       this.#state.set(createFailedAnalysisState(errorMessage));
       throw err;
     } finally {
-      // Release the concurrency lock and clean up transient session resources
       this.#isAnalyzing = false;
       await this.cleanupResources(conversation);
     }

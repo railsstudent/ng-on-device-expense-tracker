@@ -1,0 +1,118 @@
+@reference "../../../../../styles.css";
+
+.model-status-card {
+  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm;
+}
+
+.card-header {
+  @apply flex justify-between items-start mb-5;
+}
+
+.header-title {
+  @apply flex flex-col gap-1;
+}
+
+.title-text {
+  @apply font-sans text-base font-semibold text-slate-950 m-0;
+}
+
+.subtitle-text {
+  @apply font-sans text-xs text-slate-500;
+}
+
+.status-icon {
+  @apply text-slate-400 text-xl;
+}
+
+.status-box {
+  @apply bg-slate-50 rounded-lg p-4 flex flex-col gap-4;
+}
+
+.progress-zone {
+  @apply flex items-center gap-4;
+}
+
+/* Circular Loading Progress Ring styling */
+.circular-progress {
+  @apply w-12 h-12 relative;
+}
+
+.circular-svg {
+  @apply w-full h-full -rotate-90;
+}
+
+.circle-bg {
+  @apply fill-none stroke-slate-200 stroke-[3.8];
+}
+
+.circle-fill {
+  @apply fill-none stroke-indigo-600 stroke-[3.8] rounded-full transition-[stroke-dasharray] duration-300;
+}
+
+.percentage-text {
+  @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-mono text-[11px] font-semibold text-slate-950;
+}
+
+.progress-info {
+  @apply flex flex-col gap-0.5;
+}
+
+.model-name {
+  @apply font-sans text-sm font-semibold text-slate-950;
+}
+
+.downloading-text {
+  @apply font-sans text-xs text-slate-500;
+}
+
+/* Download Button */
+.download-button {
+  @apply w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 font-sans text-xs font-semibold text-slate-700 cursor-pointer flex justify-center items-center gap-2 transition-all duration-200;
+}
+
+.download-button:hover:not(:disabled) {
+  @apply bg-slate-100 border-slate-300 shadow-sm;
+}
+
+.download-button:disabled {
+  @apply opacity-70 cursor-not-allowed;
+}
+
+/* Active Completed State */
+.active-status {
+  @apply bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200;
+}
+
+.active-badge {
+  @apply flex items-start gap-3;
+}
+
+.check-icon {
+  @apply text-emerald-600 text-2xl;
+}
+
+.active-info {
+  @apply flex flex-col gap-0.5;
+}
+
+.active-title {
+  @apply font-sans text-sm font-semibold text-emerald-900;
+}
+
+.active-desc {
+  @apply font-sans text-xs text-emerald-700;
+}
+
+/* Spinning Animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating {
+  animation: spin 1.5s linear infinite;
+}

@@ -1,4 +1,13 @@
 @import 'tailwindcss';
+@import '@fontsource/geist/400.css';
+@import '@fontsource/geist/600.css';
+@import '@fontsource/hanken-grotesk/400.css';
+@import '@fontsource/hanken-grotesk/600.css';
+@import '@fontsource/hanken-grotesk/700.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/material-symbols-outlined/index.css';
 
 @theme {
   --color-brand-bg: #090d16;
@@ -15,4 +24,23 @@ body {
   font-family: var(--font-display);
   min-height: 100vh;
   margin: 0;
+}
+
+/* Material Symbols Outlined global class configuration */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'liga';
 }

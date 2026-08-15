@@ -55,8 +55,14 @@ We adopt a split-screen desktop layout, utilizing the **Facade Pattern** to deco
 ### 3.2 Master Split-Screen Layout (`ExtractExpenseComponent`)
 
 - **Left Column (Image Zone - Width: 40% - 50%)**:
-  - **`ModelDownloader`**: Contextual panel. If the local parser is not cached, displays: _"On-Device AI Engine Offline (~50MB)"_ with a **"Download AI"** button. Once clicked, shows an active progress ring. Once finished, hides itself or shows a small green badge.
+  - **`ModelDownloader`**: Contextual panel. If the local parser is not cached, displays: _"On-Device AI Engine Offline (~50MB)"_ with a **"Download AI"** button. Once clicked, shows an active progress ring. Once finished, hides itself or shows a small green badge. Network connectivity is evaluated once on load to enable or disable the button, avoiding redundant runtime background listeners since scanning itself is 100% offline-ready.
   - **`ImageUploader`**: Hover-animated card supporting file drag-and-drop. Accepts `image/*`. Once loaded, transitions to render a full-width high-fidelity image preview (`<img>` with fit-contain sizing).
+    - **Section 3.2.1 File Size & Format Boundaries**: Enforces a strict **20MB maximum size limit** (configured as a localized constant) for dropped or selected images to prevent browser page out-of-memory thread crashes in local WebWorkers. Displays progressive loading feedback during file-reading operations (`onprogress` event bound) to ensure smooth transitions on large images and prevent visual jittering on small files.
+  - **`OCR Trigger Button`**: A standalone primary button situated below the uploader card.
+    - **Label**: `EXTRACT EXPENSE WITH AI`
+    - **State**: Disabled by default. Enabled reactively only when the image loader emits a valid loaded image Base64 data stream.
+    - **Interactions**: On click, triggers the local OCR parsing WebWorker and Gemma offline pipeline, transitioning to active loader states.
+
 - **Right Column (Review Form - Width: 50% - 60%)**:
   - **`HumanInTheLoopForm`**: Rendered as a card with an active slate-200 border. Form inputs bind to type-safe Angular 22 Signals:
     - **Merchant Name**: Writable string signal. Requires length > 0.
@@ -137,10 +143,10 @@ src/app/
 
 ## 6. Acceptance Criteria
 
-- [ ] Workspace compiles perfectly with zero TypeScript compiler or dependency injection warnings.
-- [ ] Model download is strictly **user-triggered** and displays a smooth contextual progress bar.
-- [ ] Uploading a photo renders a high-fidelity image preview on the left.
+- [x] Workspace compiles perfectly with zero TypeScript compiler or dependency injection warnings.
+- [x] Model download is strictly **user-triggered** and displays a smooth contextual progress bar.
+- [x] Uploading a photo renders a high-fidelity image preview on the left.
 - [ ] Traditional Chinese receipt text is successfully analyzed, and mapped to English category keys.
 - [ ] Human-in-the-loop review form accurately reflects the extracted signals, allowing manual overrides.
 - [ ] Clicking "Save" persists the row into IndexedDB and resets the uploader UI gracefully.
-- [ ] Typography & Icons setup: Local `@fontsource` packages (`hanken-grotesk`, `inter`, `geist`, `material-symbols-outlined`) are installed and imported at the top of `src/styles.css` to enable 100% offline layout styling and iconography.
+- [x] Typography & Icons setup: Local `@fontsource` packages (`hanken-grotesk`, `inter`, `geist`, `material-symbols-outlined`) are installed and imported at the top of `src/styles.css` to enable 100% offline layout styling and iconography.

@@ -1,0 +1,71 @@
+<div
+  class="image-uploader-card"
+  [class.dragging]="isDragging()"
+  [class.has-preview]="previewUrl()"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave()"
+  (drop)="onDrop($event)"
+>
+  <div class="card-header">
+    <h3 class="title-text">Upload Receipt</h3>
+  </div>
+
+  @if (!previewUrl()) {
+    <!-- Default Dropzone Area -->
+    <label class="dropzone-area" for="receipt-file-input">
+      @if (uploadProgress() !== undefined) {
+        <!-- Interactive Progress Loading Overlay -->
+        <div class="loading-overlay">
+          <div class="rotating mb-2">
+            <span class="material-symbols-outlined loading-icon">progress_activity</span>
+          </div>
+          <div class="loading-title">Reading photo...</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" [style.width.%]="uploadProgress()"></div>
+          </div>
+          <div class="loading-subtitle">{{ uploadProgress() }}% loaded</div>
+        </div>
+      } @else {
+        <!-- Normal Dropzone Contents -->
+        <span class="material-symbols-outlined upload-icon">cloud_upload</span>
+        <span class="dropzone-title">Drag &amp; drop receipt photo here</span>
+        <span class="dropzone-subtitle">or click to browse files from your computer</span>
+        <input
+          type="file"
+          id="receipt-file-input"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+          class="hidden-file-input"
+        />
+      }
+    </label>
+  } @else {
+    <!-- Image Preview Area -->
+    <div class="preview-area">
+      <img [src]="previewUrl()" alt="Receipt Preview" class="receipt-preview-img" />
+      <button class="clear-preview-btn" (click)="clearPreview()" aria-label="Remove image">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  }
+
+  <!-- Active loaded badge with file size -->
+  @if (previewUrl()) {
+    <div class="status-badge-container">
+      <span class="status-badge">
+        <span class="material-symbols-outlined badge-icon">task_alt</span>
+        Image loaded for extraction
+        @if (fileSizeText()) {
+          ({{ fileSizeText() }})
+        }
+      </span>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-banner">
+      <span class="material-symbols-outlined error-icon">warning</span>
+      <p class="error-text">{{ errorMessage() }}</p>
+    </div>
+  }
+</div>

@@ -1,40 +1,38 @@
-import { APP_DATABASE_TOKEN } from '@/core/consts/app-database.const';
+import '@angular/compiler';
+import { TestBed } from '@angular/core/testing';
+import { APP_DATABASE_TOKEN } from '../consts/app-database.const';
 import { DatabaseService } from './database.service';
 
-// Mock variables representing the Database structures
-const mockTable = {
-  toArray: vi
-    .fn()
-    .mockResolvedValue([{ id: 1, merchantName: 'Test', amount: 10, transactionDate: '2026-08-10', category: 'Test' }]),
-  add: vi.fn().mockResolvedValue(1),
-  update: vi.fn().mockResolvedValue(undefined),
-  delete: vi.fn().mockResolvedValue(undefined),
-  where: vi.fn().mockReturnThis(),
-  between: vi.fn().mockReturnThis(),
-};
-
-const mockAppDatabase = {
-  expenses: mockTable,
-  open: vi.fn().mockResolvedValue(undefined),
-};
-
-// Mock the inject function from @angular/core to intercept APP_DATABASE_TOKEN lookup
-vi.mock('@angular/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@angular/core')>();
-  return {
-    ...actual,
-    inject: vi.fn((token) => {
-      if (token === APP_DATABASE_TOKEN) {
-        return mockAppDatabase;
-      }
-      return actual.inject(token);
-    }),
-  };
-});
-
 describe('DatabaseService', () => {
+  // Mock variables representing the Database structures
+  const mockTable = {
+    toArray: vi
+      .fn()
+      .mockResolvedValue([
+        { id: 1, merchantName: 'Test', amount: 10, transactionDate: '2026-08-10', category: 'Test' },
+      ]),
+    add: vi.fn().mockResolvedValue(1),
+    update: vi.fn().mockResolvedValue(undefined),
+    delete: vi.fn().mockResolvedValue(undefined),
+    where: vi.fn().mockReturnThis(),
+    between: vi.fn().mockReturnThis(),
+  };
+
+  const mockAppDatabase = {
+    expenses: mockTable,
+    open: vi.fn().mockResolvedValue(undefined),
+  };
+
+  function createService(): DatabaseService {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [DatabaseService, { provide: APP_DATABASE_TOKEN, useValue: mockAppDatabase }],
+    });
+    return TestBed.inject(DatabaseService);
+  }
+
   it('should establish connection and perform CRUD operations', async () => {
-    const service = new DatabaseService();
+    const service = createService();
     expect(service.isConnected()).toBe(false);
 
     await service.initialize();

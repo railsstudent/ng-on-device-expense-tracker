@@ -8,10 +8,7 @@ export const WINDOW = new InjectionToken<Window | null>('GlobalWindowToken', {
   providedIn: 'root',
   factory: () => {
     const platformId = inject(PLATFORM_ID);
-    if (isPlatformBrowser(platformId)) {
-      return window;
-    }
-    return null;
+    return isPlatformBrowser(platformId) ? window : null;
   },
 });
 
@@ -22,9 +19,17 @@ export const CACHE_STORAGE = new InjectionToken<CacheStorage | null>('GlobalCach
   providedIn: 'root',
   factory: () => {
     const win = inject(WINDOW);
-    if (win && 'caches' in win) {
-      return win.caches;
-    }
-    return null;
+    return win && 'caches' in win ? win.caches : null;
+  },
+});
+
+/**
+ * NAVIGATOR Injection Token: Returns window.navigator, or null in SSR
+ */
+export const NAVIGATOR = new InjectionToken<Navigator | null>('GlobalNavigatorToken', {
+  providedIn: 'root',
+  factory: () => {
+    const win = inject(WINDOW);
+    return win ? win.navigator : null;
   },
 });

@@ -1,38 +1,20 @@
 import '@angular/compiler';
+import { TestBed } from '@angular/core/testing';
 import { PwaService } from './pwa.service';
 import { SwUpdate } from '@angular/service-worker';
 import { PLATFORM_ID } from '@angular/core';
 import { Subject } from 'rxjs';
-
-// Setup local variables that our global inject mock will return dynamically inside tests
-let currentPlatformId = 'browser';
-let currentSwUpdate: unknown = null;
-
-// Mock the inject function from @angular/core
-vi.mock('@angular/core', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@angular/core')>();
-  return {
-    ...actual,
-    inject: vi.fn((token) => {
-      if (token === PLATFORM_ID) {
-        return currentPlatformId;
-      }
-      if (token === SwUpdate) {
-        return currentSwUpdate;
-      }
-      return actual.inject(token);
-    }),
-  };
-});
+import { NAVIGATOR } from '../consts/window.const';
 
 describe('PwaService', () => {
   let mockSwUpdate: {
     isEnabled: boolean;
     versionUpdates: Subject<{ type: string }>;
-    checkForUpdate: ReturnType<typeof vi.fn>;
-    activateUpdate: ReturnType<typeof vi.fn>;
+    checkForUpdate: unknown;
+    activateUpdate: unknown;
   };
   let originalNavigator: unknown;
+  let currentPlatformId: string;
 
   beforeEach(() => {
     mockSwUpdate = {
@@ -42,7 +24,6 @@ describe('PwaService', () => {
       activateUpdate: vi.fn().mockResolvedValue(false),
     };
     currentPlatformId = 'browser';
-    currentSwUpdate = mockSwUpdate;
     originalNavigator = globalThis.navigator;
   });
 
@@ -57,10 +38,23 @@ describe('PwaService', () => {
 
   const flushMicrotasks = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+  function createService(): PwaService {
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        PwaService,
+        { provide: PLATFORM_ID, useValue: currentPlatformId },
+        { provide: SwUpdate, useValue: mockSwUpdate },
+        { provide: NAVIGATOR, useValue: currentPlatformId === 'server' ? null : globalThis.navigator },
+      ],
+    });
+    return TestBed.inject(PwaService);
+  }
+
   describe('Platform Server (SSR) Safety', () => {
     it('should gracefully set status to SSR Mode and not touch navigator in Server platform', () => {
       currentPlatformId = 'server';
-      const service = new PwaService();
+      const service = createService();
       expect(service.status()).toBe('Not Supported (SSR Mode)');
     });
   });
@@ -73,7 +67,7 @@ describe('PwaService', () => {
         configurable: true,
       });
 
-      const service = new PwaService();
+      const service = createService();
       expect(service.status()).toBe('Not Supported by Browser');
     });
   });
@@ -93,7 +87,7 @@ describe('PwaService', () => {
         configurable: true,
       });
 
-      const service = new PwaService();
+      const service = createService();
 
       // Wait for background initialization to complete
       await flushMicrotasks();
@@ -115,7 +109,7 @@ describe('PwaService', () => {
         configurable: true,
       });
 
-      const service = new PwaService();
+      const service = createService();
       await flushMicrotasks();
 
       expect(service.status()).toBe('Ready (Registered upon Production Build)');
@@ -139,7 +133,7 @@ describe('PwaService', () => {
       // Enable swUpdates
       mockSwUpdate.isEnabled = true;
 
-      const service = new PwaService();
+      const service = createService();
       await flushMicrotasks();
 
       // Emit VERSION_READY event
@@ -171,7 +165,7 @@ describe('PwaService', () => {
 
       mockSwUpdate.isEnabled = true;
 
-      const service = new PwaService();
+      const service = createService();
 
       // Call check for updates immediately on boot
       const checkPromise = service.checkForUpdates();

@@ -130,6 +130,7 @@ To guarantee 100% privacy, ultra-fast pre-loading, and completely offline execut
 
 3. **Material Symbols Usage**:
    Icons can be rendered natively as offline-safe ligatures in HTML, avoiding heavy runtime JS loads:
+
    ```html
    <span class="material-symbols-outlined">sync</span>
    <span class="material-symbols-outlined">cloud_upload</span>

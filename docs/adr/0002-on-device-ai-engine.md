@@ -22,3 +22,4 @@ The model binary weights are progressively streamed, split into 128MB chunks, an
 - **Code Quality**: Safe SSR pre-rendering and high unit testability through DI tokenization.
 - **Global Safety**: Zero global namespace pollution by treating third-party caching assets as scoped ES Modules.
 - **Aesthetic Binding**: Exposes high-fidelity, signal-based progress metrics (`status`, `progress`) for a responsive, premium user experience.
+- **Load-time-only Connectivity Checks**: Network connectivity checks for the model downloading panel are evaluated only at application load time. Since scanning/inference is 100% on-device and offline-ready, live runtime listeners on the global `window` are bypassed to keep the code lightweight, robust, and completely free of residual background event handlers.

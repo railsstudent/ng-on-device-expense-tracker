@@ -1,0 +1,73 @@
+@reference "../../../../../styles.css";
+
+.extract-expense-shell {
+  max-width: 1280px; /* container-max */
+  margin: 0 auto;
+  padding: 40px 24px;
+  box-sizing: border-box;
+}
+
+.split-layout-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px; /* 24px gutter scale */
+}
+
+/* Left panel gets 5 columns */
+.left-panel {
+  grid-column: span 5;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Right panel gets 7 columns */
+.right-panel {
+  grid-column: span 7;
+}
+
+/* Premium OCR Action Button */
+.ocr-trigger-button {
+  @apply w-full bg-indigo-600 hover:bg-indigo-700 text-white font-sans text-sm font-semibold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex justify-center items-center gap-2 cursor-pointer active:scale-[0.98];
+}
+
+.ocr-trigger-button:disabled {
+  @apply bg-slate-100 border border-slate-200 text-slate-400 shadow-none cursor-not-allowed active:scale-100;
+}
+
+.ocr-trigger-button .material-symbols-outlined {
+  @apply text-xl transition-transform duration-200;
+}
+
+.ocr-trigger-button:hover:not(:disabled) .material-symbols-outlined {
+  @apply rotate-12 scale-110;
+}
+
+/* Responsive Tablet & Mobile Mode */
+@media (max-width: 1024px) {
+  .left-panel {
+    grid-column: span 6;
+  }
+  .right-panel {
+    grid-column: span 6;
+  }
+}
+
+@media (max-width: 768px) {
+  .extract-expense-shell {
+    padding: 24px 16px;
+  }
+
+  .split-layout-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .left-panel {
+    grid-column: span 12;
+  }
+
+  .right-panel {
+    grid-column: span 12;
+  }
+}

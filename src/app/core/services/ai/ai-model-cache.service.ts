@@ -64,17 +64,23 @@ export class AiModelCacheService {
 
     try {
       const cache = await this.#cacheStorage.open(AI_CACHE_NAME);
-      const keys = await cache.keys();
       const hash = await sha256(this.#modelUrl, this.#window);
-      const hashHex = hash ?? DEFAULT_MODEL_FILENAME;
+      const hashKey = hash ?? DEFAULT_MODEL_FILENAME;
 
-      const found = keys.some((key) => key.url.includes(hashHex) && key.url.includes('-shard-0'));
+      // Match the exact metadata file (hash itself)
+      const metadata = await cache.match(hashKey);
 
-      if (found) {
-        this.#state.set(createCachedState());
-      } else {
-        this.#state.set(createNotDownloadedState());
+      if (metadata) {
+        const text = await metadata.text();
+        console.log('Local AI Cache Metadata Shards Count:', text);
+        const shards = parseInt(text, 10);
+        if (shards > 0) {
+          this.#state.set(createCachedState());
+          return;
+        }
       }
+
+      this.#state.set(createNotDownloadedState());
     } catch (err) {
       console.error('Error checking initial model cache status:', err);
       this.#state.set(createNotDownloadedState());

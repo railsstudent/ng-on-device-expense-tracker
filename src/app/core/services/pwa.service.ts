@@ -1,11 +1,13 @@
-import { inject, Service, signal, PLATFORM_ID } from '@angular/core';
+import { NAVIGATOR } from '@/core/consts/window.const';
 import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID, Service, signal } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 
 @Service()
 export class PwaService {
   readonly #platformId = inject(PLATFORM_ID);
   readonly #swUpdate = inject(SwUpdate);
+  readonly #navigator = inject(NAVIGATOR);
 
   // Expose a read-only reactive signal of the PWA status
   readonly #status = signal<string>('Checking...');
@@ -24,13 +26,13 @@ export class PwaService {
   }
 
   private async initializePwaTracker(): Promise<void> {
-    if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
+    if (!this.#navigator || !('serviceWorker' in this.#navigator)) {
       this.#status.set('Not Supported by Browser');
       return;
     }
 
     try {
-      const registration = await navigator.serviceWorker.getRegistration();
+      const registration = await this.#navigator.serviceWorker.getRegistration();
       if (registration) {
         this.#status.set(`Active (Scope: ${registration.scope})`);
       } else {

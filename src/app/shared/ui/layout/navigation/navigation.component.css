@@ -1,0 +1,68 @@
+@reference "../../../../../styles.css";
+
+.app-navigation {
+  @apply w-full bg-white/70 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50 box-border;
+}
+
+.nav-container {
+  @apply max-w-7xl mx-auto px-6 h-16 flex justify-between items-center;
+}
+
+/* Logo Section */
+.nav-logo {
+  @apply flex items-center gap-2 cursor-pointer select-none;
+}
+
+.logo-icon {
+  @apply text-2xl text-indigo-600 transition-all duration-200;
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 600;
+}
+
+.nav-logo:hover .logo-icon {
+  @apply scale-115 rotate-5 drop-shadow-[0_0_8px_rgba(99,102,241,0.6)];
+}
+
+.logo-text {
+  @apply font-sans text-xl font-bold text-slate-950;
+}
+
+/* Nav Menu Links */
+.nav-links {
+  @apply flex items-center gap-8 h-full;
+}
+
+.nav-item {
+  @apply font-sans text-sm font-medium text-slate-500 no-underline flex items-center gap-2 h-16 leading-[64px] box-border border-b-2 border-transparent transition-colors duration-200;
+}
+
+.nav-item:hover:not(.disabled-item) {
+  @apply text-slate-950;
+}
+
+.nav-item.active {
+  @apply text-indigo-600 border-indigo-600 font-semibold;
+}
+
+/* Coming soon capsule badge */
+.disabled-item {
+  @apply text-slate-400 cursor-not-allowed;
+}
+
+.badge-soon {
+  @apply bg-indigo-100 text-indigo-800 font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded-full tracking-wider leading-none;
+}
+
+/* Right Actions */
+.nav-actions {
+  @apply flex items-center gap-4;
+}
+
+.icon-button {
+  @apply bg-none border-none cursor-pointer p-2 rounded-full text-slate-500 flex justify-center items-center hover:bg-slate-100 hover:text-slate-950 transition-colors duration-200;
+}
+
+.icon-button .material-symbols-outlined {
+  @apply text-[22px];
+}

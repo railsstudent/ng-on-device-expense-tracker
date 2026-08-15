@@ -59,6 +59,7 @@ Traditional Chinese receipts will be processed by modifying the AI system prompt
 - **`ExtractExpenseComponent`**: The master feature container holding the split-screen view:
   - **Left Column (Image Zone)**:
     - Displays the shared `ModelDownloaderComponent` and `ImageUploaderComponent` inside the upload panel.
+    - **Decoupled AI Trigger Button**: A manual primary button situated below the image uploader. This button is reactively disabled until an image is fully loaded inside the uploader. This architectural choice prevents automatic heavy CPU/OCR execution loops on drag-and-drop, giving the user explicit control over when local AI model parsing runs.
   - **Right Column (Form Review)**:
     - **`HumanInTheLoopForm`**: Interactive, responsive form using type-safe Signals. The "Save Expense" button is disabled if `merchantName` is empty, or `amount` is invalid/negative.
 
@@ -76,3 +77,4 @@ To support future-proof page transitions and distinct history/insight views, we 
 - **Loose Coupling**: Components will not communicate with database or AI layers directly, facilitating painless future migration if underlying storage or AI models change.
 - **High Performance**: Pure signal-based change-detection minimizes zone execution overhead and creates silky-smooth animations.
 - **Deterministic Testing**: Unit testing `ExpenseService` can be accomplished with simple mocks of `DatabaseService` and `ReceiptAnalyzerService`.
+- **Memory & Performance Protection**: Enforcing a strict 20MB maximum size limit on the local image uploader acts as a defensive shield, preventing high-resolution mobile photos from causing WebWorker/browser thread out-of-memory crashes. Adding progressive FileReader progress feedback mitigates UI-freeze states for larger files while maintaining flicker-free loads on small ones.

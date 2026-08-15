@@ -1,0 +1,144 @@
+@reference "../../../../../styles.css";
+
+.image-uploader-card {
+  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col gap-4 transition-colors duration-200;
+}
+
+.card-header {
+  @apply mb-1;
+}
+
+.title-text {
+  @apply font-sans text-base font-semibold text-slate-950 m-0;
+}
+
+/* Dropzone Area */
+.dropzone-area {
+  @apply border-2 border-dashed border-slate-300 rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-200 relative min-h-[180px];
+}
+
+.dropzone-area:hover {
+  @apply border-indigo-500 bg-slate-50;
+}
+
+/* Dragging active state */
+.image-uploader-card.dragging {
+  @apply border-indigo-500 bg-indigo-50;
+}
+
+.image-uploader-card.dragging .dropzone-area {
+  @apply border-indigo-500 border-solid bg-indigo-50;
+}
+
+.upload-icon {
+  @apply text-4xl text-indigo-600 mb-3;
+}
+
+.dropzone-title {
+  @apply font-sans text-sm font-medium text-slate-700 mb-1;
+}
+
+.dropzone-subtitle {
+  @apply font-sans text-xs text-slate-500;
+}
+
+.hidden-file-input {
+  @apply hidden;
+}
+
+/* Image Preview */
+.preview-area {
+  @apply relative rounded-lg overflow-hidden shadow-md;
+}
+
+.receipt-preview-img {
+  @apply w-full h-auto max-h-[280px] object-contain block;
+}
+
+.clear-preview-btn {
+  @apply absolute top-2 right-2 bg-slate-950/60 border-none rounded-full w-7 h-7 flex items-center justify-center text-white cursor-pointer transition-colors duration-200;
+}
+
+.clear-preview-btn:hover {
+  @apply bg-slate-950/85;
+}
+
+.clear-preview-btn .material-symbols-outlined {
+  @apply text-lg;
+}
+
+/* Image loaded status badge */
+.status-badge-container {
+  @apply flex justify-center;
+}
+
+.status-badge {
+  @apply inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 font-sans text-xs font-medium px-3 py-1.5 rounded-full;
+}
+
+.badge-icon {
+  @apply text-base text-emerald-600;
+}
+
+/* Error alert state */
+.error-banner {
+  @apply bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2.5 text-left;
+}
+
+.error-icon {
+  @apply text-red-500 text-xl shrink-0;
+}
+
+.error-text {
+  @apply font-sans text-xs text-red-800 leading-normal font-medium m-0;
+}
+
+/* Loading Overlay & Progress bar */
+.loading-overlay {
+  @apply absolute inset-0 bg-white/95 rounded-lg flex flex-col items-center justify-center p-6 text-center z-10;
+  animation: fadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.loading-icon {
+  @apply text-indigo-600 text-3xl mb-2;
+}
+
+.loading-title {
+  @apply font-sans text-sm font-semibold text-slate-950 mb-3;
+}
+
+.progress-bar-container {
+  @apply w-full max-w-[200px] h-2 bg-slate-100 rounded-full overflow-hidden mb-2 border border-slate-200;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-indigo-600 rounded-full transition-all duration-100 ease-out;
+}
+
+.loading-subtitle {
+  @apply font-sans text-xs text-slate-500;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating {
+  animation: spin 1s linear infinite;
+}

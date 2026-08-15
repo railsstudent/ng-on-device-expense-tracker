@@ -1,0 +1,88 @@
+<div class="review-details-card">
+  <div class="card-header">
+    <h2 class="form-title">Review Extraction Details</h2>
+    <p class="form-subtitle">Verify the data extracted by the on-device AI model.</p>
+  </div>
+
+  <form class="verification-form" (submit)="$event.preventDefault(); onSubmit()">
+    <!-- Merchant Name -->
+    <div class="form-field">
+      <label class="field-label" for="merchant-input">MERCHANT NAME / 商家名稱</label>
+      <div class="input-wrapper">
+        <span class="material-symbols-outlined field-icon">storefront</span>
+        <input
+          type="text"
+          id="merchant-input"
+          class="form-input"
+          [(ngModel)]="merchantName"
+          name="merchantName"
+          placeholder="e.g. Coffee Roasters Inc."
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Split Row for Date and Amount -->
+    <div class="form-row">
+      <!-- Transaction Date -->
+      <div class="form-field flex-1">
+        <label class="field-label" for="date-input">TRANSACTION DATE / 交易日期</label>
+        <div class="input-wrapper">
+          <span class="material-symbols-outlined field-icon">calendar_today</span>
+          <input
+            type="date"
+            id="date-input"
+            class="form-input"
+            [(ngModel)]="transactionDate"
+            name="transactionDate"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Amount -->
+      <div class="form-field flex-1">
+        <label class="field-label" for="amount-input">AMOUNT / 金額</label>
+        <div class="input-wrapper">
+          <span class="amount-prefix">$</span>
+          <input
+            type="number"
+            id="amount-input"
+            class="form-input amount-input-field"
+            [(ngModel)]="amount"
+            name="amount"
+            step="0.01"
+            min="0.01"
+            required
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Dropdown Selection -->
+    <div class="form-field">
+      <label class="field-label" for="category-select">CATEGORY / 類別</label>
+      <div class="input-wrapper">
+        <span class="material-symbols-outlined field-icon">sell</span>
+        <select id="category-select" class="form-select" [(ngModel)]="category" name="category">
+          @for (cat of categories; track cat.key) {
+            <option [value]="cat.key">{{ cat.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Sticky Action Button inside Card -->
+    <div class="form-actions">
+      <button type="submit" class="save-btn" [disabled]="!merchantName().trim() || amount() <= 0 || isSaving()">
+        @if (isSaving()) {
+          <span class="material-symbols-outlined rotating">sync</span>
+          SAVING EXPENSE...
+        } @else {
+          <span class="material-symbols-outlined">save</span>
+          SAVE EXPENSE
+        }
+      </button>
+    </div>
+  </form>
+</div>

@@ -2,10 +2,12 @@ import { Component, signal, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { DatabaseService } from './core/services/database.service';
 import { PwaService } from './core/services/pwa.service';
+import { NavigationComponent } from './shared/ui/layout/navigation/navigation.component';
+import { FooterComponent } from './shared/ui/layout/footer/footer.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, NavigationComponent, FooterComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })

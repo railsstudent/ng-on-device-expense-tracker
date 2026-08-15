@@ -24,6 +24,8 @@ When writing or refactoring TypeScript code, you MUST adhere to the following ru
 5. **Single-line Function & Computed Signal Shortcuts**: For functions or computed signals that fit on a single line, you MUST use the arrow function implicit-return shortcut (i.e. omit the curly braces, `return` keyword, and semicolon inside the function body).
    - **Correct**: `public readonly status = computed(() => this.#state().status);`
    - **Incorrect**: `public readonly status = computed(() => { return this.#state().status; });`
+6. **Implicit Signal Type Inference**: Never specify explicit type parameters on signals when they can be cleanly inferred from their initialization values (e.g., use `readonly isDragging = signal(false);` instead of `readonly isDragging = signal<boolean>(false);`).
+7. **Absolute Path Aliases**: Never use relative import paths (e.g. `../` or `../../`) inside application, service, component, layout, utility, or spec files. Always use absolute path aliases that start with `@/` to import local project files (e.g. `import { Service } from '@/core/services/...'`).
 
 ## Agent skills
 
