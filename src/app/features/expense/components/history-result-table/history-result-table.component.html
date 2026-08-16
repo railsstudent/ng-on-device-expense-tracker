@@ -22,38 +22,16 @@
     <table class="table-element">
       <thead>
         <tr class="table-header-row">
-          <th (click)="onSort('merchantName')" class="table-header-th">
-            <div class="table-header-content">
-              <span>Merchant / 商家</span>
-              <span class="material-symbols-outlined text-base opacity-70">
-                {{ sortIcons().merchantName }}
-              </span>
-            </div>
-          </th>
-          <th (click)="onSort('amount')" class="table-header-th-right">
-            <div class="table-header-content-right">
-              <span>Amount / 金額</span>
-              <span class="material-symbols-outlined text-base opacity-70">
-                {{ sortIcons().amount }}
-              </span>
-            </div>
-          </th>
-          <th (click)="onSort('transactionDate')" class="table-header-th">
-            <div class="table-header-content">
-              <span>Date / 交易日期</span>
-              <span class="material-symbols-outlined text-base opacity-70">
-                {{ sortIcons().transactionDate }}
-              </span>
-            </div>
-          </th>
-          <th (click)="onSort('category')" class="table-header-th">
-            <div class="table-header-content">
-              <span>Category / 類別</span>
-              <span class="material-symbols-outlined text-base opacity-70">
-                {{ sortIcons().category }}
-              </span>
-            </div>
-          </th>
+          @for (header of headers; track header.key) {
+            <th (click)="onSort(header.key)" [class]="header.alignRight ? 'table-header-th-right' : 'table-header-th'">
+              <div [class]="header.alignRight ? 'table-header-content-right' : 'table-header-content'">
+                <span>{{ header.label }}</span>
+                <span class="material-symbols-outlined text-base opacity-70">
+                  {{ sortIcons()[header.key] }}
+                </span>
+              </div>
+            </th>
+          }
           <th class="table-header-th-actions">Actions</th>
         </tr>
       </thead>
@@ -83,7 +61,7 @@
   <footer class="table-footer">
     <div class="table-footer-page-size">
       <label for="pageSize">Rows per page / 每頁行數:</label>
-      <select id="pageSize" [value]="state().pageSize" (change)="onPageSizeChange($event)" class="table-footer-select">
+      <select id="pageSize" [value]="pageSize()" (change)="onPageSizeChange($event)" class="table-footer-select">
         @for (size of pageSizes; track size) {
           <option [value]="size">{{ size }}</option>
         }
@@ -95,7 +73,7 @@
       <div class="flex items-center gap-1">
         <button
           (click)="prevPage()"
-          [disabled]="state().currentPage === 1"
+          [disabled]="currentPage() === 1"
           class="table-arrow-button"
           aria-label="Previous Page"
         >
@@ -103,7 +81,7 @@
         </button>
         <button
           (click)="nextPage()"
-          [disabled]="state().currentPage === totalPages()"
+          [disabled]="currentPage() === totalPages()"
           class="table-arrow-button"
           aria-label="Next Page"
         >

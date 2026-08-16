@@ -1,13 +1,7 @@
 import { Expense } from '@/shared/interfaces/expense.interface';
-import {
-  LedgerTableState,
-  PageChangeEvent,
-  PageSizeChangeEvent,
-  SortChangeEvent,
-  TableSortState,
-} from '@/shared/interfaces/history-insights-state.interface';
+import { HeaderConfig, TableSortState } from '@/shared/interfaces/history-insights-state.interface';
 import { CurrencyPipe } from '@angular/common';
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { HistoryResultTableService } from './services/history-result-table.service';
 
 @Component({
@@ -19,43 +13,53 @@ import { HistoryResultTableService } from './services/history-result-table.servi
 export class HistoryResultTableComponent {
   readonly #tableService = inject(HistoryResultTableService);
 
-  public readonly state = input.required<LedgerTableState>();
+  // Pure data input; table state, paging, and sorting are completely encapsulated internally
+  public readonly expenses = input.required<Expense[]>();
   public readonly hasSearched = input.required<boolean>();
 
-  public readonly sort = output<SortChangeEvent>();
-  public readonly pageSizeChange = output<PageSizeChangeEvent>();
-  public readonly pageChange = output<PageChangeEvent>();
   public readonly deleteRequest = output<Expense>();
 
   public readonly pageSizes = [5, 10, 20, 50];
 
+  public readonly headers: HeaderConfig[] = [
+    { key: 'merchantName', label: 'Merchant / 商家' },
+    { key: 'amount', label: 'Amount / 金額', alignRight: true },
+    { key: 'transactionDate', label: 'Date / 交易日期' },
+    { key: 'category', label: 'Category / 類別' },
+  ];
+
   // Local state signal for coupled sorting parameters
   public readonly sortState = signal<TableSortState>({ column: '', direction: 'none' });
 
-  // Delegate computation to service helper methods using single-line implicit return shortcuts (Rule 5)
-  public readonly sortedExpenses = computed(() =>
-    this.#tableService.sortExpenses(this.state().expenses, this.sortState()),
-  );
+  // Local state signal for page size
+  public readonly pageSize = signal(10);
 
-  public readonly paginatedExpenses = computed(() =>
-    this.#tableService.paginateExpenses(this.sortedExpenses(), this.state().pageSize, this.state().currentPage),
-  );
+  // Derive and sort expenses internally (Rule 5)
+  public readonly sortedExpenses = computed(() => this.#tableService.sortExpenses(this.expenses(), this.sortState()));
 
   // Derived properties for template
   public readonly totalCount = computed(() => this.sortedExpenses().length);
-  public readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.state().pageSize)));
+  public readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize())));
 
-  public readonly itemRangeLabel = computed(() => {
-    const currentPage = this.state().currentPage;
-    const pageSize = this.state().pageSize;
-    const total = this.totalCount();
-    if (total === 0) {
-      return '0–0';
-    }
-    const start = (currentPage - 1) * pageSize + 1;
-    const end = Math.min(currentPage * pageSize, total);
-    return `${start}–${end}`;
+  // Use state-of-the-art linkedSignal to self-correct/clamp the active currentPage when records or page sizes change
+  public readonly currentPage = linkedSignal<{ count: number; size: number }, number>({
+    source: () => ({ count: this.totalCount(), size: this.pageSize() }),
+    computation: (source, previous) => {
+      if (!previous) {
+        return 1;
+      }
+      const maxPages = Math.max(1, Math.ceil(source.count / source.size));
+      return Math.min(previous.value, maxPages);
+    },
   });
+
+  public readonly paginatedExpenses = computed(() =>
+    this.#tableService.paginateExpenses(this.sortedExpenses(), this.pageSize(), this.currentPage()),
+  );
+
+  public readonly itemRangeLabel = computed(() =>
+    this.#tableService.getItemRangeLabel(this.currentPage(), this.pageSize(), this.totalCount()),
+  );
 
   // Pre-computed dictionary map of column sort icons to prevent unnecessary cycle evaluations in template (Rule 5)
   public readonly sortIcons = computed(() => this.#tableService.getSortIconMap(this.sortState()));
@@ -75,24 +79,23 @@ export class HistoryResultTableComponent {
         direction: 'asc',
       });
     }
-    this.sort.emit({ col });
-    this.pageChange.emit({ page: 1 });
   }
 
   protected onPageSizeChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
-    this.pageSizeChange.emit({ size: +target.value });
+    this.pageSize.set(+target.value);
+    this.currentPage.set(1);
   }
 
   protected prevPage(): void {
-    if (this.state().currentPage > 1) {
-      this.pageChange.emit({ page: this.state().currentPage - 1 });
+    if (this.currentPage() > 1) {
+      this.currentPage.set(this.currentPage() - 1);
     }
   }
 
   protected nextPage(): void {
-    if (this.state().currentPage < this.totalPages()) {
-      this.pageChange.emit({ page: this.state().currentPage + 1 });
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.set(this.currentPage() + 1);
     }
   }
 }

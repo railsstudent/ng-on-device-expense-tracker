@@ -3,12 +3,6 @@ import { Insight } from './insight.interface';
 
 export type SortDirection = 'asc' | 'desc' | 'none';
 
-export interface LedgerTableState {
-  expenses: Expense[];
-  pageSize: number;
-  currentPage: number;
-}
-
 export interface AiChatState {
   status: 'initializing' | 'priming' | 'thinking' | 'ready' | 'failed' | 'idle';
   error: string | null;
@@ -20,18 +14,6 @@ export interface AiChatState {
 export interface DateRangeSearch {
   startDate: string;
   endDate: string;
-}
-
-export interface SortChangeEvent {
-  col: keyof Expense;
-}
-
-export interface PageSizeChangeEvent {
-  size: number;
-}
-
-export interface PageChangeEvent {
-  page: number;
 }
 
 export interface QueryChangeEvent {
@@ -49,4 +31,13 @@ export type SortableColumn = keyof Expense | '';
 export interface TableSortState {
   column: SortableColumn;
   direction: SortDirection;
+}
+
+/**
+ * Represents the layout and alignment configuration for a table header column.
+ */
+export interface HeaderConfig {
+  key: keyof Expense;
+  label: string;
+  alignRight?: boolean;
 }

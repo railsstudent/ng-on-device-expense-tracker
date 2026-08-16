@@ -47,13 +47,11 @@ export class HistoryResultTableService {
    * Cycles through the sort direction states: none -> asc -> desc -> none.
    */
   public getNextSortDirection(current: SortDirection): SortDirection {
-    if (current === 'none') {
-      return 'asc';
-    }
-    if (current === 'asc') {
-      return 'desc';
-    }
-    return 'none';
+    const nextMap: Partial<Record<SortDirection, SortDirection>> = {
+      none: 'asc',
+      asc: 'desc',
+    };
+    return nextMap[current] ?? 'none';
   }
 
   /**
@@ -78,5 +76,17 @@ export class HistoryResultTableService {
       return dir === 'asc' ? 'expand_less' : 'expand_more';
     }
     return 'unfold_more';
+  }
+
+  /**
+   * Calculates the current item range display label.
+   */
+  public getItemRangeLabel(currentPage: number, pageSize: number, totalCount: number): string {
+    if (totalCount === 0) {
+      return '0–0';
+    }
+    const start = (currentPage - 1) * pageSize + 1;
+    const end = Math.min(currentPage * pageSize, totalCount);
+    return `${start}–${end}`;
   }
 }

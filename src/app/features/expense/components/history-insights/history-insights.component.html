@@ -13,11 +13,8 @@
 
         <!-- Ledger Result Table child component -->
         <app-history-result-table
-          [state]="tableState()"
+          [expenses]="vm.expenses()"
           [hasSearched]="vm.hasSearched()"
-          (sort)="onSort()"
-          (pageSizeChange)="onPageSizeChange($event)"
-          (pageChange)="onPageChange($event)"
           (deleteRequest)="openDeleteConfirmation($event)"
         ></app-history-result-table>
       </div>

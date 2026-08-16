@@ -49,36 +49,6 @@ describe('HistoryInsightsService', () => {
     });
   });
 
-  describe('Pagination & Sorting Logic', () => {
-    beforeEach(async () => {
-      service.formModel.set({ startDate: '2026-08-01', endDate: '2026-08-15' });
-      await service.onSearch();
-    });
-
-    it('should sort ascendingly and descendingly by amount', () => {
-      service.toggleSort('amount');
-      expect(service.sortBy()).toBe('amount');
-      expect(service.sortAsc()).toBe(true);
-      expect(service.sortedExpenses()[0].merchantName).toBe('Burger King'); // $15 < $120
-
-      service.toggleSort('amount');
-      expect(service.sortAsc()).toBe(false);
-      expect(service.sortedExpenses()[0].merchantName).toBe('Office Depot'); // $120 > $15
-    });
-
-    it('should handle paginated subsets of records correctly', () => {
-      service.setPageSize(1);
-      expect(service.totalPages()).toBe(2);
-      expect(service.paginatedExpenses().length).toBe(1);
-
-      service.nextPage();
-      expect(service.currentPage()).toBe(2);
-
-      service.prevPage();
-      expect(service.currentPage()).toBe(1);
-    });
-  });
-
   describe('Record Deletion', () => {
     beforeEach(async () => {
       service.formModel.set({ startDate: '2026-08-01', endDate: '2026-08-15' });
@@ -86,12 +56,12 @@ describe('HistoryInsightsService', () => {
     });
 
     it('should delete a selected expense record and update the list', async () => {
-      const targetExpense = service.sortedExpenses()[0];
+      const targetExpense = service.expenses()[0];
       service.pendingDeleteExpense.set(targetExpense);
 
       await service.onDeleteConfirmed();
       expect(mockDbService.delete).toHaveBeenCalledWith(targetExpense.id);
-      expect(service.totalCount()).toBe(1);
+      expect(service.expenses().length).toBe(1);
       expect(service.pendingDeleteExpense()).toBeNull();
     });
 

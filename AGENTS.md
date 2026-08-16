@@ -28,12 +28,17 @@ When writing or refactoring TypeScript code, you MUST adhere to the following ru
 7. **Absolute Path Aliases**: Never use relative import paths (e.g. `../` or `../../`) inside application, service, component, layout, utility, or spec files. Always use absolute path aliases that start with `@/` to import local project files (e.g. `import { Service } from '@/core/services/...'`).
 8. **Tailwind CSS v4 Component Styling**: Always prioritize Tailwind CSS v4 `@apply` utility classes over raw vanilla CSS inside component-scoped stylesheets. To compile correctly in isolation, you MUST prepend an explicit `@reference` directive pointing relatively to the global `src/styles.css` stylesheet file.
    - **Correct**:
+
      ```css
      @reference "../../../../../styles.css";
      .toast-container {
        @apply fixed top-6 right-6 flex flex-col;
      }
      ```
+
+9. **Signal Localization & Stateless Parent Services**: Presentation-only variables (such as active sorting columns, sort direction, page size, and current page numbers) must reside locally inside the presenting component or its stateless view-service helpers. They must not pollute parent data-loading services.
+10. **Self-Healing State with `linkedSignal`**: Whenever a local view signal (such as `currentPage` or `pageSize`) depends on or must be clamped when a bound input array (such as `expenses`) changes, always use Angular's `linkedSignal` to handle boundary-clamping cleanly and reactively instead of manual setters or intermediate states.
+11. **Map-Based Cyclical State Transitions**: Avoid using verbose, procedurally branched conditional logic chains (e.g. `if/else`) to handle sequential state loops (such as none -> asc -> desc -> none). Always use static, typed lookup maps/dictionaries (`Partial<Record<T, T>>`).
 
 ## Agent skills
 

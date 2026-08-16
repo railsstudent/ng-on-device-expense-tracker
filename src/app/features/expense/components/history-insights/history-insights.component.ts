@@ -6,14 +6,7 @@ import { HistorySearchFormComponent } from '../history-search-form/history-searc
 import { HistoryResultTableComponent } from '../history-result-table/history-result-table.component';
 import { HistoryInsightsChatComponent } from '../history-insights-chat/history-insights-chat.component';
 import { Expense } from '@/shared/interfaces/expense.interface';
-import {
-  LedgerTableState,
-  AiChatState,
-  DateRangeSearch,
-  PageSizeChangeEvent,
-  PageChangeEvent,
-  QueryChangeEvent,
-} from '@/shared/interfaces/history-insights-state.interface';
+import { AiChatState, DateRangeSearch, QueryChangeEvent } from '@/shared/interfaces/history-insights-state.interface';
 
 @Component({
   selector: 'app-history-insights',
@@ -33,13 +26,6 @@ export default class HistoryInsightsComponent {
 
   protected readonly confirmDialog = viewChild(ConfirmDialogComponent);
 
-  // Compute reactive LedgerTableState parameter object to pass to Result Table child
-  public readonly tableState = computed<LedgerTableState>(() => ({
-    expenses: this.vm.sortedExpenses(),
-    pageSize: this.vm.pageSize(),
-    currentPage: this.vm.currentPage(),
-  }));
-
   // Compute reactive AiChatState parameter object to pass to Insights Chat child
   public readonly aiState = computed<AiChatState>(() => ({
     status: this.vm.aiStatus(),
@@ -50,7 +36,7 @@ export default class HistoryInsightsComponent {
   }));
 
   // Derived properties for status checking
-  public readonly hasExpenses = computed(() => this.vm.sortedExpenses().length > 0);
+  public readonly hasExpenses = computed(() => this.vm.expenses().length > 0);
 
   protected onSearch(criteria: DateRangeSearch): void {
     this.vm.formModel.set({
@@ -58,18 +44,6 @@ export default class HistoryInsightsComponent {
       endDate: criteria.endDate,
     });
     this.vm.onSearch();
-  }
-
-  protected onSort(): void {
-    // Left as no-op; sorting is managed locally in child HistoryResultTableComponent
-  }
-
-  protected onPageSizeChange(event: PageSizeChangeEvent): void {
-    this.vm.setPageSize(event.size);
-  }
-
-  protected onPageChange(event: PageChangeEvent): void {
-    this.vm.currentPage.set(event.page);
   }
 
   protected onQueryChange(event: QueryChangeEvent): void {

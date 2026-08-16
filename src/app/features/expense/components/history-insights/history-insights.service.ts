@@ -25,9 +25,8 @@ export class HistoryInsightsService {
 
   // Reactive state signals
   readonly #expenses = signal<Expense[]>([]);
+  public readonly expenses = computed(() => this.#expenses());
   public readonly hasSearched = signal(false);
-  public readonly sortBy = signal<keyof Expense | ''>('');
-  public readonly sortAsc = signal(true);
   public readonly pageSize = signal(10);
   public readonly currentPage = signal(1);
 
@@ -40,48 +39,6 @@ export class HistoryInsightsService {
   // Computed signals using arrow function shortcuts for single-liners
   public readonly aiStatus = computed(() => this.#insightService.status());
   public readonly aiError = computed(() => this.#insightService.error());
-  public readonly totalCount = computed(() => this.sortedExpenses().length);
-  public readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize())));
-
-  // Complex sorted expenses computed pipeline
-  public readonly sortedExpenses = computed(() => {
-    const raw = this.#expenses();
-    const col = this.sortBy();
-    const asc = this.sortAsc();
-
-    if (!col) {
-      return raw;
-    }
-
-    return [...raw].sort((a, b) => {
-      const aVal = a[col] ?? '';
-      const bVal = b[col] ?? '';
-
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return asc ? aVal - bVal : bVal - aVal;
-      }
-
-      const aStr = String(aVal).toLowerCase();
-      const bStr = String(bVal).toLowerCase();
-
-      if (aStr < bStr) {
-        return asc ? -1 : 1;
-      }
-      if (aStr > bStr) {
-        return asc ? 1 : -1;
-      }
-      return 0;
-    });
-  });
-
-  // Paginated computed pipeline
-  public readonly paginatedExpenses = computed(() => {
-    const list = this.sortedExpenses();
-    const size = this.pageSize();
-    const page = this.currentPage();
-    const startIdx = (page - 1) * size;
-    return list.slice(startIdx, startIdx + size);
-  });
 
   // Programmatic handlers
   public async onSearch(): Promise<void> {
@@ -102,33 +59,6 @@ export class HistoryInsightsService {
     }
   }
 
-  public toggleSort(col: keyof Expense): void {
-    if (this.sortBy() === col) {
-      this.sortAsc.set(!this.sortAsc());
-    } else {
-      this.sortBy.set(col);
-      this.sortAsc.set(true);
-    }
-    this.currentPage.set(1);
-  }
-
-  public setPageSize(size: number): void {
-    this.pageSize.set(size);
-    this.currentPage.set(1);
-  }
-
-  public prevPage(): void {
-    if (this.currentPage() > 1) {
-      this.currentPage.set(this.currentPage() - 1);
-    }
-  }
-
-  public nextPage(): void {
-    if (this.currentPage() < this.totalPages()) {
-      this.currentPage.set(this.currentPage() + 1);
-    }
-  }
-
   public async onDeleteConfirmed(): Promise<void> {
     const expense = this.pendingDeleteExpense();
     if (expense && expense.id !== undefined) {
@@ -138,9 +68,10 @@ export class HistoryInsightsService {
         const updatedList = currentList.filter((item) => item.id !== expense.id);
         this.#expenses.set(updatedList);
 
-        // Adjust pagination page boundaries if page is left completely empty
-        if (this.currentPage() > this.totalPages()) {
-          this.currentPage.set(this.totalPages());
+        // Adjust pagination page boundaries locally if page is left completely empty
+        const maxPages = Math.max(1, Math.ceil(updatedList.length / this.pageSize()));
+        if (this.currentPage() > maxPages) {
+          this.currentPage.set(maxPages);
         }
       } catch (err) {
         console.error('Failed to delete expense record:', err);
@@ -175,7 +106,7 @@ export class HistoryInsightsService {
     this.streamingInsights.set([]);
 
     try {
-      const generator = this.#insightService.streamInsights(query, this.sortedExpenses());
+      const generator = this.#insightService.streamInsights(query, this.#expenses());
       for await (const list of generator) {
         this.streamingInsights.set(list);
       }
