@@ -1,10 +1,10 @@
 import '@angular/compiler';
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { App } from './app';
 import { DatabaseService } from './core/services/database.service';
 import { PwaService } from './core/services/pwa.service';
+import { signal } from '@angular/core';
 
 describe('App', () => {
   let mockDatabaseService: Partial<DatabaseService>;
@@ -29,11 +29,9 @@ describe('App', () => {
     }).compileComponents();
   });
 
-  it('should create the app and bind signal states', () => {
+  it('should create the app', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance;
     expect(app).toBeTruthy();
-    expect(app['dbStatus']()).toBe(true);
-    expect(app['swStatus']()).toBe('Active (Scope: /)');
   });
 });

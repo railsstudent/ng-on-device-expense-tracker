@@ -9,7 +9,8 @@
       <div class="warning-alert-banner">
         <span class="material-symbols-outlined alert-icon">warning</span>
         <div class="alert-content">
-          This image doesn't look like a valid receipt. Fallback defaults have been loaded, but feel free to modify and save manually!
+          This image doesn't look like a valid receipt. Fallback defaults have been loaded, but feel free to modify and
+          save manually!
         </div>
       </div>
     }
@@ -23,12 +24,13 @@
           type="text"
           id="merchant-input"
           class="form-input"
-          [(ngModel)]="merchantName"
-          name="merchantName"
+          [formField]="verificationForm.merchantName"
           placeholder="e.g. Coffee Roasters Inc."
-          required
         />
       </div>
+      @if (verificationForm.merchantName().touched() && verificationForm.merchantName().errors().length) {
+        <div class="validation-error-text">{{ verificationForm.merchantName().errors()[0].message }}</div>
+      }
     </div>
 
     <!-- Split Row for Date and Amount -->
@@ -38,15 +40,11 @@
         <label class="field-label" for="date-input">TRANSACTION DATE / 交易日期</label>
         <div class="input-wrapper">
           <span class="material-symbols-outlined field-icon">calendar_today</span>
-          <input
-            type="date"
-            id="date-input"
-            class="form-input"
-            [(ngModel)]="transactionDate"
-            name="transactionDate"
-            required
-          />
+          <input type="date" id="date-input" class="form-input" [formField]="verificationForm.transactionDate" />
         </div>
+        @if (verificationForm.transactionDate().touched() && verificationForm.transactionDate().errors().length) {
+          <div class="validation-error-text">{{ verificationForm.transactionDate().errors()[0].message }}</div>
+        }
       </div>
 
       <!-- Amount -->
@@ -58,13 +56,13 @@
             type="number"
             id="amount-input"
             class="form-input amount-input-field"
-            [(ngModel)]="amount"
-            name="amount"
+            [formField]="verificationForm.amount"
             step="0.01"
-            min="0.01"
-            required
           />
         </div>
+        @if (verificationForm.amount().touched() && verificationForm.amount().errors().length) {
+          <div class="validation-error-text">{{ verificationForm.amount().errors()[0].message }}</div>
+        }
       </div>
     </div>
 
@@ -73,17 +71,20 @@
       <label class="field-label" for="category-select">CATEGORY / 類別</label>
       <div class="input-wrapper">
         <span class="material-symbols-outlined field-icon">sell</span>
-        <select id="category-select" class="form-select" [(ngModel)]="category" name="category">
+        <select id="category-select" class="form-select" [formField]="verificationForm.category">
           @for (cat of categories; track cat.key) {
             <option [value]="cat.key">{{ cat.label }}</option>
           }
         </select>
       </div>
+      @if (verificationForm.category().touched() && verificationForm.category().errors().length) {
+        <div class="validation-error-text">{{ verificationForm.category().errors()[0].message }}</div>
+      }
     </div>
 
     <!-- Sticky Action Button inside Card -->
     <div class="form-actions">
-      <button type="submit" class="save-btn" [disabled]="!merchantName().trim() || amount() <= 0 || isSaving()">
+      <button type="submit" class="save-btn" [disabled]="verificationForm().invalid() || isSaving()">
         @if (isSaving()) {
           <span class="material-symbols-outlined rotating">sync</span>
           SAVING EXPENSE...

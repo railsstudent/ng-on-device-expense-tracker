@@ -212,3 +212,11 @@
   line-height: 1.5;
   font-weight: 500;
 }
+
+.validation-error-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #ef4444; /* Red-500 */
+  margin-top: 4px;
+  font-weight: 500;
+}
