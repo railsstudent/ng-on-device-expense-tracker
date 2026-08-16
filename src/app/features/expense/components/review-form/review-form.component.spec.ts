@@ -90,4 +90,22 @@ describe('ReviewFormComponent', () => {
       category: 'dining',
     });
   });
+
+  it('should reset touched and dirty flags back to false when resetForm is called', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const compAny = component as any;
+
+    // Simulate user focusing and leaving the input field to mark it as touched
+    const inputEl = fixture.nativeElement.querySelector('#merchant-input');
+    inputEl.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+
+    expect(compAny.verificationForm.merchantName().touched()).toBe(true);
+
+    // Call resetForm
+    component.resetForm();
+    fixture.detectChanges();
+
+    expect(compAny.verificationForm.merchantName().touched()).toBe(false);
+  });
 });

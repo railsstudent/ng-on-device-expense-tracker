@@ -84,6 +84,11 @@
 
     <!-- Sticky Action Button inside Card -->
     <div class="form-actions">
+      <button type="button" class="reset-btn" [disabled]="isSaving()" (click)="onClearForm()">
+        <span class="material-symbols-outlined">restart_alt</span>
+        CLEAR FORM
+      </button>
+
       <button type="submit" class="save-btn" [disabled]="verificationForm().invalid() || isSaving()">
         @if (isSaving()) {
           <span class="material-symbols-outlined rotating">sync</span>

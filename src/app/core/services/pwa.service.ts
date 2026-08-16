@@ -1,11 +1,10 @@
-import { NAVIGATOR } from '@/core/consts/window.const';
-import { isPlatformBrowser } from '@angular/common';
-import { inject, PLATFORM_ID, Service, signal } from '@angular/core';
+import { NAVIGATOR, IS_BROWSER } from '@/core/consts/window.const';
+import { inject, Service, signal } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 
 @Service()
 export class PwaService {
-  readonly #platformId = inject(PLATFORM_ID);
+  readonly #isBrowser = inject(IS_BROWSER);
   readonly #swUpdate = inject(SwUpdate);
   readonly #navigator = inject(NAVIGATOR);
 
@@ -17,7 +16,7 @@ export class PwaService {
   readonly #initPromise: Promise<void>;
 
   constructor() {
-    if (isPlatformBrowser(this.#platformId)) {
+    if (this.#isBrowser) {
       this.#initPromise = this.initializePwaTracker();
     } else {
       this.#status.set('Not Supported (SSR Mode)');

@@ -34,7 +34,11 @@ export class DatabaseService {
    * Inserts a new expense log into the database and returns its new auto-incremented primary key id.
    */
   public async insert(expense: ExtractedExpense): Promise<number> {
-    return this.#db.expenses.add(expense as Expense);
+    const data = { ...expense } as Expense;
+    if ('id' in data) {
+      delete data.id;
+    }
+    return this.#db.expenses.add(data);
   }
 
   /**

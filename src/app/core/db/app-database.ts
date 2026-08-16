@@ -9,7 +9,7 @@ export class AppDatabase extends Dexie {
 
   constructor() {
     super('expenses_tracker_db');
-    this.version(1).stores({
+    this.version(2).stores({
       expenses: '++id, merchantName, transactionDate, category',
     });
   }

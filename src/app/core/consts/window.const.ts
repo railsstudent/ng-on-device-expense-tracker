@@ -2,14 +2,19 @@ import { InjectionToken, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 /**
+ * IS_BROWSER Injection Token: Returns true if executing in the browser platform, false if in SSR
+ */
+export const IS_BROWSER = new InjectionToken<boolean>('GlobalIsBrowserToken', {
+  providedIn: 'root',
+  factory: () => isPlatformBrowser(inject(PLATFORM_ID)),
+});
+
+/**
  * WINDOW Injection Token: Returns the browser window object, or null in SSR
  */
 export const WINDOW = new InjectionToken<Window | null>('GlobalWindowToken', {
   providedIn: 'root',
-  factory: () => {
-    const platformId = inject(PLATFORM_ID);
-    return isPlatformBrowser(platformId) ? window : null;
-  },
+  factory: () => (inject(IS_BROWSER) ? window : null),
 });
 
 /**

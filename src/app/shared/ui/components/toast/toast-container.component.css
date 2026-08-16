@@ -1,0 +1,56 @@
+@reference "../../../../../styles.css";
+
+.toast-container {
+  @apply fixed top-6 right-6 z-50 flex flex-col gap-3 w-full max-w-sm pointer-events-none;
+}
+
+.toast {
+  @apply pointer-events-auto flex items-center gap-3 p-4 rounded-xl bg-white/95 backdrop-blur-md shadow-lg border border-slate-100/50 transition-all duration-200 ease-out;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-1rem) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.toast-icon {
+  @apply flex-shrink-0 w-5 h-5 flex items-center justify-center;
+}
+
+.icon {
+  @apply w-full h-full;
+}
+
+.toast-content {
+  @apply flex-grow text-sm font-medium text-slate-800 leading-snug;
+}
+
+.toast-close {
+  @apply flex-shrink-0 bg-transparent border-0 cursor-pointer p-1 rounded-md text-slate-400 flex items-center justify-center transition-colors duration-150 hover:bg-slate-100 hover:text-slate-600;
+}
+
+.close-icon {
+  @apply w-4 h-4;
+}
+
+/* Modifiers with Theme-aligned Tones */
+.toast.success {
+  @apply bg-emerald-50/98 border border-emerald-100/50 shadow-emerald-500/5;
+}
+.toast.success .icon {
+  @apply text-emerald-600;
+}
+
+.toast.error {
+  @apply bg-red-50/98 border border-red-100/50 shadow-red-500/5;
+}
+.toast.error .icon {
+  @apply text-red-600;
+}

@@ -26,6 +26,14 @@ When writing or refactoring TypeScript code, you MUST adhere to the following ru
    - **Incorrect**: `public readonly status = computed(() => { return this.#state().status; });`
 6. **Implicit Signal Type Inference**: Never specify explicit type parameters on signals when they can be cleanly inferred from their initialization values (e.g., use `readonly isDragging = signal(false);` instead of `readonly isDragging = signal<boolean>(false);`).
 7. **Absolute Path Aliases**: Never use relative import paths (e.g. `../` or `../../`) inside application, service, component, layout, utility, or spec files. Always use absolute path aliases that start with `@/` to import local project files (e.g. `import { Service } from '@/core/services/...'`).
+8. **Tailwind CSS v4 Component Styling**: Always prioritize Tailwind CSS v4 `@apply` utility classes over raw vanilla CSS inside component-scoped stylesheets. To compile correctly in isolation, you MUST prepend an explicit `@reference` directive pointing relatively to the global `src/styles.css` stylesheet file.
+   - **Correct**:
+     ```css
+     @reference "../../../../../styles.css";
+     .toast-container {
+       @apply fixed top-6 right-6 flex flex-col;
+     }
+     ```
 
 ## Agent skills
 

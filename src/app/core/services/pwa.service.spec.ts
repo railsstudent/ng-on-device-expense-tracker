@@ -1,10 +1,10 @@
 import '@angular/compiler';
+
+import { IS_BROWSER, NAVIGATOR } from '@/core/consts/window.const';
+import { PwaService } from '@/core/services/pwa.service';
 import { TestBed } from '@angular/core/testing';
-import { PwaService } from './pwa.service';
 import { SwUpdate } from '@angular/service-worker';
-import { PLATFORM_ID } from '@angular/core';
 import { Subject } from 'rxjs';
-import { NAVIGATOR } from '../consts/window.const';
 
 describe('PwaService', () => {
   let mockSwUpdate: {
@@ -43,7 +43,7 @@ describe('PwaService', () => {
     TestBed.configureTestingModule({
       providers: [
         PwaService,
-        { provide: PLATFORM_ID, useValue: currentPlatformId },
+        { provide: IS_BROWSER, useValue: currentPlatformId === 'browser' },
         { provide: SwUpdate, useValue: mockSwUpdate },
         { provide: NAVIGATOR, useValue: currentPlatformId === 'server' ? null : globalThis.navigator },
       ],

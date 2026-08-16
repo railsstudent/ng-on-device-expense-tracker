@@ -19,6 +19,9 @@ export class ReviewFormComponent {
   // Modern output emitting the domain-specific ExtractedExpense type
   public readonly saved = output<ExtractedExpense>();
 
+  // Output notifying parent when the user requests a manual form clear
+  public readonly cleared = output<void>();
+
   // Centralized single-source-of-truth categories list
   protected readonly categories = EXPENSE_CATEGORIES;
 
@@ -44,8 +47,21 @@ export class ReviewFormComponent {
   });
 
   protected onSubmit(): void {
-    submit(this.verificationForm, async () => {
-      this.saved.emit(this.formModel());
+    submit(this.verificationForm, async () => this.saved.emit(this.formModel()));
+  }
+
+  protected onClearForm(): void {
+    this.resetForm();
+    this.cleared.emit();
+  }
+
+  public resetForm(): void {
+    this.formModel.set({
+      merchantName: this.initialData()?.merchantName || '',
+      amount: this.initialData()?.amount || 0,
+      transactionDate: this.initialData()?.transactionDate || '',
+      category: this.initialData()?.category || 'dining',
     });
+    this.verificationForm().reset();
   }
 }

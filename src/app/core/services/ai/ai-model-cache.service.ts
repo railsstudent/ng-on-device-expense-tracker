@@ -1,16 +1,15 @@
 import { AI_CACHE_NAME, GEMMA_MODEL_URL, DEFAULT_MODEL_FILENAME } from '@/core/consts/ai-model.const';
-import { CACHE_STORAGE, WINDOW } from '@/core/consts/window.const';
+import { CACHE_STORAGE, WINDOW, IS_BROWSER } from '@/core/consts/window.const';
 import { createCachedState, createDownloadingState, createNotDownloadedState } from '@/core/utils/cache-state.utils';
 import { sha256 } from '@/core/utils/crypto.utils';
 import { parseProgressPercentage } from '@/core/utils/progress.utils';
 import { CacheState } from '@/shared/interfaces/cache-state.interface';
-import { computed, inject, Service, signal, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { computed, inject, Service, signal } from '@angular/core';
 import FileProxyCache from '@/assets/FileProxyCache.min.js';
 
 @Service()
 export class AiModelCacheService {
-  readonly #platformId = inject(PLATFORM_ID);
+  readonly #isBrowser = inject(IS_BROWSER);
   readonly #window = inject(WINDOW);
   readonly #cacheStorage = inject(CACHE_STORAGE);
 
@@ -30,7 +29,7 @@ export class AiModelCacheService {
 
   constructor() {
     // Standard Angular-native check: only run cache setup and storage inspection in browser environments
-    if (isPlatformBrowser(this.#platformId)) {
+    if (this.#isBrowser) {
       FileProxyCache.setCacheName(AI_CACHE_NAME);
       // Kick off background cache check and capture its promise
       this.#initPromise = this.checkInitialCacheState();
