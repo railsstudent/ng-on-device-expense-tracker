@@ -1,5 +1,7 @@
-import { Component, model, output, signal, computed, linkedSignal } from '@angular/core';
+import { Component, input, output, computed, linkedSignal } from '@angular/core';
 import { form, FormField, submit, required, min } from '@angular/forms/signals';
+import { ExtractedExpense } from '@/shared/interfaces/expense.interface';
+import { EXPENSE_CATEGORIES } from '@/shared/constants/category.constants';
 
 @Component({
   selector: 'app-review-form',
@@ -8,44 +10,29 @@ import { form, FormField, submit, required, min } from '@angular/forms/signals';
   styleUrls: ['./review-form.component.css'],
 })
 export class ReviewFormComponent {
-  // Two-way model bindings with implicit type inference
-  public readonly merchantName = model('Coffee Roasters Inc.');
-  public readonly amount = model(12.5);
-  public readonly transactionDate = model('2026-05-14');
-  public readonly category = model('dining');
-  public readonly isReceipt = model(false);
-  public readonly hasExtracted = model(false);
+  // Enforce compile-time parent binding contract
+  public readonly initialData = input.required<ExtractedExpense | null>();
 
-  // Modern output event signal
-  public readonly saved = output<{
-    merchantName: string;
-    amount: number;
-    transactionDate: string;
-    category: string;
-  }>();
+  // State driven strictly by parent database save cycle
+  public readonly isSaving = input(false);
 
-  // Loading state for saving simulation
-  protected readonly isSaving = signal(false);
+  // Modern output emitting the domain-specific ExtractedExpense type
+  public readonly saved = output<ExtractedExpense>();
 
-  protected readonly categories = [
-    { key: 'dining', label: 'Dining & Meals / 餐飲' },
-    { key: 'travel', label: 'Travel & Transport / 交通' },
-    { key: 'office', label: 'Office & Software / 辦公' },
-    { key: 'utilities', label: 'Utilities & Bills / 水電雜費' },
-    { key: 'shopping', label: 'Shopping & Entertainment / 購物與娛樂' },
-    { key: 'other', label: 'Other / 其他' },
-  ];
+  // Centralized single-source-of-truth categories list
+  protected readonly categories = EXPENSE_CATEGORIES;
 
-  // Private inputs source that triggers resetting on change (single-line arrow shortcut)
-  readonly #inputsSource = computed(() => ({
-    merchantName: this.merchantName(),
-    amount: this.amount(),
-    transactionDate: this.transactionDate(),
-    category: this.category(),
+  // Create formModel as a linkedSignal directly from initialData (single-line implicit return)
+  protected readonly formModel = linkedSignal(() => ({
+    merchantName: this.initialData()?.merchantName || '',
+    amount: this.initialData()?.amount || 0,
+    transactionDate: this.initialData()?.transactionDate || '',
+    category: this.initialData()?.category || 'dining',
   }));
 
-  // Create formModel as a linkedSignal (single-line arrow shortcut)
-  protected readonly formModel = linkedSignal(() => this.#inputsSource());
+  // Simple layout computations (single-line arrow shortcuts)
+  protected readonly hasExtracted = computed(() => this.initialData() !== null);
+  protected readonly isReceipt = computed(() => this.initialData()?.isReceipt ?? false);
 
   // Define verificationForm using Signal Forms with validation rules
   protected readonly verificationForm = form(this.formModel, (s) => {
@@ -58,11 +45,6 @@ export class ReviewFormComponent {
 
   protected onSubmit(): void {
     submit(this.verificationForm, async () => {
-      this.isSaving.set(true);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 800);
-      });
-      this.isSaving.set(false);
       this.saved.emit(this.formModel());
     });
   }

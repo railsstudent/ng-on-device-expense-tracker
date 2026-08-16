@@ -9,7 +9,11 @@
       <app-image-uploader (imageSelected)="onImageSelected($event)"></app-image-uploader>
 
       <!-- Manual AI Scan Action Button -->
-      <button class="ocr-trigger-button" [disabled]="!selectedImageBase64() || isProcessing()" (click)="triggerLocalOcr()">
+      <button
+        class="ocr-trigger-button"
+        [disabled]="!selectedImageBase64() || isProcessing()"
+        (click)="triggerLocalOcr()"
+      >
         <span class="material-symbols-outlined" [class.rotating]="isProcessing()">analytics</span>
         {{ isProcessing() ? 'EXTRACTING WITH AI...' : 'Extract Expense with AI' }}
       </button>
@@ -25,12 +29,8 @@
     <div class="right-panel">
       <!-- Human-in-the-Loop Validation Form -->
       <app-review-form
-        [(merchantName)]="merchantName"
-        [(amount)]="amount"
-        [(transactionDate)]="transactionDate"
-        [(category)]="selectedCategory"
-        [(isReceipt)]="isReceipt"
-        [(hasExtracted)]="hasExtracted"
+        [initialData]="extractedExpense()"
+        [isSaving]="isSaving()"
         (saved)="onFormSaved($event)"
       ></app-review-form>
     </div>

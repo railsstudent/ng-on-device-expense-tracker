@@ -3,6 +3,9 @@ import { ImageUploaderComponent } from '@/shared/ui/components/image-uploader/im
 import { ModelDownloaderComponent } from '@/shared/ui/components/model-downloader/model-downloader.component';
 import { Component, signal, inject } from '@angular/core';
 import { ReceiptAnalyzerService } from '@/core/services/ai/receipt-analyzer.service';
+import { DatabaseService } from '@/core/services/database.service';
+import { ExtractedExpense } from '@/shared/interfaces/expense.interface';
+import { OCR_CATEGORY_MAP } from '@/shared/constants/category.constants';
 
 @Component({
   selector: 'app-extract-expense',
@@ -12,18 +15,13 @@ import { ReceiptAnalyzerService } from '@/core/services/ai/receipt-analyzer.serv
 })
 export class ExtractExpenseComponent {
   readonly #analyzerService = inject(ReceiptAnalyzerService);
+  readonly #databaseService = inject(DatabaseService);
 
-  // Bidirectional sync fields with implicit signal types
-  protected readonly merchantName = signal('');
-  protected readonly amount = signal(0);
-  protected readonly transactionDate = signal('');
-  protected readonly selectedCategory = signal('dining');
+  // Consolidated read-only extracted state passed to review form
+  protected readonly extractedExpense = signal<ExtractedExpense | null>(null);
 
-  // Tracks if the analysed file was classified as a valid receipt
-  protected readonly isReceipt = signal(false);
-
-  // Tracks if a manual extraction has been run on the current image
-  protected readonly hasExtracted = signal(false);
+  // State managing physical database write transactions
+  protected readonly isSaving = signal(false);
 
   // New signal to manage selected image state and manual button enabling (empty string instead of null)
   protected readonly selectedImageBase64 = signal('');
@@ -36,8 +34,7 @@ export class ExtractExpenseComponent {
     console.log('Action: Image file processed by uploader widget:', base64Data.substring(0, 50) + '...');
     this.selectedImageBase64.set(base64Data);
     // Reset receipt states on a new image drop
-    this.isReceipt.set(false);
-    this.hasExtracted.set(false);
+    this.extractedExpense.set(null);
   }
 
   protected async triggerLocalOcr(): Promise<void> {
@@ -49,49 +46,40 @@ export class ExtractExpenseComponent {
     console.log('Action: Manual OCR extraction triggered.');
     try {
       const result = await this.#analyzerService.analyzeReceipt(base64Data);
-      
+
+      // Map category back to standard English dropdown taxonomy keys using shared constants map
+      const mappedCategory = OCR_CATEGORY_MAP[result.category] || 'other';
+
       // Update form signals with extracted metadata
-      this.merchantName.set(result.merchantName);
-      this.amount.set(result.amount);
-      this.transactionDate.set(result.transactionDate);
-      
-      // Map category back to standard English dropdown taxonomy keys
-      const categoryMap: Record<string, string> = {
-        'Food': 'dining',
-        'Groceries': 'shopping',
-        'Transport': 'travel',
-        'Entertainment': 'shopping',
-        'Shopping': 'shopping',
-        'Utilities': 'utilities',
-        'Medical': 'other',
-        'Others': 'other'
-      };
-      
-      const mappedCategory = categoryMap[result.category] || 'other';
-      this.selectedCategory.set(mappedCategory);
-      
-      // Bind states to trigger slide-in warn warnings if false and completed
-      this.isReceipt.set(result.isReceipt ?? false);
-      this.hasExtracted.set(true);
+      this.extractedExpense.set({
+        merchantName: result.merchantName,
+        amount: result.amount,
+        transactionDate: result.transactionDate,
+        category: mappedCategory,
+        isReceipt: result.isReceipt ?? false,
+      });
     } catch (err) {
       console.error('Error during OCR extraction pipeline:', err);
     }
   }
 
-  protected onFormSaved(data: {
-    merchantName: string;
-    amount: number;
-    transactionDate: string;
-    category: string;
-  }): void {
+  protected async onFormSaved(data: ExtractedExpense): Promise<void> {
     console.log('Action: Save Expense Triggered with validated fields:', data);
-    alert(
-      `Success! Saved local expense:\nMerchant: ${data.merchantName}\nAmount: $${data.amount}\nCategory: ${data.category}`,
-    );
-    // Reset selected image and extraction states after successful save
-    this.selectedImageBase64.set('');
-    this.isReceipt.set(false);
-    this.hasExtracted.set(false);
+    this.isSaving.set(true);
+    try {
+      await this.#databaseService.insert(data);
+      console.log('Action: Expense successfully persisted in IndexedDB.');
+      alert(
+        `Success! Saved local expense:\nMerchant: ${data.merchantName}\nAmount: $${data.amount}\nCategory: ${data.category}`,
+      );
+      // Reset selected image and extraction states after successful save
+      this.selectedImageBase64.set('');
+      this.extractedExpense.set(null);
+    } catch (err) {
+      console.error('Failed to save expense in IndexedDB:', err);
+    } finally {
+      this.isSaving.set(false);
+    }
   }
 }
 
