@@ -22,13 +22,8 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
               class="nav-item"
-              [class.disabled-item]="link.path === '/history'"
-              (click)="link.path === '/history' ? $event.preventDefault() : null"
             >
               {{ link.label }}
-              @if (link.path === '/history') {
-                <span class="badge-soon">SOON</span>
-              }
             </a>
           }
         </nav>

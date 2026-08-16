@@ -23,6 +23,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/expense/components/extract-expense/extract-expense.component'),
   },
   {
+    path: ROUTE_PATHS.HISTORY,
+    loadComponent: () => import('./features/expense/components/history-insights/history-insights.component'),
+  },
+  {
     path: '**',
     redirectTo: ROUTE_PATHS.EXTRACT,
   },

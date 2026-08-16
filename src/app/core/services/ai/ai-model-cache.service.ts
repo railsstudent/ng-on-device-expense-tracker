@@ -1,11 +1,11 @@
-import { AI_CACHE_NAME, GEMMA_MODEL_URL, DEFAULT_MODEL_FILENAME } from '@/core/consts/ai-model.const';
-import { CACHE_STORAGE, WINDOW, IS_BROWSER } from '@/core/consts/window.const';
+import FileProxyCache from '@/assets/FileProxyCache.min.js';
+import { AI_CACHE_NAME, DEFAULT_MODEL_FILENAME, GEMMA_MODEL_URL } from '@/core/consts/ai-model.const';
+import { CACHE_STORAGE, IS_BROWSER, WINDOW } from '@/core/consts/window.const';
 import { createCachedState, createDownloadingState, createNotDownloadedState } from '@/core/utils/cache-state.utils';
 import { sha256 } from '@/core/utils/crypto.utils';
 import { parseProgressPercentage } from '@/core/utils/progress.utils';
 import { CacheState } from '@/shared/interfaces/cache-state.interface';
 import { computed, inject, Service, signal } from '@angular/core';
-import FileProxyCache from '@/assets/FileProxyCache.min.js';
 
 @Service()
 export class AiModelCacheService {

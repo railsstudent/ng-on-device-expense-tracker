@@ -1,29 +1,29 @@
-import { Service, inject, signal, computed, OnDestroy } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { AiModelCacheService } from './ai-model-cache.service';
-import { Engine, Conversation, Message } from '@litert-lm/core';
-import { ExtractedExpense } from '@/shared/interfaces/expense.interface';
-import { RECEIPT_SYSTEM_PROMPT } from '@/core/consts/ai-prompt.const';
+import { RECEIPT_SYSTEM_PROMPT } from '@/core/consts/receipt-prompt.const';
+import { WINDOW } from '@/core/consts/window.const';
 import { sanitizeJsonString } from '@/core/utils/json.utils';
 import { runOcr } from '@/core/utils/ocr.utils';
-import { WINDOW } from '@/core/consts/window.const';
-import { ReceiptAnalysisState } from '@/shared/interfaces/receipt-analysis-state.interface';
 import {
   createCompletedAnalysisState,
   createFailedAnalysisState,
   createIdleAnalysisState,
   createProcessingAnalysisState,
 } from '@/core/utils/receipt-analysis-state.utils';
+import { safeDeleteConversation } from '@/core/utils/ai-conversation.utils';
+import { ExtractedExpense } from '@/shared/interfaces/expense.interface';
+import { ReceiptAnalysisState } from '@/shared/interfaces/receipt-analysis-state.interface';
+import { DOCUMENT } from '@angular/common';
+import { Service, computed, inject, signal } from '@angular/core';
+import { Conversation, Message } from '@litert-lm/core';
+import { GemmaEngineService } from './gemma-engine.service';
 
 @Service()
-export class ReceiptAnalyzerService implements OnDestroy {
-  readonly #cacheService = inject(AiModelCacheService);
+export class ReceiptAnalyzerService {
+  readonly #engineService = inject(GemmaEngineService);
   readonly #window = inject(WINDOW);
   readonly #document = inject(DOCUMENT);
 
   // Single backing state signal
   readonly #state = signal<ReceiptAnalysisState>(createIdleAnalysisState());
-  #engine: Engine | null = null;
 
   // Concurrency guard lock to prevent memory context leaks and overlapping WebGPU compiler compilations
   #isAnalyzing = false;
@@ -51,21 +51,6 @@ export class ReceiptAnalyzerService implements OnDestroy {
     }
   });
 
-  private async initializeEngine(localBlobUrl: string): Promise<void> {
-    if (!this.#engine) {
-      this.#state.set(createProcessingAnalysisState('initializing'));
-      this.#engine = await Engine.create({
-        model: localBlobUrl,
-        mainExecutorSettings: {
-          maxNumTokens: 2048,
-        },
-      });
-    }
-    if (!this.#engine) {
-      throw new Error('Failed to initialize the local Gemma 4 WebGPU engine.');
-    }
-  }
-
   private async runGemmaParsing(conversation: Conversation, ocrText: string): Promise<string> {
     this.#state.set(createProcessingAnalysisState('parsing'));
     const currentDateString = new Date().toISOString().split('T')[0];
@@ -88,19 +73,15 @@ export class ReceiptAnalyzerService implements OnDestroy {
     let conversation: Conversation | null = null;
 
     try {
-      const localBlobUrl = await this.#cacheService.getModelUrl();
-      if (!localBlobUrl) {
-        throw new Error('Gemma 4 local weights are not cached in the browser yet. Please download them first.');
-      }
-
       this.#state.set(createProcessingAnalysisState('scanning'));
       const origin = this.#window?.location?.origin || '';
       const localLangPath = origin ? `${origin}/assets/tessdata/` : '/assets/tessdata/';
       const ocrText = await runOcr(imageFile, ['eng', 'chi_tra', 'chi_sim'], localLangPath, this.#document);
       console.log('Tesseract OCR Raw Text Result:\n', ocrText);
 
-      await this.initializeEngine(localBlobUrl);
-      const conversationInstance = await this.#engine!.createConversation();
+      this.#state.set(createProcessingAnalysisState('initializing'));
+      const engine = await this.#engineService.getEngine();
+      const conversationInstance = await engine.createConversation();
       if (!conversationInstance) {
         throw new Error('Failed to create a local Gemma 4 conversation session.');
       }
@@ -116,7 +97,7 @@ export class ReceiptAnalyzerService implements OnDestroy {
       throw err;
     } finally {
       this.#isAnalyzing = false;
-      await this.cleanupResources(conversation);
+      await safeDeleteConversation(conversation);
     }
   }
 
@@ -164,32 +145,5 @@ export class ReceiptAnalyzerService implements OnDestroy {
     }
 
     return '';
-  }
-
-  /**
-   * Safely releases the conversation instance from VRAM and RAM memory.
-   */
-  private async cleanupResources(conversation: Conversation | null): Promise<void> {
-    try {
-      if (conversation) {
-        await conversation.delete();
-      }
-    } catch (cleanupErr) {
-      console.warn('Error releasing LiteRT-LM conversation session memory:', cleanupErr);
-    }
-  }
-
-  /**
-   * Lifecycle cleanup: Releases the engine instance from WebGPU memory when the application is destroyed completely.
-   */
-  public async ngOnDestroy(): Promise<void> {
-    if (this.#engine) {
-      try {
-        await this.#engine.delete();
-        this.#engine = null;
-      } catch (cleanupErr) {
-        console.warn('Error releasing LiteRT-LM engine resources during OnDestroy:', cleanupErr);
-      }
-    }
   }
 }

@@ -1,0 +1,19 @@
+<dialog #nativeDialog class="confirm-modal" (cancel)="onClose($event)">
+  <div class="modal-box">
+    <!-- Projected Title Header Slot -->
+    <header class="modal-header">
+      <ng-content select="[dialog-title]"></ng-content>
+    </header>
+
+    <!-- Projected Message Body Slot -->
+    <article class="modal-body">
+      <ng-content select="[dialog-body]"></ng-content>
+    </article>
+
+    <!-- Action Buttons -->
+    <footer class="modal-actions">
+      <button class="btn-cancel" (click)="cancel()">Cancel</button>
+      <button class="btn-confirm" (click)="confirm()">Confirm</button>
+    </footer>
+  </div>
+</dialog>

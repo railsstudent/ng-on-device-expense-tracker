@@ -1,0 +1,33 @@
+@reference "../../../../../styles.css";
+
+.confirm-modal {
+  @apply fixed inset-0 m-auto p-0 rounded-2xl border border-slate-800/80 bg-[#0d1527]/95 backdrop-blur-xl shadow-2xl transition-all duration-300 max-w-md w-full overflow-hidden;
+}
+
+.confirm-modal::backdrop {
+  @apply bg-brand-bg/75 backdrop-blur-md transition-opacity duration-300;
+}
+
+.modal-box {
+  @apply p-6 flex flex-col gap-4;
+}
+
+.modal-header {
+  @apply text-xl font-bold tracking-tight text-white flex items-center gap-2 border-b border-slate-800/50 pb-3;
+}
+
+.modal-body {
+  @apply text-slate-300 text-sm leading-relaxed py-2;
+}
+
+.modal-actions {
+  @apply flex justify-end gap-3 pt-3 border-t border-slate-800/50;
+}
+
+.btn-cancel {
+  @apply px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-slate-800/50 hover:bg-slate-800 rounded-lg transition-all;
+}
+
+.btn-confirm {
+  @apply px-4 py-2 text-xs font-semibold text-white bg-brand-danger hover:bg-red-600 rounded-lg shadow-lg shadow-red-500/10 hover:shadow-red-500/25 transition-all;
+}
