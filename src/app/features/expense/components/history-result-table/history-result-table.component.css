@@ -1,0 +1,101 @@
+@reference "../../../../../styles.css";
+
+.table-empty-box {
+  @apply flex flex-col items-center justify-center p-12 bg-slate-900/20 border border-dashed border-slate-800/80 rounded-2xl text-center gap-2;
+}
+
+.table-empty-icon {
+  @apply text-5xl text-slate-500 mb-2;
+}
+
+.table-empty-title {
+  @apply text-sm font-semibold text-slate-300;
+}
+
+.table-empty-desc {
+  @apply text-xs text-slate-500;
+}
+
+.table-wrapper {
+  @apply overflow-x-auto w-full border border-slate-800/50 rounded-xl bg-slate-900/10;
+}
+
+.table-element {
+  @apply w-full border-collapse text-left text-sm;
+}
+
+.table-header-row {
+  @apply border-b border-slate-800;
+}
+
+.table-header-th {
+  @apply px-4 py-3 bg-slate-900/40 text-slate-400 font-semibold cursor-pointer hover:bg-slate-900/60 hover:text-white transition-all select-none;
+}
+
+.table-header-th-right {
+  @apply px-4 py-3 bg-slate-900/40 text-slate-400 font-semibold cursor-pointer hover:bg-slate-900/60 hover:text-white transition-all select-none text-right;
+}
+
+.table-header-th-actions {
+  @apply px-4 py-3 bg-slate-900/40 text-slate-400 font-semibold text-center select-none w-20;
+}
+
+.table-header-content {
+  @apply flex items-center gap-1;
+}
+
+.table-header-content-right {
+  @apply flex items-center justify-end gap-1;
+}
+
+.table-body-row {
+  @apply border-b border-slate-800/50 hover:bg-slate-900/30 transition-all;
+}
+
+.table-cell-merchant {
+  @apply px-4 py-3.5 font-medium text-white max-w-[200px] truncate;
+}
+
+.table-cell-amount {
+  @apply px-4 py-3.5 text-indigo-400 font-bold text-right tabular-nums;
+}
+
+.table-cell-date {
+  @apply px-4 py-3.5 text-slate-400 text-xs font-mono;
+}
+
+.table-cell-category {
+  @apply px-4 py-3.5;
+}
+
+.table-category-badge {
+  @apply px-2.5 py-0.5 text-xs font-semibold rounded-full border bg-slate-800/50 border-slate-700/50 text-slate-300 capitalize;
+}
+
+.table-cell-actions {
+  @apply px-4 py-3.5 text-center;
+}
+
+.table-delete-button {
+  @apply w-8 h-8 rounded-lg text-rose-500 hover:bg-rose-500/15 flex items-center justify-center cursor-pointer transition-all active:scale-90;
+}
+
+.table-footer {
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-4 pt-4 border-t border-slate-800/60;
+}
+
+.table-footer-page-size {
+  @apply flex items-center gap-2 text-xs text-slate-400;
+}
+
+.table-footer-select {
+  @apply h-8 px-2 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white font-medium focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer;
+}
+
+.table-footer-pagination {
+  @apply flex items-center gap-4 text-xs font-medium text-slate-400 justify-between sm:justify-end;
+}
+
+.table-arrow-button {
+  @apply w-8 h-8 rounded-lg bg-slate-900/50 border border-slate-800/80 text-white hover:bg-slate-800 disabled:opacity-30 disabled:hover:bg-slate-900/50 flex items-center justify-center cursor-pointer transition-all;
+}

@@ -2,298 +2,45 @@
   <div class="split-container container-max">
     <!-- LEFT SIDE: Ledger Zone -->
     <section class="ledger-zone">
-      <div class="card-glass">
+      <div class="card-glass flex flex-col gap-6">
         <h2 class="section-title">Ledger / 交易紀錄</h2>
 
-        <!-- Inclusive Date Search Controls -->
-        <form (submit)="$event.preventDefault(); onSearch()" class="search-form">
-          <div class="input-group">
-            <div class="field-box">
-              <label for="startDate">Date From / 起始日期</label>
-              <input type="date" id="startDate" [formField]="searchForm.startDate" class="form-input" />
-            </div>
-            <div class="field-box">
-              <label for="endDate">Date To / 結束日期</label>
-              <input type="date" id="endDate" [formField]="searchForm.endDate" class="form-input" />
-            </div>
-          </div>
-          <button type="submit" [disabled]="searchForm().invalid()" class="btn-search">
-            <span class="material-symbols-outlined">search</span>
-            <span>Search / 查詢</span>
-          </button>
-        </form>
+        <!-- Search Form child component -->
+        <app-history-search-form (searchSubmit)="onSearch($event)"></app-history-search-form>
 
         <!-- Divider -->
         <hr class="section-divider" />
 
-        <!-- CASE 1: Empty Initial State -->
-        @if (!hasSearched()) {
-          <div class="placeholder-box">
-            <span class="material-symbols-outlined placeholder-icon">calendar_month</span>
-            <p class="placeholder-text-tw">Select a date range above to load expense history</p>
-            <p class="placeholder-text-cn">請選擇日期範圍以載入交易紀錄</p>
-          </div>
-        }
-
-        <!-- CASE 2: No Records Found State -->
-        @else if (totalCount() === 0) {
-          <div class="placeholder-box">
-            <span class="material-symbols-outlined placeholder-icon">error</span>
-            <p class="placeholder-text-tw">No expense logs found within this date range</p>
-            <p class="placeholder-text-cn">此日期範圍內無任何交易紀錄</p>
-          </div>
-        }
-
-        <!-- CASE 3: Populated High-Density Data Grid -->
-        @else {
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th (click)="toggleSort('merchantName')" class="sortable-header">
-                    <span>Merchant / 商家</span>
-                    <span class="material-symbols-outlined chevron-icon">
-                      {{ sortBy() === 'merchantName' ? (sortAsc() ? 'expand_less' : 'expand_more') : 'unfold_more' }}
-                    </span>
-                  </th>
-                  <th (click)="toggleSort('amount')" class="sortable-header text-right">
-                    <span>Amount / 金額</span>
-                    <span class="material-symbols-outlined chevron-icon">
-                      {{ sortBy() === 'amount' ? (sortAsc() ? 'expand_less' : 'expand_more') : 'unfold_more' }}
-                    </span>
-                  </th>
-                  <th (click)="toggleSort('transactionDate')" class="sortable-header">
-                    <span>Date / 交易日期</span>
-                    <span class="material-symbols-outlined chevron-icon">
-                      {{ sortBy() === 'transactionDate' ? (sortAsc() ? 'expand_less' : 'expand_more') : 'unfold_more' }}
-                    </span>
-                  </th>
-                  <th (click)="toggleSort('category')" class="sortable-header">
-                    <span>Category / 類別</span>
-                    <span class="material-symbols-outlined chevron-icon">
-                      {{ sortBy() === 'category' ? (sortAsc() ? 'expand_less' : 'expand_more') : 'unfold_more' }}
-                    </span>
-                  </th>
-                  <th class="actions-header">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (item of paginatedExpenses(); track item.id) {
-                  <tr class="table-row">
-                    <td class="cell-merchant">{{ item.merchantName }}</td>
-                    <td class="cell-amount text-right">{{ item.amount | currency }}</td>
-                    <td class="cell-date">{{ item.transactionDate }}</td>
-                    <td class="cell-category">
-                      <span class="badge-category" [attr.data-category]="item.category.toLowerCase()">
-                        {{ item.category }}
-                      </span>
-                    </td>
-                    <td class="cell-actions">
-                      <button
-                        (click)="openDeleteConfirmation(item)"
-                        class="btn-delete"
-                        aria-label="Delete expense record"
-                      >
-                        <span class="material-symbols-outlined">delete</span>
-                      </button>
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Pagination Controller Panel -->
-          <footer class="pagination-bar">
-            <div class="rows-select-box">
-              <label for="pageSize">Rows per page / 每頁行數:</label>
-              <select
-                id="pageSize"
-                [value]="pageSize()"
-                (change)="setPageSize(+$any($event.target).value)"
-                class="form-select"
-              >
-                <option [value]="5">5</option>
-                <option [value]="10">10</option>
-                <option [value]="20">20</option>
-                <option [value]="50">50</option>
-              </select>
-            </div>
-
-            <div class="pagination-controls">
-              <span class="page-indicator">
-                {{ (currentPage() - 1) * pageSize() + 1 }}–{{ Math.min(currentPage() * pageSize(), totalCount()) }} of
-                {{ totalCount() }}
-              </span>
-              <div class="arrows-box">
-                <button
-                  (click)="prevPage()"
-                  [disabled]="currentPage() === 1"
-                  class="btn-arrow"
-                  aria-label="Previous Page"
-                >
-                  <span class="material-symbols-outlined">chevron_left</span>
-                </button>
-                <button
-                  (click)="nextPage()"
-                  [disabled]="currentPage() === totalPages()"
-                  class="btn-arrow"
-                  aria-label="Next Page"
-                >
-                  <span class="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
-            </div>
-          </footer>
-        }
+        <!-- Ledger Result Table child component -->
+        <app-history-result-table
+          [state]="tableState()"
+          [hasSearched]="vm.hasSearched()"
+          (sort)="onSort()"
+          (pageSizeChange)="onPageSizeChange($event)"
+          (pageChange)="onPageChange($event)"
+          (deleteRequest)="openDeleteConfirmation($event)"
+        ></app-history-result-table>
       </div>
     </section>
 
     <!-- RIGHT SIDE: AI Zone -->
     <section class="ai-zone">
-      <div class="card-glass">
-        <header class="ai-header">
-          <h2 class="section-title">Intelligence / 智慧分析</h2>
-
-          <!-- Unified Local WebGPU Model Load Status Indicators -->
-          <div class="status-indicator">
-            @switch (aiStatus()) {
-              @case ('initializing') {
-                <div class="indicator-badge status-loading">
-                  <span class="pulse-dot bg-blue-500 animate-pulse"></span>
-                  <span>Loading Gemma 4...</span>
-                </div>
-              }
-              @case ('priming') {
-                <div class="indicator-badge status-priming">
-                  <span class="pulse-dot bg-indigo-500 animate-ping"></span>
-                  <span>Priming dataset context...</span>
-                </div>
-              }
-              @case ('thinking') {
-                <div class="indicator-badge status-thinking">
-                  <span class="pulse-dot bg-purple-500 animate-ping"></span>
-                  <span>Gemma is thinking...</span>
-                </div>
-              }
-              @case ('ready') {
-                <div class="indicator-badge status-ready">
-                  <span class="pulse-dot status-dot bg-emerald-500"></span>
-                  <span>Gemma 4: Active</span>
-                </div>
-              }
-              @case ('failed') {
-                <div class="indicator-badge status-failed" [title]="aiError() || 'Connection failed'">
-                  <span class="pulse-dot bg-rose-500"></span>
-                  <span>AI Error / 載入失敗</span>
-                </div>
-              }
-              @default {
-                <div class="indicator-badge status-idle">
-                  <span class="pulse-dot bg-slate-500"></span>
-                  <span>Session Idle</span>
-                </div>
-              }
-            }
-          </div>
-        </header>
-
-        <!-- Prompt Input Container -->
-        <div class="prompt-container">
-          <textarea
-            [value]="aiQuery()"
-            (input)="onQueryChange($event)"
-            placeholder="Ask Gemma about your current ledger (e.g., 'What is my highest category expense?' or 'Show dining trends'...)"
-            [disabled]="
-              !hasSearched() || totalCount() === 0 || aiStatus() === 'priming' || aiStatus() === 'initializing'
-            "
-            class="prompt-textarea"
-          ></textarea>
-
-          <button
-            (click)="onAskGemma()"
-            [disabled]="
-              !aiQuery().trim() ||
-              !hasSearched() ||
-              totalCount() === 0 ||
-              aiStatus() === 'thinking' ||
-              aiStatus() === 'priming'
-            "
-            class="btn-ask"
-          >
-            <span class="material-symbols-outlined">auto_awesome</span>
-            <span>Ask Gemma</span>
-          </button>
-        </div>
-
-        <!-- Safe Client-Side Guardrail Warning Overlay -->
-        @if (isQueryUnsafe()) {
-          <div class="alert-box alert-warning">
-            <span class="material-symbols-outlined alert-icon">gavel</span>
-            <div class="alert-content">
-              <h4 class="alert-title">Prompt Rejected / 安全防護攔截</h4>
-              <p class="alert-message">
-                Please ask a relevant financial question about your expense ledger. Off-topic, toxic, or gibberish
-                prompts are ignored to save computing power.
-              </p>
-            </div>
-          </div>
-        }
-
-        <!-- Streaming Insight Cards Display Grid -->
-        <div class="insights-display">
-          @if (aiStatus() === 'thinking' && streamingInsights().length === 0) {
-            <div class="shimmer-container">
-              <div class="shimmer-card"></div>
-              <div class="shimmer-card"></div>
-            </div>
-          }
-
-          @for (insight of streamingInsights(); track $index) {
-            <article class="insight-card" [attr.data-type]="insight.type">
-              <header class="insight-card-header">
-                <span class="material-symbols-outlined insight-type-icon">
-                  @switch (insight.type) {
-                    @case ('anomaly') {
-                      error
-                    }
-                    @case ('saving') {
-                      payments
-                    }
-                    @case ('trend') {
-                      trending_up
-                    }
-                    @default {
-                      info
-                    }
-                  }
-                </span>
-                <h3 class="insight-card-title">{{ insight.title }}</h3>
-              </header>
-              <p class="insight-card-message">{{ insight.message }}</p>
-            </article>
-          }
-
-          @if (
-            hasSearched() &&
-            totalCount() > 0 &&
-            streamingInsights().length === 0 &&
-            !isQueryUnsafe() &&
-            aiStatus() === 'ready'
-          ) {
-            <div class="insights-welcome">
-              <span class="material-symbols-outlined welcome-icon">chat_bubble</span>
-              <p>Type a question above and click <strong>Ask Gemma</strong> to extract financial insights.</p>
-            </div>
-          }
-        </div>
+      <div class="card-glass flex flex-col gap-6">
+        <!-- Insights Chat child component -->
+        <app-history-insights-chat
+          [state]="aiState()"
+          [hasSearched]="vm.hasSearched()"
+          [hasExpenses]="hasExpenses()"
+          (queryChange)="onQueryChange($event)"
+          (askGemma)="vm.onAskGemma()"
+        ></app-history-insights-chat>
       </div>
     </section>
   </div>
 </div>
 
 <!-- Standalone Projected Confirm Dialog component -->
-<app-confirm-dialog #confirmDialog (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()">
+<app-confirm-dialog #confirmDialog (confirmed)="vm.onDeleteConfirmed()" (cancelled)="vm.onDeleteCancelled()">
   <h3 dialog-title class="flex items-center gap-2 text-rose-500">
     <span class="material-symbols-outlined">warning</span>
     <span>Delete Record / 刪除紀錄</span>
@@ -301,8 +48,8 @@
   <div dialog-body>
     <p class="mb-2">
       Are you sure you want to permanently delete this expense from
-      <strong class="text-white">{{ pendingDeleteExpense()?.merchantName }}</strong>
-      of amount <strong class="text-indigo-400">{{ pendingDeleteExpense()?.amount | currency }}</strong
+      <strong class="text-white">{{ vm.pendingDeleteExpense()?.merchantName }}</strong>
+      of amount <strong class="text-indigo-400">{{ vm.pendingDeleteExpense()?.amount | currency }}</strong
       >?
     </p>
     <p class="text-xs text-slate-400">

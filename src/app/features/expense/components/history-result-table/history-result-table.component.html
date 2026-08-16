@@ -1,0 +1,115 @@
+<!-- CASE 1: Empty Initial State -->
+@if (!hasSearched()) {
+  <div class="table-empty-box">
+    <span class="material-symbols-outlined table-empty-icon">calendar_month</span>
+    <p class="table-empty-title">Select a date range above to load expense history</p>
+    <p class="table-empty-desc">請選擇日期範圍以載入交易紀錄</p>
+  </div>
+}
+
+<!-- CASE 2: No Records Found State -->
+@else if (totalCount() === 0) {
+  <div class="table-empty-box">
+    <span class="material-symbols-outlined table-empty-icon">error</span>
+    <p class="table-empty-title">No expense logs found within this date range</p>
+    <p class="table-empty-desc">此日期範圍內無任何交易紀錄</p>
+  </div>
+}
+
+<!-- CASE 3: Populated High-Density Data Grid -->
+@else {
+  <div class="table-wrapper">
+    <table class="table-element">
+      <thead>
+        <tr class="table-header-row">
+          <th (click)="onSort('merchantName')" class="table-header-th">
+            <div class="table-header-content">
+              <span>Merchant / 商家</span>
+              <span class="material-symbols-outlined text-base opacity-70">
+                {{ sortIcons().merchantName }}
+              </span>
+            </div>
+          </th>
+          <th (click)="onSort('amount')" class="table-header-th-right">
+            <div class="table-header-content-right">
+              <span>Amount / 金額</span>
+              <span class="material-symbols-outlined text-base opacity-70">
+                {{ sortIcons().amount }}
+              </span>
+            </div>
+          </th>
+          <th (click)="onSort('transactionDate')" class="table-header-th">
+            <div class="table-header-content">
+              <span>Date / 交易日期</span>
+              <span class="material-symbols-outlined text-base opacity-70">
+                {{ sortIcons().transactionDate }}
+              </span>
+            </div>
+          </th>
+          <th (click)="onSort('category')" class="table-header-th">
+            <div class="table-header-content">
+              <span>Category / 類別</span>
+              <span class="material-symbols-outlined text-base opacity-70">
+                {{ sortIcons().category }}
+              </span>
+            </div>
+          </th>
+          <th class="table-header-th-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (item of paginatedExpenses(); track item.id) {
+          <tr class="table-body-row">
+            <td class="table-cell-merchant">{{ item.merchantName }}</td>
+            <td class="table-cell-amount">{{ item.amount | currency }}</td>
+            <td class="table-cell-date">{{ item.transactionDate }}</td>
+            <td class="table-cell-category">
+              <span class="table-category-badge">
+                {{ item.category }}
+              </span>
+            </td>
+            <td class="table-cell-actions">
+              <button (click)="deleteRequest.emit(item)" class="table-delete-button" aria-label="Delete expense record">
+                <span class="material-symbols-outlined text-lg">delete</span>
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controller Panel -->
+  <footer class="table-footer">
+    <div class="table-footer-page-size">
+      <label for="pageSize">Rows per page / 每頁行數:</label>
+      <select id="pageSize" [value]="state().pageSize" (change)="onPageSizeChange($event)" class="table-footer-select">
+        @for (size of pageSizes; track size) {
+          <option [value]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="table-footer-pagination">
+      <span> {{ itemRangeLabel() }} of {{ totalCount() }} </span>
+      <div class="flex items-center gap-1">
+        <button
+          (click)="prevPage()"
+          [disabled]="state().currentPage === 1"
+          class="table-arrow-button"
+          aria-label="Previous Page"
+        >
+          <span class="material-symbols-outlined text-lg">chevron_left</span>
+        </button>
+        <button
+          (click)="nextPage()"
+          [disabled]="state().currentPage === totalPages()"
+          class="table-arrow-button"
+          aria-label="Next Page"
+        >
+          <span class="material-symbols-outlined text-lg">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+}
