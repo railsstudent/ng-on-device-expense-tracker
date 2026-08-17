@@ -36,9 +36,13 @@ When writing or refactoring TypeScript code, you MUST adhere to the following ru
      }
      ```
 
-9. **Signal Localization & Stateless Parent Services**: Presentation-only variables (such as active sorting columns, sort direction, page size, and current page numbers) must reside locally inside the presenting component or its stateless view-service helpers. They must not pollute parent data-loading services.
+9. **Signal Localization & Stateless Parent Services**: Presentation-only variables (such as active sorting columns, sort direction, page size, current page numbers, and modal pending/open selections) must reside locally inside the presenting component or its stateless view-service helpers. They must not pollute parent data-loading services.
 10. **Self-Healing State with `linkedSignal`**: Whenever a local view signal (such as `currentPage` or `pageSize`) depends on or must be clamped when a bound input array (such as `expenses`) changes, always use Angular's `linkedSignal` to handle boundary-clamping cleanly and reactively instead of manual setters or intermediate states.
 11. **Map-Based Cyclical State Transitions**: Avoid using verbose, procedurally branched conditional logic chains (e.g. `if/else`) to handle sequential state loops (such as none -> asc -> desc -> none). Always use static, typed lookup maps/dictionaries (`Partial<Record<T, T>>`).
+12. **Signal Forms (`@angular/forms/signals`) Constraint**: All forms in this repository MUST be built using Angular's modern, reactive Signal Forms (`@angular/forms/signals`). The use of legacy Reactive Forms (`FormGroup`, `FormControl`, `FormBuilder` from `@angular/forms`) or template-driven forms is strictly prohibited. This guarantees optimal performance, native reactivity, and a unified state management architecture.
+13. **Direct Read-Only Signal Assignments**: Never wrap an already-read-only signal inside a redundant `computed` block (e.g., avoid `status = computed(() => this.otherService.status())`). Always assign the signal directly to simplify the reactive dependency graph and reduce CPU overhead (e.g., use `status = this.otherService.status`).
+14. **Avoid Redundant Component Providers**: Do not specify services decorated with the custom `@Service()` decorator inside a component's local `providers: [...]` metadata array. Doing so overrides the DI container and instantiates a redundant, component-scoped copy instead of utilizing the container's global singleton.
+15. **Unified Visual Theme & Page Shells**: All newly created pages must use the global `.app-page-shell` wrapper class and adhere strictly to the standard **Premium Light Theme (slate-50 base, white card-glass, text-slate-800, border-slate-200)**. Under no circumstances should pages define their own localized dark background overrides or absolute `min-h-screen` height properties.
 
 ## Agent skills
 

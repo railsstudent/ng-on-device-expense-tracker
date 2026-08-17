@@ -5,63 +5,7 @@
 }
 
 .chat-title {
-  @apply text-lg font-bold text-white tracking-wide;
-}
-
-.chat-badge {
-  @apply flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border bg-slate-950/40;
-}
-
-.chat-badge-initializing {
-  @apply border-blue-500/20 text-blue-400;
-}
-
-.chat-badge-priming {
-  @apply border-indigo-500/20 text-indigo-400;
-}
-
-.chat-badge-thinking {
-  @apply border-purple-500/20 text-purple-400;
-}
-
-.chat-badge-ready {
-  @apply border-emerald-500/20 text-emerald-400;
-}
-
-.chat-badge-failed {
-  @apply border-rose-500/20 text-rose-400;
-}
-
-.chat-badge-idle {
-  @apply border-slate-800/80 text-slate-400;
-}
-
-.chat-dot {
-  @apply w-1.5 h-1.5 rounded-full;
-}
-
-.chat-dot-initializing {
-  @apply bg-blue-500 animate-pulse;
-}
-
-.chat-dot-priming {
-  @apply bg-indigo-500 animate-ping;
-}
-
-.chat-dot-thinking {
-  @apply bg-purple-500 animate-ping;
-}
-
-.chat-dot-ready {
-  @apply bg-emerald-500;
-}
-
-.chat-dot-failed {
-  @apply bg-rose-500;
-}
-
-.chat-dot-idle {
-  @apply bg-slate-500;
+  @apply text-lg font-bold text-slate-800 tracking-wide;
 }
 
 .chat-prompt-box {
@@ -69,7 +13,7 @@
 }
 
 .chat-textarea {
-  @apply w-full min-h-[80px] p-3 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none placeholder:text-slate-500 disabled:opacity-40;
+  @apply w-full min-h-[100px] p-3 bg-white border border-slate-300 rounded-xl text-slate-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all resize-none placeholder:text-slate-400 disabled:opacity-40;
 }
 
 .chat-ask-button {
@@ -77,11 +21,11 @@
 }
 
 .chat-guardrail {
-  @apply flex items-start gap-3 p-4 border bg-amber-950/10 border-amber-800/30 text-amber-300 rounded-xl;
+  @apply flex items-start gap-3 p-4 border bg-amber-50 border-amber-200 text-amber-800 rounded-xl;
 }
 
 .chat-guardrail-icon {
-  @apply text-xl shrink-0 mt-0.5;
+  @apply text-xl shrink-0 mt-0.5 text-amber-600;
 }
 
 .chat-guardrail-title {
@@ -89,53 +33,5 @@
 }
 
 .chat-guardrail-desc {
-  @apply text-xs text-amber-300/80 leading-relaxed mt-0.5;
-}
-
-.chat-insights-list {
-  @apply flex flex-col gap-3 overflow-y-auto max-h-[350px] pr-1.5 scrollbar-thin;
-}
-
-.chat-shimmer-card {
-  @apply h-20 bg-slate-800/30 border border-slate-700/20 rounded-xl animate-pulse;
-}
-
-.chat-insight-card {
-  @apply flex flex-col gap-1.5 p-4 border rounded-xl bg-slate-900/15;
-}
-
-.chat-insight-anomaly {
-  @apply border-rose-500/20 bg-rose-950/5 text-rose-300;
-}
-
-.chat-insight-saving {
-  @apply border-emerald-500/20 bg-emerald-950/5 text-emerald-300;
-}
-
-.chat-insight-trend {
-  @apply border-indigo-500/20 bg-indigo-950/5 text-indigo-300;
-}
-
-.chat-insight-default {
-  @apply border-slate-800/50 bg-slate-900/10 text-slate-300;
-}
-
-.chat-insight-card-header {
-  @apply flex items-center gap-2 text-white;
-}
-
-.chat-insight-card-title {
-  @apply text-sm font-bold;
-}
-
-.chat-insight-card-desc {
-  @apply text-xs leading-relaxed;
-}
-
-.chat-welcome-box {
-  @apply flex flex-col items-center justify-center p-8 text-center text-slate-500 text-xs gap-2 border border-slate-800/40 border-dashed rounded-xl;
-}
-
-.chat-welcome-icon {
-  @apply text-3xl opacity-50;
+  @apply text-xs text-amber-700 leading-relaxed mt-0.5;
 }

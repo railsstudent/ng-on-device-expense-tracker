@@ -1,77 +1,26 @@
 <header class="chat-header">
   <h2 class="chat-title">Intelligence / 智慧分析</h2>
 
-  <!-- Unified Local WebGPU Model Load Status Indicators -->
-  <div>
-    @switch (state().status) {
-      @case ('initializing') {
-        <div class="chat-badge chat-badge-initializing">
-          <span class="chat-dot chat-dot-initializing"></span>
-          <span>Loading Gemma 4...</span>
-        </div>
-      }
-      @case ('priming') {
-        <div class="chat-badge chat-badge-priming">
-          <span class="chat-dot chat-dot-priming"></span>
-          <span>Priming dataset context...</span>
-        </div>
-      }
-      @case ('thinking') {
-        <div class="chat-badge chat-badge-thinking">
-          <span class="chat-dot chat-dot-thinking"></span>
-          <span>Gemma is thinking...</span>
-        </div>
-      }
-      @case ('ready') {
-        <div class="chat-badge chat-badge-ready">
-          <span class="chat-dot chat-dot-ready"></span>
-          <span>Gemma 4: Active</span>
-        </div>
-      }
-      @case ('failed') {
-        <div class="chat-badge chat-badge-failed" [title]="state().error || 'Connection failed'">
-          <span class="chat-dot chat-dot-failed"></span>
-          <span>AI Error / 載入失敗</span>
-        </div>
-      }
-      @default {
-        <div class="chat-badge chat-badge-idle">
-          <span class="chat-dot chat-dot-idle"></span>
-          <span>Session Idle</span>
-        </div>
-      }
-    }
-  </div>
+  <!-- Unified Local WebGPU Model Load Status Indicators (Sub-component) -->
+  <app-history-insights-status [status]="state().status" [error]="state().error"></app-history-insights-status>
 </header>
 
 <!-- Prompt Input Container -->
-<div class="chat-prompt-box">
+<form (submit)="onSubmit($event)" class="chat-prompt-box">
   <textarea
-    [value]="state().query"
-    (input)="onInput($event)"
+    [formField]="chatForm.query"
     placeholder="Ask Gemma about your current ledger (e.g., 'What is my highest category expense?' or 'Show dining trends'...)"
-    [disabled]="!hasSearched() || !hasExpenses() || state().status === 'priming' || state().status === 'initializing'"
     class="chat-textarea"
   ></textarea>
 
-  <button
-    (click)="askGemma.emit()"
-    [disabled]="
-      !state().query.trim() ||
-      !hasSearched() ||
-      !hasExpenses() ||
-      state().status === 'thinking' ||
-      state().status === 'priming'
-    "
-    class="chat-ask-button"
-  >
+  <button type="submit" [disabled]="isSubmitDisabled()" class="chat-ask-button">
     <span class="material-symbols-outlined text-sm">auto_awesome</span>
     <span>Ask Gemma</span>
   </button>
-</div>
+</form>
 
 <!-- Safe Client-Side Guardrail Warning Overlay -->
-@if (state().isQueryUnsafe) {
+@if (isQueryUnsafe()) {
   <div class="chat-guardrail">
     <span class="material-symbols-outlined chat-guardrail-icon">gavel</span>
     <div class="flex flex-col">
@@ -84,56 +33,10 @@
   </div>
 }
 
-<!-- Streaming Insight Cards Display Grid -->
-<div class="chat-insights-list">
-  @if (state().status === 'thinking' && state().streamingInsights.length === 0) {
-    <div class="flex flex-col gap-3">
-      <div class="chat-shimmer-card"></div>
-      <div class="chat-shimmer-card"></div>
-    </div>
-  }
-
-  @for (insight of state().streamingInsights; track $index) {
-    <article
-      class="chat-insight-card"
-      [class.chat-insight-anomaly]="insight.type === 'anomaly'"
-      [class.chat-insight-saving]="insight.type === 'saving'"
-      [class.chat-insight-trend]="insight.type === 'trend'"
-      [class.chat-insight-default]="insight.type !== 'anomaly' && insight.type !== 'saving' && insight.type !== 'trend'"
-    >
-      <header class="chat-insight-card-header">
-        <span class="material-symbols-outlined text-lg">
-          @switch (insight.type) {
-            @case ('anomaly') {
-              error
-            }
-            @case ('saving') {
-              payments
-            }
-            @case ('trend') {
-              trending_up
-            }
-            @default {
-              info
-            }
-          }
-        </span>
-        <h3 class="chat-insight-card-title">{{ insight.title }}</h3>
-      </header>
-      <p class="chat-insight-card-desc">{{ insight.message }}</p>
-    </article>
-  }
-
-  @if (
-    hasSearched() &&
-    hasExpenses() &&
-    state().streamingInsights.length === 0 &&
-    !state().isQueryUnsafe &&
-    state().status === 'ready'
-  ) {
-    <div class="chat-welcome-box">
-      <span class="material-symbols-outlined chat-welcome-icon">chat_bubble</span>
-      <p>Type a question above and click <strong>Ask Gemma</strong> to extract financial insights.</p>
-    </div>
-  }
-</div>
+<!-- Streaming Insight Cards Display Grid (Sub-component) -->
+<app-history-insights-list
+  [insights]="state().streamingInsights"
+  [status]="state().status"
+  [showWelcomeBox]="showWelcomeBox()"
+  [isQueryUnsafe]="isQueryUnsafe()"
+></app-history-insights-list>

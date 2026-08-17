@@ -13,7 +13,7 @@ export class HistorySearchFormComponent {
 
   protected readonly formModel = signal({
     startDate: '',
-    endDate: '',
+    endDate: new Date().toISOString().split('T')[0],
   });
 
   protected readonly searchForm = form(this.formModel, (s) => {

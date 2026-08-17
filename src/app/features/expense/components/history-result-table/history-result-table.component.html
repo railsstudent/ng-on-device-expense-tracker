@@ -61,9 +61,10 @@
   <footer class="table-footer">
     <div class="table-footer-page-size">
       <label for="pageSize">Rows per page / 每頁行數:</label>
+      pageSize: {{ pageSize() }}
       <select id="pageSize" [value]="pageSize()" (change)="onPageSizeChange($event)" class="table-footer-select">
         @for (size of pageSizes; track size) {
-          <option [value]="size">{{ size }}</option>
+          <option [value]="size" [selected]="size === pageSize()">{{ size }}</option>
         }
       </select>
     </div>

@@ -38,6 +38,9 @@ Users need a completely offline, highly interactive dashboard inside their brows
 - **Priming phase**: When a new search is submitted, the previous session is destroyed. A new `Conversation` is created, and a minified JSON representation of the expenses dataset is sent. Gemma 4 caches the attention weights in memory and confirmation is returned.
 - **Analytical phase**: Subsequent prompts are sent directly to the active, primed `Conversation` session without re-transferring the dataset.
 - **Streaming Parser**: Use `chat.sendMessageStreaming(prompt)`. On each token chunk, run the accumulated buffer through `json-repair` to dynamically parse and populate partial insight cards.
+- **Prompt Safety & Relevance Guardrail**: To prevent brand liabilities and protect the user's client-side battery and WebGPU memory resources from wasteful processing of off-topic requests, the system must validate all user queries at the local gateway before invoking the LLM:
+  - _Toxicity Shield_: Proactively block any query containing toxic or harmful language.
+  - _Relevance Guard_: Verify the query's relevance to financial analytics, transactions, budgets, or categories. Unrelated topics (such as general knowledge, cooking recipes, etc.) must be blocked at the gateway, prompting a helpful off-topic user notification.
 
 ---
 

@@ -1,0 +1,49 @@
+@reference "../../../../../styles.css";
+
+.chat-insights-list {
+  @apply flex flex-col gap-3 overflow-y-auto max-h-[350px] pr-1.5 scrollbar-thin;
+}
+
+.chat-shimmer-card {
+  @apply h-20 bg-slate-100 border border-slate-200 rounded-xl animate-pulse;
+}
+
+.chat-insight-card {
+  @apply flex flex-col gap-1.5 p-4 border rounded-xl bg-slate-50/50;
+}
+
+.chat-insight-anomaly {
+  @apply border-rose-200 bg-rose-50/50 text-rose-800;
+}
+
+.chat-insight-saving {
+  @apply border-emerald-200 bg-emerald-50/50 text-emerald-800;
+}
+
+.chat-insight-trend {
+  @apply border-indigo-200 bg-indigo-50/50 text-indigo-800;
+}
+
+.chat-insight-default {
+  @apply border-slate-200 bg-slate-50/80 text-slate-700;
+}
+
+.chat-insight-card-header {
+  @apply flex items-center gap-2 text-slate-800;
+}
+
+.chat-insight-card-title {
+  @apply text-sm font-bold;
+}
+
+.chat-insight-card-desc {
+  @apply text-xs leading-relaxed text-slate-600;
+}
+
+.chat-welcome-box {
+  @apply flex flex-col items-center justify-center p-8 text-center text-slate-400 text-xs gap-2 border border-slate-200 border-dashed rounded-xl;
+}
+
+.chat-welcome-icon {
+  @apply text-3xl opacity-50 text-slate-400;
+}

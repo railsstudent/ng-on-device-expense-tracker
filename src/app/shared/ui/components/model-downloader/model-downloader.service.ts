@@ -11,9 +11,9 @@ export class ModelDownloaderService {
   // Load-time network tracking signal
   public readonly isOnline = createOnlineStatusSignal(this.#navigator);
 
-  // Expose status and progress from the cache service
-  public readonly status = computed(() => this.#cacheService.status());
-  public readonly progress = computed(() => this.#cacheService.progress());
+  // Directly reference already-read-only signals to simplify the reactive graph
+  public readonly status = this.#cacheService.status;
+  public readonly progress = this.#cacheService.progress;
 
   // Derive connection/caching states
   public readonly isCached = computed(() => this.status() === 'cached');

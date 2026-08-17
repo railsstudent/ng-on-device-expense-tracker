@@ -37,4 +37,17 @@ describe('isQuerySafeAndRelevant', () => {
     expect(isQuerySafeAndRelevant('  \n  show\nexpenses  \n  ')).toBe(true);
     expect(isQuerySafeAndRelevant('dumb\ninsight')).toBe(false);
   });
+
+  it('should support stemmed keyword variations and irregular forms', () => {
+    // Regular inflections
+    expect(isQuerySafeAndRelevant('Do I spend too much on traveling?')).toBe(true);
+    expect(isQuerySafeAndRelevant('Am I shopping too much?')).toBe(true);
+    expect(isQuerySafeAndRelevant('Show my shopping categories.')).toBe(true);
+
+    // Irregular lemmas
+    expect(isQuerySafeAndRelevant('Who spent the most last month?')).toBe(true);
+    expect(isQuerySafeAndRelevant('What did I buy yesterday?')).toBe(true);
+    expect(isQuerySafeAndRelevant('What was bought on amazon?')).toBe(true);
+    expect(isQuerySafeAndRelevant('My flight to New York.')).toBe(true);
+  });
 });

@@ -1,23 +1,18 @@
+import { AiSessionStatus } from './ai-session-state.interface';
 import { Expense } from './expense.interface';
 import { Insight } from './insight.interface';
 
 export type SortDirection = 'asc' | 'desc' | 'none';
 
 export interface AiChatState {
-  status: 'initializing' | 'priming' | 'thinking' | 'ready' | 'failed' | 'idle';
+  status: AiSessionStatus;
   error: string | null;
-  query: string;
-  isQueryUnsafe: boolean;
   streamingInsights: Insight[];
 }
 
 export interface DateRangeSearch {
   startDate: string;
   endDate: string;
-}
-
-export interface QueryChangeEvent {
-  query: string;
 }
 
 /**
@@ -40,4 +35,10 @@ export interface HeaderConfig {
   key: keyof Expense;
   label: string;
   alignRight?: boolean;
+}
+
+export interface StatusConfig {
+  status: AiChatState['status'];
+  class: string;
+  label: string;
 }

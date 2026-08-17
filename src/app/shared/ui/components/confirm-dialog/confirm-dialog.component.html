@@ -1,19 +1,23 @@
 <dialog #nativeDialog class="confirm-modal" (cancel)="onClose($event)">
   <div class="modal-box">
-    <!-- Projected Title Header Slot -->
+    <!-- Projected Title Header Slot (Self-closing since it has no fallback content) -->
     <header class="modal-header">
-      <ng-content select="[dialog-title]"></ng-content>
+      <ng-content select="[dialog-title]" />
     </header>
 
-    <!-- Projected Message Body Slot -->
+    <!-- Projected Message Body Slot (Self-closing since it has no fallback content) -->
     <article class="modal-body">
-      <ng-content select="[dialog-body]"></ng-content>
+      <ng-content select="[dialog-body]" />
     </article>
 
-    <!-- Action Buttons -->
+    <!-- Action Buttons (Uses standard tags to wrap their fallback text content) -->
     <footer class="modal-actions">
-      <button class="btn-cancel" (click)="cancel()">Cancel</button>
-      <button class="btn-confirm" (click)="confirm()">Confirm</button>
+      <button class="btn-cancel" (click)="cancel()">
+        <ng-content select="[dialog-cancel-text]">Cancel</ng-content>
+      </button>
+      <button class="btn-confirm" (click)="confirm()">
+        <ng-content select="[dialog-confirm-text]">Confirm</ng-content>
+      </button>
     </footer>
   </div>
 </dialog>

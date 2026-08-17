@@ -19,17 +19,17 @@ export class ConfirmDialogComponent {
     this.dialogElement()?.nativeElement.close();
   }
 
-  protected confirm(): void {
+  public confirm(): void {
     this.confirmed.emit();
     this.close();
   }
 
-  protected cancel(): void {
+  public cancel(): void {
     this.cancelled.emit();
     this.close();
   }
 
-  protected onClose(event: Event): void {
+  public onClose(event: Event): void {
     // Prevent the default browser native close to ensure our cancelled event is emitted cleanly
     event.preventDefault();
     this.cancel();

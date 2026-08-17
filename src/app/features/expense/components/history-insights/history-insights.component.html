@@ -1,4 +1,4 @@
-<div class="history-insights-shell">
+<div class="app-page-shell">
   <div class="split-container container-max">
     <!-- LEFT SIDE: Ledger Zone -->
     <section class="ledger-zone">
@@ -13,8 +13,8 @@
 
         <!-- Ledger Result Table child component -->
         <app-history-result-table
-          [expenses]="vm.expenses()"
-          [hasSearched]="vm.hasSearched()"
+          [expenses]="expenses()"
+          [hasSearched]="hasSearched()"
           (deleteRequest)="openDeleteConfirmation($event)"
         ></app-history-result-table>
       </div>
@@ -26,10 +26,9 @@
         <!-- Insights Chat child component -->
         <app-history-insights-chat
           [state]="aiState()"
-          [hasSearched]="vm.hasSearched()"
+          [hasSearched]="hasSearched()"
           [hasExpenses]="hasExpenses()"
-          (queryChange)="onQueryChange($event)"
-          (askGemma)="vm.onAskGemma()"
+          (askGemma)="onAskGemma($event)"
         ></app-history-insights-chat>
       </div>
     </section>
@@ -37,19 +36,19 @@
 </div>
 
 <!-- Standalone Projected Confirm Dialog component -->
-<app-confirm-dialog #confirmDialog (confirmed)="vm.onDeleteConfirmed()" (cancelled)="vm.onDeleteCancelled()">
-  <h3 dialog-title class="flex items-center gap-2 text-rose-500">
+<app-confirm-dialog #confirmDialog (confirmed)="onDeleteConfirmed()" (cancelled)="onDeleteCancelled()">
+  <h3 dialog-title class="flex items-center gap-2 text-rose-600">
     <span class="material-symbols-outlined">warning</span>
     <span>Delete Record / 刪除紀錄</span>
   </h3>
   <div dialog-body>
     <p class="mb-2">
       Are you sure you want to permanently delete this expense from
-      <strong class="text-white">{{ vm.pendingDeleteExpense()?.merchantName }}</strong>
-      of amount <strong class="text-indigo-400">{{ vm.pendingDeleteExpense()?.amount | currency }}</strong
+      <strong class="text-slate-800">{{ pendingDeleteExpense()?.merchantName }}</strong>
+      of amount <strong class="text-indigo-600">{{ pendingDeleteExpense()?.amount | currency }}</strong
       >?
     </p>
-    <p class="text-xs text-slate-400">
+    <p class="text-xs text-slate-500">
       This action is executed directly in your browser's IndexedDB and is completely irreversible.
     </p>
   </div>

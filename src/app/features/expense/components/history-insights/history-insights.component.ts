@@ -1,12 +1,13 @@
-import { Component, computed, inject, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { ConfirmDialogComponent } from '@/shared/ui/components/confirm-dialog/confirm-dialog.component';
-import { HistoryInsightsService } from './history-insights.service';
+import { HistoryInsightsService } from './services/history-insights.service';
 import { HistorySearchFormComponent } from '../history-search-form/history-search-form.component';
 import { HistoryResultTableComponent } from '../history-result-table/history-result-table.component';
 import { HistoryInsightsChatComponent } from '../history-insights-chat/history-insights-chat.component';
 import { Expense } from '@/shared/interfaces/expense.interface';
-import { AiChatState, DateRangeSearch, QueryChangeEvent } from '@/shared/interfaces/history-insights-state.interface';
+import { AiChatState, DateRangeSearch } from '@/shared/interfaces/history-insights-state.interface';
+import { Insight } from '@/shared/interfaces/insight.interface';
 
 @Component({
   selector: 'app-history-insights',
@@ -19,39 +20,80 @@ import { AiChatState, DateRangeSearch, QueryChangeEvent } from '@/shared/interfa
   ],
   templateUrl: './history-insights.component.html',
   styleUrls: ['./history-insights.component.css'],
-  providers: [HistoryInsightsService],
 })
 export default class HistoryInsightsComponent {
-  public readonly vm = inject(HistoryInsightsService);
+  // Service Facade (Stateless calculation and API processing)
+  protected readonly vm = inject(HistoryInsightsService);
 
   protected readonly confirmDialog = viewChild(ConfirmDialogComponent);
 
-  // Compute reactive AiChatState parameter object to pass to Insights Chat child
+  // Presentational/View States (Rule 9 Signal Localization)
+  public readonly expenses = signal<Expense[]>([]);
+  public readonly hasSearched = signal(false);
+  public readonly streamingInsights = signal<Insight[]>([]);
+  public readonly pendingDeleteExpense = signal<Expense | null>(null);
+
+  // Compute reactive AiChatState parameter object (Rule 5 arrow shortcut)
   public readonly aiState = computed<AiChatState>(() => ({
     status: this.vm.aiStatus(),
     error: this.vm.aiError() ?? null,
-    query: this.vm.aiQuery(),
-    isQueryUnsafe: this.vm.isQueryUnsafe(),
-    streamingInsights: this.vm.streamingInsights(),
+    streamingInsights: this.streamingInsights(),
   }));
 
-  // Derived properties for status checking
-  public readonly hasExpenses = computed(() => this.vm.expenses().length > 0);
+  // Derived properties for status checking (Rule 5 arrow shortcut)
+  public readonly hasExpenses = computed(() => this.expenses().length > 0);
 
-  protected onSearch(criteria: DateRangeSearch): void {
-    this.vm.formModel.set({
-      startDate: criteria.startDate,
-      endDate: criteria.endDate,
-    });
-    this.vm.onSearch();
+  public async onSearch(criteria: DateRangeSearch): Promise<void> {
+    try {
+      const list = await this.vm.loadExpenses(criteria.startDate, criteria.endDate);
+      this.expenses.set(list);
+      this.hasSearched.set(true);
+      this.streamingInsights.set([]);
+    } catch (err) {
+      console.error('Error loading history records:', err);
+    }
   }
 
-  protected onQueryChange(event: QueryChangeEvent): void {
-    this.vm.aiQuery.set(event.query);
-  }
-
-  protected openDeleteConfirmation(expense: Expense): void {
-    this.vm.pendingDeleteExpense.set(expense);
+  public openDeleteConfirmation(expense: Expense): void {
+    this.pendingDeleteExpense.set(expense);
     this.confirmDialog()?.open();
+  }
+
+  public async onDeleteConfirmed(): Promise<void> {
+    const expense = this.pendingDeleteExpense();
+    if (expense && expense.id !== undefined) {
+      try {
+        await this.vm.deleteExpense(expense.id);
+        const currentList = this.expenses();
+        const updatedList = currentList.filter((item) => item.id !== expense.id);
+        this.expenses.set(updatedList);
+      } catch (err) {
+        console.error('Failed to delete expense record:', err);
+      } finally {
+        this.pendingDeleteExpense.set(null);
+      }
+    }
+  }
+
+  public onDeleteCancelled(): void {
+    this.pendingDeleteExpense.set(null);
+  }
+
+  public async onAskGemma(query: string): Promise<void> {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    this.streamingInsights.set([]);
+
+    try {
+      const generator = this.vm.streamInsights(trimmed, this.expenses());
+      for await (const list of generator) {
+        this.streamingInsights.set(list);
+      }
+    } catch (err) {
+      console.error('Error consuming Gemma insight stream:', err);
+    }
   }
 }

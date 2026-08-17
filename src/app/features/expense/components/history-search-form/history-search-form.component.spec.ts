@@ -20,12 +20,13 @@ describe('HistorySearchFormComponent', () => {
   });
 
   describe('Form Validation', () => {
-    it('should initialize as empty and invalid', () => {
+    it('should initialize with start date empty and end date as today', () => {
+      const todayStr = new Date().toISOString().split('T')[0];
       const startInput = fixture.debugElement.query(By.css('input#startDate')).nativeElement;
       const endInput = fixture.debugElement.query(By.css('input#endDate')).nativeElement;
 
       expect(startInput.value).toBe('');
-      expect(endInput.value).toBe('');
+      expect(endInput.value).toBe(todayStr);
 
       const button = fixture.debugElement.query(By.css('button[type="submit"]')).nativeElement;
       expect(button.disabled).toBe(true);
@@ -34,6 +35,11 @@ describe('HistorySearchFormComponent', () => {
     it('should stay invalid and not emit when fields are incomplete', () => {
       const submitSpy = vi.fn();
       component.searchSubmit.subscribe(submitSpy);
+
+      // Clear pre-filled endDate so form is incomplete
+      const endInput = fixture.debugElement.query(By.css('input#endDate')).nativeElement;
+      endInput.value = '';
+      endInput.dispatchEvent(new Event('input'));
 
       const startInput = fixture.debugElement.query(By.css('input#startDate')).nativeElement;
       startInput.value = '2026-08-01';

@@ -44,3 +44,8 @@ body {
   text-rendering: optimizeLegibility;
   font-feature-settings: 'liga';
 }
+
+/* Unified Global Layout Shell Dimensions */
+.app-page-shell {
+  @apply max-w-[1280px] mx-auto px-4 py-6 md:px-6 md:py-10 box-border w-full;
+}
