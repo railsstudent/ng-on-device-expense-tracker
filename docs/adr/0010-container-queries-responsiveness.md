@@ -26,6 +26,13 @@ We decided to standardize on **CSS Container Queries** (`@container`) across our
     container-name: table-container;
   }
   ```
+- **Angular Host Sizing Containment (Critical Rule)**: Because Angular custom component host elements default to `display: inline` in browser rendering, any internal container queries nested within parent flex/grid containers will collapse to `0px` width. Therefore, we strictly require that all responsive container-aware custom components declare block-level containment on their host stylesheets:
+  ```css
+  :host {
+    @apply block w-full;
+  }
+  ```
+- **Isolated Mobile-Only Control Delegation Pattern**: When container dimensions fall below `600px`, table headers are hidden to protect vertical reading depth. To maintain user action agency (such as sorting data) without cluttering parent templates or violating Single Responsibility Principles, we delegate mobile-only controls to dedicated subcomponents (e.g. `HistoryMobileSortComponent`). These subcomponents register as children of the query-container, listen to container transitions (`@container table-container (max-width: 600px)`) to automatically toggle their own host rendering between `display: none` and `display: block`, and emit clean, standardized state changes (like `TableSortState`) to bind reactively to parent states.
 - **Breakpoint (`600px`)**: Under `600px` container width, the table transitions to cards:
   - Hide table headers (`thead { display: none; }`).
   - Set rows and cells to `display: block`.

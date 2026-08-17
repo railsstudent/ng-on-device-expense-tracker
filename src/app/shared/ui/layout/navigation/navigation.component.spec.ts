@@ -23,6 +23,6 @@ describe('NavigationComponent', () => {
 
   it('should render the brand title', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.logo-text')?.textContent).toContain('Aether Expense');
+    expect(compiled.querySelector('.logo-text')?.textContent).toContain('Expense Tracker');
   });
 });

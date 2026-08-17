@@ -7,7 +7,7 @@ import { HistoryResultTableComponent } from '../history-result-table/history-res
 import { HistoryInsightsChatComponent } from '../history-insights-chat/history-insights-chat.component';
 import { Expense } from '@/shared/interfaces/expense.interface';
 import { AiChatState, DateRangeSearch } from '@/shared/interfaces/history-insights-state.interface';
-import { Insight } from '@/shared/interfaces/insight.interface';
+import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
 
 @Component({
   selector: 'app-history-insights',
@@ -30,7 +30,8 @@ export default class HistoryInsightsComponent {
   // Presentational/View States (Rule 9 Signal Localization)
   public readonly expenses = signal<Expense[]>([]);
   public readonly hasSearched = signal(false);
-  public readonly streamingInsights = signal<Insight[]>([]);
+  public readonly streamingResponse = signal<InsightsResponse>({ insights: [] });
+  public readonly streamingInsights = computed(() => this.streamingResponse().insights ?? []);
   public readonly pendingDeleteExpense = signal<Expense | null>(null);
 
   // Compute reactive AiChatState parameter object (Rule 5 arrow shortcut)
@@ -48,7 +49,7 @@ export default class HistoryInsightsComponent {
       const list = await this.vm.loadExpenses(criteria.startDate, criteria.endDate);
       this.expenses.set(list);
       this.hasSearched.set(true);
-      this.streamingInsights.set([]);
+      this.streamingResponse.set({ insights: [] });
     } catch (err) {
       console.error('Error loading history records:', err);
     }
@@ -85,12 +86,14 @@ export default class HistoryInsightsComponent {
       return;
     }
 
-    this.streamingInsights.set([]);
+    // Clear previous insights response immediately before querying
+    this.streamingResponse.set({ insights: [] });
 
     try {
       const generator = this.vm.streamInsights(trimmed, this.expenses());
-      for await (const list of generator) {
-        this.streamingInsights.set(list);
+      for await (const response of generator) {
+        // Display only the current query's streaming insights response
+        this.streamingResponse.set(response);
       }
     } catch (err) {
       console.error('Error consuming Gemma insight stream:', err);

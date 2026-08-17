@@ -1,7 +1,7 @@
 import { INSIGHTS_PRIMING_PROMPT, INSIGHTS_USER_PROMPT } from '@/core/consts/insight-prompt.const';
 import { AiSessionState } from '@/shared/interfaces/ai-session-state.interface';
 import { Expense } from '@/shared/interfaces/expense.interface';
-import { Insight } from '@/shared/interfaces/insight.interface';
+import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
 import { computed, inject, OnDestroy, Service, signal } from '@angular/core';
 import { Conversation } from '@litert-lm/core';
 import { jsonrepair } from 'jsonrepair';
@@ -43,16 +43,14 @@ export class InsightService implements OnDestroy {
       }
       this.#conversation = conversationInstance;
 
-      const datasetJson = JSON.stringify(
-        expenses.map((e) => ({
-          merchant: e.merchantName,
-          amount: e.amount,
-          date: e.transactionDate,
-          category: e.category,
-        })),
-      );
+      const datasetCsv = expenses
+        .map(
+          (e) =>
+            `${e.merchantName.replace(/\|/g, ' ')}|${e.amount}|${e.transactionDate}|${e.category.replace(/\|/g, ' ')}`,
+        )
+        .join('\n');
 
-      const primingPrompt = INSIGHTS_PRIMING_PROMPT(datasetJson);
+      const primingPrompt = INSIGHTS_PRIMING_PROMPT(datasetCsv);
 
       // Execute priming prompt asynchronously (consumes internal token stream automatically)
       await this.#conversation.sendMessage(primingPrompt);
@@ -89,7 +87,7 @@ export class InsightService implements OnDestroy {
    * Core generator function to stream insights on-demand.
    * Lazily checks if context needs to be primed before executing streaming queries.
    */
-  public async *streamInsights(userQuery: string, expenses: Expense[]): AsyncGenerator<Insight[]> {
+  public async *streamInsights(userQuery: string, expenses: Expense[]): AsyncGenerator<InsightsResponse> {
     const isContextDifferent = this.#lastPrimedExpenses !== expenses;
 
     if (!this.#conversation || isContextDifferent) {
@@ -101,7 +99,7 @@ export class InsightService implements OnDestroy {
     }
 
     this.#state.set({ status: 'thinking' });
-    let lastValidInsights: Insight[] = [];
+    let lastValidResponse: InsightsResponse = { insights: [] };
     let buffer = '';
 
     try {
@@ -115,12 +113,12 @@ export class InsightService implements OnDestroy {
             const repairedJson = jsonrepair(buffer);
             const parsed = JSON.parse(repairedJson);
             if (parsed && Array.isArray(parsed.insights)) {
-              lastValidInsights = parsed.insights;
+              lastValidResponse = parsed as InsightsResponse;
             }
           } catch {
             // Keep yielding last valid parsed state upon json exception
           }
-          yield lastValidInsights;
+          yield lastValidResponse;
         }
       }
 

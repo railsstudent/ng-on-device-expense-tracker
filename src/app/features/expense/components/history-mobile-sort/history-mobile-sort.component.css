@@ -1,0 +1,19 @@
+@reference "../../../../../styles.css";
+
+:host {
+  display: none;
+}
+
+@container table-container (max-width: 600px) {
+  :host {
+    @apply block w-full;
+  }
+
+  .mobile-sort-bar {
+    @apply flex items-center gap-2 mb-4 p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs;
+  }
+
+  .mobile-sort-select {
+    @apply flex-1 bg-white border border-slate-300 rounded-lg px-2 py-1.5 outline-none font-medium text-slate-700 cursor-pointer;
+  }
+}

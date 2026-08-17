@@ -4,7 +4,7 @@ import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { HistoryInsightsService } from './services/history-insights.service';
 import { DatabaseService } from '@/core/services/database.service';
 import { InsightService } from '@/core/services/ai/insight.service';
-import { Insight } from '@/shared/interfaces/insight.interface';
+import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
 
 describe('HistoryInsightsService', () => {
   let service: HistoryInsightsService;
@@ -22,7 +22,9 @@ describe('HistoryInsightsService', () => {
     status: vi.fn().mockReturnValue('ready'),
     error: vi.fn().mockReturnValue(null),
     streamInsights: vi.fn().mockImplementation(async function* () {
-      yield [{ title: 'Trend Found', message: 'Office spending is higher.', type: 'trend' }] as Insight[];
+      yield {
+        insights: [{ title: 'Trend Found', message: 'Office spending is higher.', type: 'trend' }],
+      } as InsightsResponse;
     }),
   };
 
@@ -62,7 +64,7 @@ describe('HistoryInsightsService', () => {
 
       expect(mockInsightService.streamInsights).toHaveBeenCalledWith('show my dining trends', []);
       expect(streamResults.length).toBe(1);
-      expect(streamResults[0][0].title).toBe('Trend Found');
+      expect(streamResults[0].insights[0].title).toBe('Trend Found');
     });
   });
 });

@@ -19,6 +19,7 @@
 <!-- CASE 3: Populated High-Density Data Grid -->
 @else {
   <div class="table-wrapper">
+    <app-history-mobile-sort [headers]="headers" (sortChange)="sortState.set($event)" />
     <table class="table-element">
       <thead>
         <tr class="table-header-row">

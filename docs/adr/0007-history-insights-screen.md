@@ -50,20 +50,20 @@ We decided to implement the new "History & Insights" screen using native HTML5 `
    IndexedDB does not support compound query indexing natively without significant structural overhead. Because on-device data scales are small, sorting the queried array in memory via an Angular computed signal is instantaneous and completely eliminates database Round-Trip latency.
 
 4. **Continuous Streaming and Exception Yielding**:
-   Swallowing parsing exceptions silently during streaming causes rendering stalls. Instead, we maintain the most recent successfully parsed insights list (`lastValidInsights`). On every single stream chunk, we attempt a repair and parse. If an exception occurs, we catch it and immediately yield our best-effort `lastValidInsights` rather than continuing silently. This guarantees a stutter-free, real-time update cycle for the subscriber.
+   Swallowing parsing exceptions silently during streaming causes rendering stalls. Instead, we maintain the most recent successfully parsed insights response container (`lastValidResponse`). On every single stream chunk, we attempt a repair and parse. If an exception occurs, we catch it and immediately yield our best-effort `lastValidResponse` rather than continuing silently. This guarantees a stutter-free, real-time update cycle for the subscriber.
 
    _Code Blueprint_:
 
    ```typescript
    // inside insight.service.ts
-   public async *streamInsights(userQuery: string): AsyncGenerator<Insight[]> {
+   public async *streamInsights(userQuery: string): AsyncGenerator<InsightsResponse> {
      if (!this.#conversation) {
        throw new Error('AI session not primed.');
      }
 
      const stream = await this.#conversation.sendMessageStreaming(INSIGHTS_USER_PROMPT(userQuery));
      let buffer = '';
-     let lastValidInsights: Insight[] = [];
+     let lastValidResponse: InsightsResponse = { insights: [] };
 
      for await (const chunk of stream) {
        buffer += chunk.content[0].text;
@@ -71,12 +71,12 @@ We decided to implement the new "History & Insights" screen using native HTML5 `
          const repairedJson = jsonRepair(buffer);
          const parsed = JSON.parse(repairedJson);
          if (parsed && parsed.insights) {
-           lastValidInsights = parsed.insights;
+           lastValidResponse = parsed as InsightsResponse;
          }
-         yield lastValidInsights;
+         yield lastValidResponse;
        } catch {
-         // Yield last successfully repaired insights immediately on exception
-         yield lastValidInsights;
+         // Yield last successfully repaired response immediately on exception
+         yield lastValidResponse;
        }
      }
    }

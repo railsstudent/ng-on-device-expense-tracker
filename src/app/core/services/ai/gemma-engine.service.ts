@@ -29,7 +29,7 @@ export class GemmaEngineService implements OnDestroy {
       const instance = await Engine.create({
         model: localBlobUrl,
         mainExecutorSettings: {
-          maxNumTokens: 2048,
+          maxNumTokens: 3084,
         },
       });
 

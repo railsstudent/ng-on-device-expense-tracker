@@ -1,0 +1,11 @@
+<div class="mobile-sort-bar">
+  <span class="material-symbols-outlined text-sm text-slate-500">sort</span>
+  <label for="mobileSort" class="font-semibold text-slate-600">Sort / 排序:</label>
+  <select id="mobileSort" (change)="onSelectChange($event)" class="mobile-sort-select">
+    <option value="">Default / 預設</option>
+    @for (header of headers(); track header.key) {
+      <option [value]="header.key + '-asc'">{{ header.label }} (Asc / 升序)</option>
+      <option [value]="header.key + '-desc'">{{ header.label }} (Desc / 降序)</option>
+    }
+  </select>
+</div>

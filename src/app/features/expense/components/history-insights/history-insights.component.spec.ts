@@ -5,6 +5,7 @@ import HistoryInsightsComponent from './history-insights.component';
 import { HistoryInsightsService } from './services/history-insights.service';
 import { Expense } from '@/shared/interfaces/expense.interface';
 import { Insight } from '@/shared/interfaces/insight.interface';
+import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('HistoryInsightsComponent', () => {
@@ -20,7 +21,9 @@ describe('HistoryInsightsComponent', () => {
     ]),
     deleteExpense: vi.fn().mockResolvedValue(undefined),
     streamInsights: vi.fn().mockImplementation(async function* () {
-      yield [{ title: 'Coffee Spend', message: 'You spent 8.50 on coffee.', type: 'saving' }] as Insight[];
+      yield {
+        insights: [{ title: 'Coffee Spend', message: 'You spent 8.50 on coffee.', type: 'saving' }],
+      } as InsightsResponse;
     }),
   };
 
@@ -90,6 +93,28 @@ describe('HistoryInsightsComponent', () => {
       expect(mockService.streamInsights).toHaveBeenCalledWith('check my coffee habits', component.expenses());
       expect(component.streamingInsights().length).toBe(1);
       expect(component.streamingInsights()[0].title).toBe('Coffee Spend');
+    });
+
+    it('should clear previous insights and only display the current query stream results', async () => {
+      const initialInsight: Insight = { title: 'First Query', message: 'Original', type: 'saving' };
+      component.streamingResponse.set({ insights: [initialInsight] });
+
+      mockService.streamInsights.mockImplementationOnce(async function* () {
+        yield { insights: [{ title: 'Second Query', message: 'Step 1', type: 'trend' }] } as InsightsResponse;
+        yield {
+          insights: [
+            { title: 'Second Query', message: 'Step 1', type: 'trend' },
+            { title: 'Second Query Done', message: 'Step 2', type: 'saving' },
+          ],
+        } as InsightsResponse;
+      });
+
+      await component.onAskGemma('Tell me more');
+
+      const results = component.streamingInsights();
+      expect(results.length).toBe(2);
+      expect(results[0].title).toBe('Second Query');
+      expect(results[1].title).toBe('Second Query Done');
     });
   });
 });

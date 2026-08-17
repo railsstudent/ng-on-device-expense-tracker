@@ -3,10 +3,11 @@ import { HeaderConfig, TableSortState } from '@/shared/interfaces/history-insigh
 import { CurrencyPipe } from '@angular/common';
 import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { HistoryResultTableService } from './services/history-result-table.service';
+import { HistoryMobileSortComponent } from '@/features/expense/components/history-mobile-sort/history-mobile-sort.component';
 
 @Component({
   selector: 'app-history-result-table',
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, HistoryMobileSortComponent],
   templateUrl: './history-result-table.component.html',
   styleUrls: ['./history-result-table.component.css'],
 })

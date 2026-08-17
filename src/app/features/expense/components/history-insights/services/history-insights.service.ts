@@ -1,7 +1,7 @@
 import { DatabaseService } from '@/core/services/database.service';
 import { InsightService } from '@/core/services/ai/insight.service';
 import { Expense } from '@/shared/interfaces/expense.interface';
-import { Insight } from '@/shared/interfaces/insight.interface';
+import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
 import { Service, inject } from '@angular/core';
 
 @Service()
@@ -30,7 +30,7 @@ export class HistoryInsightsService {
   /**
    * Stateless AI adapter: returns the insight generator stream from the engine.
    */
-  public streamInsights(query: string, expenses: Expense[]): AsyncGenerator<Insight[]> {
+  public streamInsights(query: string, expenses: Expense[]): AsyncGenerator<InsightsResponse> {
     return this.#insightService.streamInsights(query.trim(), expenses);
   }
 }

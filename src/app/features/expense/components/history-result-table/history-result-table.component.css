@@ -1,5 +1,9 @@
 @reference "../../../../../styles.css";
 
+:host {
+  @apply block w-full;
+}
+
 .table-empty-box {
   @apply flex flex-col items-center justify-center p-12 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-center gap-2;
 }
