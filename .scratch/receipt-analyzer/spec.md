@@ -64,7 +64,11 @@ We adopt a split-screen desktop layout, utilizing the **Facade Pattern** to deco
     - **Interactions**: On click, triggers the local OCR parsing WebWorker and Gemma offline pipeline, transitioning to active loader states.
 
 - **Right Column (Review Form - Width: 50% - 60%)**:
-  - **`HumanInTheLoopForm`**: Rendered as a card with an active slate-200 border. Form inputs bind to type-safe Angular 22 Signals:
+  - **`HumanInTheLoopForm`** (`ReviewFormComponent`): Rendered as a card with an active slate-200 border. Form inputs bind to type-safe Angular 22 Signals:
+    - **Container-Aware Responsive Layout (Dynamic Padding & Stacking)**: To prevent horizontal truncation or squishing in narrow layout slots (e.g. mobile viewports or split-screen panels where width < 480px), the form card must be configured as a CSS Query Container (`form-container`). When container space is narrow:
+      - The card padding must scale down from `p-7` (28px) to `p-4` (16px) to maximize editing space.
+      - The split fields for Transaction Date and Amount (horizontal on desktop) must stack vertically as full-width rows.
+      - The primary action buttons ("Save Expense" and "Clear Form") must stack vertically, with the primary "Save Expense" button positioned on top (using `flex-col-reverse` for optimal thumb-reach on mobile).
     - **isReceipt Warning Alert**: A conditional, slide-in warn banner displayed at the top of the form only if `isReceipt` evaluates to false. Displays: _"⚠️ This image doesn't look like a valid receipt. Fallback defaults have been loaded, but feel free to modify and save manually!"_
     - **Merchant Name**: Writable string signal. Requires length > 0.
     - **Amount**: Writable numeric signal. Must be non-null and greater than 0.

@@ -38,15 +38,17 @@
       <tbody>
         @for (item of paginatedExpenses(); track item.id) {
           <tr class="table-body-row">
-            <td class="table-cell-merchant">{{ item.merchantName }}</td>
-            <td class="table-cell-amount">{{ item.amount | currency }}</td>
-            <td class="table-cell-date">{{ item.transactionDate }}</td>
-            <td class="table-cell-category">
-              <span class="table-category-badge">
+            <td data-label="Merchant" class="table-cell-merchant" [title]="item.merchantName">
+              {{ item.merchantName }}
+            </td>
+            <td data-label="Amount" class="table-cell-amount">{{ item.amount | currency }}</td>
+            <td data-label="Date" class="table-cell-date">{{ item.transactionDate }}</td>
+            <td data-label="Category" class="table-cell-category" [title]="item.category">
+              <span class="table-category-badge" [attr.data-category]="item.category.toLowerCase()">
                 {{ item.category }}
               </span>
             </td>
-            <td class="table-cell-actions">
+            <td data-label="Actions" class="table-cell-actions">
               <button (click)="deleteRequest.emit(item)" class="table-delete-button" aria-label="Delete expense record">
                 <span class="material-symbols-outlined text-lg">delete</span>
               </button>

@@ -133,4 +133,36 @@ describe('HistoryResultTableComponent', () => {
       expect(deleteSpy).toHaveBeenCalledWith(mockExpenses[0]);
     });
   });
+
+  describe('UI Accessibility and Truncation', () => {
+    it('should assign correct title attributes on merchant and category cells for hover tooltips', () => {
+      fixture.componentRef.setInput('expenses', mockExpenses);
+      fixture.componentRef.setInput('hasSearched', true);
+      fixture.detectChanges();
+
+      const merchantCell = fixture.debugElement.query(By.css('.table-cell-merchant')).nativeElement;
+      const categoryCell = fixture.debugElement.query(By.css('.table-cell-category')).nativeElement;
+
+      expect(merchantCell.getAttribute('title')).toBe('Burger King');
+      expect(categoryCell.getAttribute('title')).toBe('Dining');
+    });
+
+    it('should assign correct data-label attributes on table cells for responsive lists', () => {
+      fixture.componentRef.setInput('expenses', mockExpenses);
+      fixture.componentRef.setInput('hasSearched', true);
+      fixture.detectChanges();
+
+      const merchantCell = fixture.debugElement.query(By.css('.table-cell-merchant')).nativeElement;
+      const amountCell = fixture.debugElement.query(By.css('.table-cell-amount')).nativeElement;
+      const dateCell = fixture.debugElement.query(By.css('.table-cell-date')).nativeElement;
+      const categoryCell = fixture.debugElement.query(By.css('.table-cell-category')).nativeElement;
+      const actionsCell = fixture.debugElement.query(By.css('.table-cell-actions')).nativeElement;
+
+      expect(merchantCell.getAttribute('data-label')).toBe('Merchant');
+      expect(amountCell.getAttribute('data-label')).toBe('Amount');
+      expect(dateCell.getAttribute('data-label')).toBe('Date');
+      expect(categoryCell.getAttribute('data-label')).toBe('Category');
+      expect(actionsCell.getAttribute('data-label')).toBe('Actions');
+    });
+  });
 });

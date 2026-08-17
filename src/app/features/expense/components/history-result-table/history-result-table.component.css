@@ -17,6 +17,8 @@
 }
 
 .table-wrapper {
+  container-type: inline-size;
+  container-name: table-container;
   @apply overflow-x-auto w-full border border-slate-200 rounded-xl bg-white shadow-sm;
 }
 
@@ -115,4 +117,65 @@
 
 .table-arrow-button {
   @apply w-8 h-8 rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 disabled:opacity-30 disabled:hover:bg-white flex items-center justify-center cursor-pointer transition-all;
+}
+
+/* ---------------------------------------------------- */
+/* Container Query: Convert Table to Stacked Cards List */
+/* ---------------------------------------------------- */
+@container table-container (max-width: 600px) {
+  /* 1. Hide horizontal headers on mobile */
+  .table-element thead {
+    display: none;
+  }
+
+  /* 2. Stack table structure elements vertically */
+  .table-element,
+  .table-element tbody,
+  .table-body-row,
+  .table-body-row td {
+    display: block;
+    width: 100%;
+  }
+
+  /* 3. Render each row as a standalone rounded card */
+  .table-body-row {
+    @apply p-4 border-b border-slate-200 bg-white flex flex-col gap-1 transition-all;
+  }
+
+  .table-body-row:last-child {
+    @apply border-b-0;
+  }
+
+  /* 4. Display each cell as a horizontal flex split container (Label - Value) */
+  .table-body-row td {
+    @apply flex justify-between items-center px-0 py-2 text-left border-none max-w-none w-full bg-transparent;
+  }
+
+  /* 5. Dynamically display the data-label value on the left side of the row */
+  .table-body-row td::before {
+    content: attr(data-label);
+    @apply text-xs font-bold text-slate-400 uppercase tracking-wider mr-2;
+  }
+
+  /* 6. Alignment & Styling Mobile Overrides */
+  .table-cell-merchant {
+    @apply text-slate-800 font-semibold max-w-none;
+  }
+
+  .table-cell-amount {
+    @apply text-left justify-between font-bold text-indigo-600; /* Override text-right alignment */
+  }
+
+  .table-cell-date {
+    @apply font-mono text-slate-500 text-xs;
+  }
+
+  /* 7. Action column section styling as a clean divider on mobile */
+  .table-cell-actions {
+    @apply border-t border-slate-100 pt-3 mt-1.5 justify-between w-full;
+  }
+
+  .table-delete-button {
+    @apply mr-0 ml-auto; /* Snap delete button to the right of the actions split line */
+  }
 }

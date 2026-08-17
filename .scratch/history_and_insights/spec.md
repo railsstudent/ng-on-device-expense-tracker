@@ -20,11 +20,13 @@ Users need a completely offline, highly interactive dashboard inside their brows
 
 ## 3. Product & Functional Requirements
 
-### 3.1 Empty Table State & Pagination
+### 3.1 Empty Table State, Pagination & Cell Legibility
 
 - The table must remain hidden/unrendered, showing a centered placeholder, until `hasSearched` becomes `true`.
 - Sorter: Single column sorting driven by an in-memory computed signal (`sortedExpenses`).
 - Pagination: Driven by a reactive pipeline using `pageSize` (options: `[5, 10, 20, 50]`, default: `10`), `currentPage`, and computed total pages.
+- **Cell Truncation & Hover Legibility**: Because free-form merchant names and categories can be arbitrarily long, they must truncate gracefully with an ellipsis (`...`) inside narrow columns or small viewports. To maintain complete data accessibility, these cells must bind native `title` (or ARIA-compliant) tooltips on hover to reveal the full, original string seamlessly.
+- **Container-Aware Responsive Layout (Stacked Cards)**: When the table wrapper is placed inside narrow spaces (container width < 600px), the layout must dynamically transition from a flat horizontal table grid to a vertical stack of high-fidelity "cards" (one per transaction row). This transition must be driven by **CSS Container Queries** (`@container`) rather than viewport media queries to preserve layout isolation. Cell labels (e.g. "Merchant", "Amount") must be rendered on the left of each item using HTML `data-label` attributes and CSS `::before` pseudo-elements, with the actual values aligned cleanly on the right.
 
 ### 3.2 Custom Dialog Component with Projected Content
 
