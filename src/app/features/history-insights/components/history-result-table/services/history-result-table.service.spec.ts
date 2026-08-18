@@ -8,9 +8,9 @@ describe('HistoryResultTableService', () => {
   let service: HistoryResultTableService;
 
   const mockExpenses: Expense[] = [
-    { id: 1, merchantName: 'Burger King', amount: 15, transactionDate: '2026-08-10', category: 'Dining' },
-    { id: 2, merchantName: 'Office Depot', amount: 120, transactionDate: '2026-08-12', category: 'Office' },
-    { id: 3, merchantName: 'apple store', amount: 999, transactionDate: '2026-08-01', category: 'Electronics' },
+    { id: 1, merchantName: 'Burger King', amount: 15, transactionDate: '2026-08-10', category: 'dining' },
+    { id: 2, merchantName: 'Office Depot', amount: 120, transactionDate: '2026-08-12', category: 'office' },
+    { id: 3, merchantName: 'apple store', amount: 999, transactionDate: '2026-08-01', category: 'other' },
   ];
 
   beforeEach(() => {

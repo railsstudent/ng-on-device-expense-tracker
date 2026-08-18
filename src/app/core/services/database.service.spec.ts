@@ -9,7 +9,7 @@ describe('DatabaseService', () => {
     toArray: vi
       .fn()
       .mockResolvedValue([
-        { id: 1, merchantName: 'Test', amount: 10, transactionDate: '2026-08-10', category: 'Test' },
+        { id: 1, merchantName: 'Test', amount: 10, transactionDate: '2026-08-10', category: 'dining' },
       ]),
     add: vi.fn().mockResolvedValue(1),
     update: vi.fn().mockResolvedValue(undefined),
@@ -46,7 +46,7 @@ describe('DatabaseService', () => {
       merchantName: 'Test',
       amount: 10,
       transactionDate: '2026-08-10',
-      category: 'Test',
+      category: 'dining',
     });
     expect(insertResult).toBe(1);
 

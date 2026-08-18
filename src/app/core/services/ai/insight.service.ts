@@ -7,6 +7,7 @@ import { Conversation } from '@litert-lm/core';
 import { jsonrepair } from 'jsonrepair';
 import { GemmaEngineService } from './gemma-engine.service';
 import { safeDeleteConversation } from '@/core/utils/ai-conversation.utils';
+import { computeExpenseStatsJson } from '@/core/utils/insight-calculator.utils';
 
 @Service()
 export class InsightService implements OnDestroy {
@@ -46,11 +47,12 @@ export class InsightService implements OnDestroy {
       const datasetCsv = expenses
         .map(
           (e) =>
-            `${e.merchantName.replace(/\|/g, ' ')}|${e.amount}|${e.transactionDate}|${e.category.replace(/\|/g, ' ')}`,
+            `Date: ${e.transactionDate} | Category: ${e.category.replace(/\|/g, ' ')} | Merchant: ${e.merchantName.replace(/\|/g, ' ')} | Amount: $${e.amount.toFixed(2)}`,
         )
         .join('\n');
 
-      const primingPrompt = INSIGHTS_PRIMING_PROMPT(datasetCsv);
+      const precomputedStatsJson = computeExpenseStatsJson(expenses);
+      const primingPrompt = INSIGHTS_PRIMING_PROMPT(datasetCsv, precomputedStatsJson);
 
       // Execute priming prompt asynchronously (consumes internal token stream automatically)
       await this.#conversation.sendMessage(primingPrompt);

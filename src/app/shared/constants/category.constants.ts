@@ -1,5 +1,7 @@
+import { CanonicalExpenseCategory } from '@/shared/interfaces/expense.interface';
+
 export interface CategoryDefinition {
-  key: string;
+  key: CanonicalExpenseCategory;
   label: string;
 }
 
@@ -12,7 +14,7 @@ export const EXPENSE_CATEGORIES: readonly CategoryDefinition[] = [
   { key: 'other', label: 'Other / 其他' },
 ];
 
-export const OCR_CATEGORY_MAP: Readonly<Record<string, string>> = {
+export const OCR_CATEGORY_MAP: Readonly<Record<string, CanonicalExpenseCategory>> = {
   Food: 'dining',
   Groceries: 'shopping',
   Transport: 'travel',

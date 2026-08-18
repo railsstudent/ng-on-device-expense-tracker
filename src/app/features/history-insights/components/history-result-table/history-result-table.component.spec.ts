@@ -11,9 +11,9 @@ describe('HistoryResultTableComponent', () => {
   let fixture: ComponentFixture<HistoryResultTableComponent>;
 
   const mockExpenses: Expense[] = [
-    { id: 1, merchantName: 'Burger King', amount: 15, transactionDate: '2026-08-10', category: 'Dining' },
-    { id: 2, merchantName: 'Office Depot', amount: 120, transactionDate: '2026-08-12', category: 'Office' },
-    { id: 3, merchantName: 'apple store', amount: 999, transactionDate: '2026-08-01', category: 'Electronics' },
+    { id: 1, merchantName: 'Burger King', amount: 15, transactionDate: '2026-08-10', category: 'dining' },
+    { id: 2, merchantName: 'Office Depot', amount: 120, transactionDate: '2026-08-12', category: 'office' },
+    { id: 3, merchantName: 'apple store', amount: 999, transactionDate: '2026-08-01', category: 'other' },
   ];
 
   beforeEach(async () => {
@@ -144,7 +144,7 @@ describe('HistoryResultTableComponent', () => {
       const categoryCell = fixture.debugElement.query(By.css('.table-cell-category')).nativeElement;
 
       expect(merchantCell.getAttribute('title')).toBe('Burger King');
-      expect(categoryCell.getAttribute('title')).toBe('Dining');
+      expect(categoryCell.getAttribute('title')).toBe('dining');
     });
 
     it('should assign correct data-label attributes on table cells for responsive lists', () => {

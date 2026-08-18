@@ -39,4 +39,5 @@ export const FINANCE_KEYWORDS = [
   'frequent',
   'most',
   'many',
+  'pay',
 ];
