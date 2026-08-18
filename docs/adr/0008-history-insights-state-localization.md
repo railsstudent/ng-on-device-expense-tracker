@@ -1,6 +1,6 @@
 # Localize Presentation State in Child Component & Use linkedSignal for Self-Healing Pagination
 
-**Status**: accepted
+**Status**: accepted (Amended by [ADR 0011](0011-modular-feature-refactoring-history-insights.md) to relocate files from `features/expense/` to `features/history-insights/`)
 
 We decided to completely localize presentational pagination, sorting, and active header state inside the child `<app-history-result-table>` component, and leverage Angular 19/22's state-of-the-art `linkedSignal` to automatically correct and clamp pagination boundaries when underlying records change.
 

@@ -1,6 +1,6 @@
-import { AiSessionStatus } from './ai-session-state.interface';
-import { Expense } from './expense.interface';
-import { Insight } from './insight.interface';
+import { AiSessionStatus } from '@/shared/interfaces/ai-session-state.interface';
+import { Expense } from '@/shared/interfaces/expense.interface';
+import { Insight } from '@/shared/interfaces/insight.interface';
 
 export type SortDirection = 'asc' | 'desc' | 'none';
 

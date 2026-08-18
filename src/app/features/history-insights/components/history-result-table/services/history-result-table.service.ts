@@ -1,6 +1,6 @@
 import { Service } from '@angular/core';
 import { Expense } from '@/shared/interfaces/expense.interface';
-import { SortDirection, TableSortState } from '@/shared/interfaces/history-insights-state.interface';
+import { SortDirection, TableSortState } from '@/features/history-insights/interfaces/history-insights-state.interface';
 
 @Service()
 export class HistoryResultTableService {

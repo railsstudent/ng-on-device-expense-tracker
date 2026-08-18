@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HistoryMobileSortComponent } from './history-mobile-sort.component';
-import { TableSortState, HeaderConfig } from '@/shared/interfaces/history-insights-state.interface';
+import { TableSortState, HeaderConfig } from '@/features/history-insights/interfaces/history-insights-state.interface';
 
 describe('HistoryMobileSortComponent', () => {
   let component: HistoryMobileSortComponent;

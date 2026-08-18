@@ -1,4 +1,4 @@
-import { AiChatState, StatusConfig } from '@/shared/interfaces/history-insights-state.interface';
+import { AiChatState, StatusConfig } from '@/features/history-insights/interfaces/history-insights-state.interface';
 import { Component, input } from '@angular/core';
 
 @Component({

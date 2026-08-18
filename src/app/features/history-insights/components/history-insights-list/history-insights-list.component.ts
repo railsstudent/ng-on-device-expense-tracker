@@ -1,4 +1,4 @@
-import { AiChatState } from '@/shared/interfaces/history-insights-state.interface';
+import { AiChatState } from '@/features/history-insights/interfaces/history-insights-state.interface';
 import { Insight } from '@/shared/interfaces/insight.interface';
 import { Component, computed, input } from '@angular/core';
 

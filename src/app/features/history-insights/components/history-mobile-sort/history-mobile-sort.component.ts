@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { TableSortState, HeaderConfig } from '@/shared/interfaces/history-insights-state.interface';
+import { TableSortState, HeaderConfig } from '@/features/history-insights/interfaces/history-insights-state.interface';
 import { Expense } from '@/shared/interfaces/expense.interface';
 
 @Component({

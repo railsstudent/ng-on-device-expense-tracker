@@ -6,7 +6,7 @@ import { HistorySearchFormComponent } from '../history-search-form/history-searc
 import { HistoryResultTableComponent } from '../history-result-table/history-result-table.component';
 import { HistoryInsightsChatComponent } from '../history-insights-chat/history-insights-chat.component';
 import { Expense } from '@/shared/interfaces/expense.interface';
-import { AiChatState, DateRangeSearch } from '@/shared/interfaces/history-insights-state.interface';
+import { AiChatState, DateRangeSearch } from '@/features/history-insights/interfaces/history-insights-state.interface';
 import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
 
 @Component({

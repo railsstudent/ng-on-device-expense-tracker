@@ -1,6 +1,6 @@
 # Use Custom Projected Content Confirmation dialog & Caching Context for Insights
 
-**Status**: accepted
+**Status**: accepted (Amended by [ADR 0011](0011-modular-feature-refactoring-history-insights.md) to relocate files from `features/expense/` to `features/history-insights/`)
 
 We decided to implement the new "History & Insights" screen using native HTML5 `<dialog>` projection with `<ng-content>`, in-memory single-column RAM sorting, and a stateful context-cached local conversation session with the local Gemma 4 model.
 

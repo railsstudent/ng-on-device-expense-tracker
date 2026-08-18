@@ -9,7 +9,8 @@ Follow this directory layout and architectural pattern when adding new files:
 - **`src/app/core/`**: Core feature logic, singleton services, guards, and startup initializers.
 - **`src/app/features/`**: Feature-specific components, routing, and modules (e.g., dashboard, settings).
 - **`src/app/shared/`**: Reusable components, directives, pipes, domain models, and shared utilities.
-  - **Shared Interfaces**: Shared/domain TypeScript interfaces and model files MUST be created inside `src/app/shared/interfaces/` as separate files using the naming convention `<domain-name>.interface.ts`. Never declare interfaces inline within service or utility files if they are reused or represent domain states.
+  - **Shared Interfaces**: Core shared/domain TypeScript interfaces and model files (like `Expense` or `ToastMessage`) MUST be created inside `src/app/shared/interfaces/` as separate files using the naming convention `<domain-name>.interface.ts`. Never declare interfaces inline within service or utility files.
+  - **Component & Feature-Scoped Interfaces**: Interfaces that are strictly scoped to a specific component or feature-tree (like table configurations or local view states) should be organized inside an `interfaces/` subfolder located directly within that component or feature directory (e.g. `src/app/features/expense/components/history-insights/interfaces/`). Use clean absolute aliases (e.g. `@/features/expense/...`) for imports to avoid relative paths.
 
 ### Core Coding Style & Syntax Constraints
 

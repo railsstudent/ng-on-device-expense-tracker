@@ -105,7 +105,7 @@ A premium, localized, offline-first historical expense ledger and interactive AI
 
 ---
 
-## 2. History & Insights Routed Shell (src/app/features/expense/components/history-insights/)
+## 2. History & Insights Routed Shell (src/app/features/history-insights/)
 
 - **Visuals**: Split-screen desktop grid (12-column fluid scale, 24px gutter). Centered in a `container-max` container, padded heavily on top and bottom.
   - **Left Area (Ledger Zone - 6 Columns)**: Displays date criteria selectors and the responsive, paginated expense log table.

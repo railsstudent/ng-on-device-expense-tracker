@@ -24,7 +24,7 @@ export const routes: Routes = [
   },
   {
     path: ROUTE_PATHS.HISTORY,
-    loadComponent: () => import('./features/expense/components/history-insights/history-insights.component'),
+    loadComponent: () => import('./features/history-insights/components/history-insights/history-insights.component'),
   },
   {
     path: '**',

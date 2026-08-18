@@ -1,9 +1,9 @@
+import { HeaderConfig, TableSortState } from '@/features/history-insights/interfaces/history-insights-state.interface';
+import { HistoryMobileSortComponent } from '@/features/history-insights/components/history-mobile-sort/history-mobile-sort.component';
 import { Expense } from '@/shared/interfaces/expense.interface';
-import { HeaderConfig, TableSortState } from '@/shared/interfaces/history-insights-state.interface';
 import { CurrencyPipe } from '@angular/common';
 import { Component, computed, inject, input, linkedSignal, output, signal } from '@angular/core';
 import { HistoryResultTableService } from './services/history-result-table.service';
-import { HistoryMobileSortComponent } from '@/features/expense/components/history-mobile-sort/history-mobile-sort.component';
 
 @Component({
   selector: 'app-history-result-table',

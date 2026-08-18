@@ -1,4 +1,4 @@
-import { DateRangeSearch } from '@/shared/interfaces/history-insights-state.interface';
+import { DateRangeSearch } from '@/features/history-insights/interfaces/history-insights-state.interface';
 import { Component, output, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 

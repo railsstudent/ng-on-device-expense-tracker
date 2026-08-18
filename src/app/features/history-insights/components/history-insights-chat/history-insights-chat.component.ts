@@ -1,7 +1,7 @@
 import { isQuerySafeAndRelevant } from '@/core/utils/ai-safety.utils';
-import { HistoryInsightsListComponent } from '@/features/expense/components/history-insights-list/history-insights-list.component';
-import { HistoryInsightsStatusComponent } from '@/features/expense/components/history-insights-status/history-insights-status.component';
-import { AiChatState } from '@/shared/interfaces/history-insights-state.interface';
+import { HistoryInsightsListComponent } from '@/features/history-insights/components/history-insights-list/history-insights-list.component';
+import { HistoryInsightsStatusComponent } from '@/features/history-insights/components/history-insights-status/history-insights-status.component';
+import { AiChatState } from '@/features/history-insights/interfaces/history-insights-state.interface';
 import { Component, computed, input, output, signal } from '@angular/core';
 import { debounce, disabled, form, FormField, submit } from '@angular/forms/signals';
 
