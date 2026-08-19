@@ -1,16 +1,25 @@
-<form (submit)="onSubmit($event)" class="search-form-layout">
-  <div class="search-form-grid">
-    <div class="search-form-field">
-      <label for="startDate" class="search-form-label">Date From / 起始日期</label>
-      <input type="date" id="startDate" [formField]="searchForm.startDate" class="search-form-input" />
+<div class="search-form-wrapper">
+  <form (submit)="onSubmit($event)" class="search-form-layout">
+    <div class="search-form-grid">
+      <div class="search-form-field">
+        <label for="startDate" class="search-form-label">Date From / 起始日期</label>
+        <input type="date" id="startDate" [formField]="searchForm.startDate" class="search-form-input" />
+      </div>
+      <div class="search-form-field">
+        <label for="endDate" class="search-form-label">Date To / 結束日期</label>
+        <input type="date" id="endDate" [formField]="searchForm.endDate" class="search-form-input" />
+      </div>
     </div>
-    <div class="search-form-field">
-      <label for="endDate" class="search-form-label">Date To / 結束日期</label>
-      <input type="date" id="endDate" [formField]="searchForm.endDate" class="search-form-input" />
+    <button type="submit" [disabled]="searchForm().invalid()" class="search-form-button">
+      <span class="material-symbols-outlined text-lg">search</span>
+      <span>Search / 查詢</span>
+    </button>
+  </form>
+
+  @if (dateRangeError()) {
+    <div class="search-form-error-box">
+      <span class="material-symbols-outlined text-sm">warning</span>
+      <span>{{ dateRangeError() }}</span>
     </div>
-  </div>
-  <button type="submit" [disabled]="searchForm().invalid()" class="search-form-button">
-    <span class="material-symbols-outlined text-lg">search</span>
-    <span>Search / 查詢</span>
-  </button>
-</form>
+  }
+</div>

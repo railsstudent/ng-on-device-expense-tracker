@@ -1,5 +1,9 @@
 @reference "../../../../../styles.css";
 
+.search-form-wrapper {
+  @apply flex flex-col gap-3 w-full;
+}
+
 .search-form-layout {
   @apply flex flex-col gap-4 md:flex-row md:items-end w-full;
 }
@@ -22,4 +26,8 @@
 
 .search-form-button {
   @apply h-11 px-6 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white font-semibold rounded-lg text-sm flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98];
+}
+
+.search-form-error-box {
+  @apply flex items-center gap-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 px-3 py-2.5 rounded-lg font-mono w-full;
 }

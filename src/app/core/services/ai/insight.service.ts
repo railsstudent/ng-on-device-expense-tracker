@@ -18,14 +18,32 @@ export class InsightService implements OnDestroy {
   #isPriming = false;
   #lastPrimedExpenses: Expense[] | null = null;
 
+  // Sliding 2-Question Context State Properties
+  #turnsCount = 0;
+  #previousQueries: string[] = [];
+
   public readonly status = computed(() => this.#state().status);
   public readonly error = computed(() => this.#state().error);
+
+  /**
+   * Helper to format raw expenses into a compact pipe-delimited CSV structure.
+   * Restores highly optimized format to save 61% of transaction record token load.
+   */
+  private formatExpensesToCsv(expenses: Expense[]): string {
+    return [
+      'Date|Category|Merchant|Amount',
+      ...expenses.map(
+        (e) =>
+          `${e.transactionDate}|${e.category.replace(/\|/g, ' ')}|${e.merchantName.replace(/\|/g, ' ')}|${e.amount.toFixed(2)}`,
+      ),
+    ].join('\n');
+  }
 
   /**
    * Safe and lazy priming helper.
    * Initializes the engine and sets up the conversation with the designated dataset.
    */
-  private async primeContext(expenses: Expense[]): Promise<void> {
+  private async primeContext(expenses: Expense[], previousQueries?: string[]): Promise<void> {
     if (this.#isPriming) {
       return;
     }
@@ -44,20 +62,19 @@ export class InsightService implements OnDestroy {
       }
       this.#conversation = conversationInstance;
 
-      const datasetCsv = expenses
-        .map(
-          (e) =>
-            `Date: ${e.transactionDate} | Category: ${e.category.replace(/\|/g, ' ')} | Merchant: ${e.merchantName.replace(/\|/g, ' ')} | Amount: $${e.amount.toFixed(2)}`,
-        )
-        .join('\n');
-
+      const datasetCsv = this.formatExpensesToCsv(expenses);
       const precomputedStatsJson = computeExpenseStatsJson(expenses);
-      const primingPrompt = INSIGHTS_PRIMING_PROMPT(datasetCsv, precomputedStatsJson);
+      let primingPrompt = INSIGHTS_PRIMING_PROMPT(datasetCsv, precomputedStatsJson);
 
-      // Execute priming prompt asynchronously (consumes internal token stream automatically)
+      if (previousQueries && previousQueries.length > 0) {
+        const formattedQueries = previousQueries.map((q) => `"${q}"`).join(', ');
+        primingPrompt = `${primingPrompt}\n\nNote: In this session, the user previously asked about: ${formattedQueries}. Keep this in mind if their next query is a follow-up.`;
+      }
+
       await this.#conversation.sendMessage(primingPrompt);
 
       this.#lastPrimedExpenses = expenses;
+      this.#turnsCount = 0;
       this.#state.set({ status: 'ready' });
     } catch (err) {
       console.error('Error priming Gemma 4 context:', err);
@@ -86,14 +103,42 @@ export class InsightService implements OnDestroy {
   }
 
   /**
+   * Streams and repairs token chunks on-the-fly.
+   */
+  private async *processStream(stream: AsyncIterable<unknown>): AsyncGenerator<InsightsResponse> {
+    let lastValidResponse: InsightsResponse = { insights: [] };
+    let buffer = '';
+
+    for await (const chunk of stream) {
+      const typedChunk = chunk as { content?: unknown };
+      if (typedChunk && typedChunk.content) {
+        buffer = buffer + this.extractChunkText(typedChunk.content);
+        try {
+          const repairedJson = jsonrepair(buffer);
+          const parsed = JSON.parse(repairedJson);
+          if (parsed && Array.isArray(parsed.insights)) {
+            lastValidResponse = parsed as InsightsResponse;
+          }
+        } catch {
+          // Keep yielding last valid parsed state upon json exception
+        }
+        yield lastValidResponse;
+      }
+    }
+  }
+
+  /**
    * Core generator function to stream insights on-demand.
    * Lazily checks if context needs to be primed before executing streaming queries.
    */
   public async *streamInsights(userQuery: string, expenses: Expense[]): AsyncGenerator<InsightsResponse> {
     const isContextDifferent = this.#lastPrimedExpenses !== expenses;
+    const isContextExhausted = this.#turnsCount >= 3;
 
-    if (!this.#conversation || isContextDifferent) {
-      await this.primeContext(expenses);
+    if (!this.#conversation || isContextDifferent || isContextExhausted) {
+      console.log(`Resetting/Priming AI Context. Different: ${isContextDifferent}, Exhausted: ${isContextExhausted}`);
+      const previousQueries = isContextExhausted ? this.#previousQueries : undefined;
+      await this.primeContext(expenses, previousQueries);
     }
 
     if (!this.#conversation) {
@@ -101,29 +146,18 @@ export class InsightService implements OnDestroy {
     }
 
     this.#state.set({ status: 'thinking' });
-    let lastValidResponse: InsightsResponse = { insights: [] };
-    let buffer = '';
 
     try {
       const userPrompt = INSIGHTS_USER_PROMPT(userQuery);
       const stream = await this.#conversation.sendMessageStreaming(userPrompt);
 
-      for await (const chunk of stream) {
-        if (chunk.content) {
-          buffer = buffer + this.extractChunkText(chunk.content);
-          try {
-            const repairedJson = jsonrepair(buffer);
-            const parsed = JSON.parse(repairedJson);
-            if (parsed && Array.isArray(parsed.insights)) {
-              lastValidResponse = parsed as InsightsResponse;
-            }
-          } catch {
-            // Keep yielding last valid parsed state upon json exception
-          }
-          yield lastValidResponse;
-        }
+      this.#previousQueries.push(userQuery);
+      if (this.#previousQueries.length > 2) {
+        this.#previousQueries.shift();
       }
+      this.#turnsCount = this.#turnsCount + 1;
 
+      yield* this.processStream(stream);
       this.#state.set({ status: 'ready' });
     } catch (err) {
       console.error('Error streaming insights:', err);

@@ -80,6 +80,49 @@ describe('HistorySearchFormComponent', () => {
         startDate: '2026-08-01',
         endDate: '2026-08-15',
       });
+      expect(component.dateRangeError()).toBe('');
+    });
+
+    it('should set an error and not emit when endDate is prior to startDate', () => {
+      const submitSpy = vi.fn();
+      component.searchSubmit.subscribe(submitSpy);
+
+      const startInput = fixture.debugElement.query(By.css('input#startDate')).nativeElement;
+      startInput.value = '2026-08-15';
+      startInput.dispatchEvent(new Event('input'));
+
+      const endInput = fixture.debugElement.query(By.css('input#endDate')).nativeElement;
+      endInput.value = '2026-08-01';
+      endInput.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+
+      const form = fixture.debugElement.query(By.css('form'));
+      form.triggerEventHandler('submit', { preventDefault: vi.fn() });
+
+      expect(submitSpy).not.toHaveBeenCalled();
+      expect(component.dateRangeError()).toContain('End date cannot be earlier');
+    });
+
+    it('should set an error and not emit when date range exceeds 31 days', () => {
+      const submitSpy = vi.fn();
+      component.searchSubmit.subscribe(submitSpy);
+
+      const startInput = fixture.debugElement.query(By.css('input#startDate')).nativeElement;
+      startInput.value = '2026-08-01';
+      startInput.dispatchEvent(new Event('input'));
+
+      const endInput = fixture.debugElement.query(By.css('input#endDate')).nativeElement;
+      endInput.value = '2026-09-10'; // 40 days difference
+      endInput.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+
+      const form = fixture.debugElement.query(By.css('form'));
+      form.triggerEventHandler('submit', { preventDefault: vi.fn() });
+
+      expect(submitSpy).not.toHaveBeenCalled();
+      expect(component.dateRangeError()).toContain('cannot exceed 1 month');
     });
   });
 });
