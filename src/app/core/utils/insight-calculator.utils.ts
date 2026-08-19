@@ -1,5 +1,15 @@
-import { Expense, CanonicalExpenseCategory } from '@/shared/interfaces/expense.interface';
-import { AggregationContext, DayOfWeek } from '@/shared/interfaces/aggregation-context.interface';
+import { calculatePercentage, formatCurrency } from '@/core/utils/math.utils';
+import {
+  AggregationContext,
+  DailyTrendEntry,
+  DayOfWeek,
+  createInitialContext,
+} from '@/shared/interfaces/aggregation-context.interface';
+import { CategoryMetrics } from '@/shared/interfaces/category-metrics.interface';
+import { CanonicalExpenseCategory, Expense } from '@/shared/interfaces/expense.interface';
+import { buildExtremes, updateExtremes } from './extreme-calculator.utils';
+import { buildMostFrequentMerchants, buildTopMerchants } from './merchant-calculator.utils';
+import { buildTemporalTrends } from './temporal-calculator.utils';
 
 const DAYS_OF_WEEK: DayOfWeek[] = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -25,51 +35,78 @@ function updateTemporalStats(e: Expense, amount: number, context: AggregationCon
 }
 
 /**
+ * Safe helper to accumulate daily trends and category metrics.
+ */
+function updateDailyTrends(
+  e: Expense,
+  amount: number,
+  cat: CanonicalExpenseCategory,
+  dailyTrends: Record<string, DailyTrendEntry>,
+): void {
+  if (e.transactionDate) {
+    if (!dailyTrends[e.transactionDate]) {
+      dailyTrends[e.transactionDate] = {
+        totalSpending: 0,
+        categoryBreakdown: {},
+      };
+    }
+
+    const trend = dailyTrends[e.transactionDate];
+    trend.totalSpending = trend.totalSpending + amount;
+
+    if (!trend.categoryBreakdown[cat]) {
+      trend.categoryBreakdown[cat] = {
+        totalSpending: 0,
+        percentageOfTotal: 0,
+        transactionCount: 0,
+      };
+    }
+
+    const catAccum = trend.categoryBreakdown[cat]!;
+    catAccum.totalSpending = catAccum.totalSpending + amount;
+    catAccum.transactionCount = catAccum.transactionCount + 1;
+  }
+}
+
+/**
+ * Safely aggregates totals and transaction counts for a specific key.
+ */
+function accumulateMetrics(
+  totals: Partial<Record<string, number>>,
+  counts: Partial<Record<string, number>>,
+  key: string,
+  amount: number,
+): void {
+  totals[key] = (totals[key] || 0) + amount;
+  counts[key] = (counts[key] || 0) + 1;
+}
+
+/**
  * Aggregates raw transactional data in a single clean pass.
  */
 function aggregateExpenseData(expenses: Expense[]): AggregationContext {
-  const context: AggregationContext = {
-    totalSpending: 0,
-    categoryTotals: {},
-    categoryCounts: {},
-    merchantTotals: {},
-    merchantCounts: {},
-    monthlyTotals: {},
-    dayOfWeekSpending: {},
-    highestTx: null,
-    lowestTx: null,
-    dailyTotals: {},
-  };
+  const context = createInitialContext();
 
   for (const e of expenses) {
     const amount = e.amount;
     context.totalSpending = context.totalSpending + amount;
 
     // Categories
-    const cat: CanonicalExpenseCategory = e.category || 'other';
-    context.categoryTotals[cat] = (context.categoryTotals[cat] || 0) + amount;
-    context.categoryCounts[cat] = (context.categoryCounts[cat] || 0) + 1;
+    const cat = e.category || 'other';
+    accumulateMetrics(context.categoryTotals, context.categoryCounts, cat, amount);
 
     // Merchants
     const merchant = e.merchantName || 'Unknown';
-    context.merchantTotals[merchant] = (context.merchantTotals[merchant] || 0) + amount;
-    context.merchantCounts[merchant] = (context.merchantCounts[merchant] || 0) + 1;
+    accumulateMetrics(context.merchantTotals, context.merchantCounts, merchant, amount);
 
     // Temporal Metrics (Monthly and Day of Week)
     updateTemporalStats(e, amount, context);
 
-    // Daily totals
-    if (e.transactionDate) {
-      context.dailyTotals[e.transactionDate] = (context.dailyTotals[e.transactionDate] || 0) + amount;
-    }
+    // Daily trends (grouped by date)
+    updateDailyTrends(e, amount, cat, context.dailyTrends);
 
     // Extremes (Max/Min)
-    if (!context.highestTx || amount > context.highestTx.amount) {
-      context.highestTx = e;
-    }
-    if (!context.lowestTx || amount < context.lowestTx.amount) {
-      context.lowestTx = e;
-    }
+    updateExtremes(e, amount, context);
   }
 
   return context;
@@ -79,123 +116,32 @@ function aggregateExpenseData(expenses: Expense[]): AggregationContext {
  * Builds overall summary statistics.
  */
 function buildSummary(expenses: Expense[], context: AggregationContext, sortedCategories: CanonicalExpenseCategory[]) {
-  const topCategory = sortedCategories[0] || 'None';
+  const avg = expenses.length > 0 ? context.totalSpending / expenses.length : 0;
   return {
-    totalSpending: Number(context.totalSpending.toFixed(2)),
+    totalSpending: formatCurrency(context.totalSpending),
     transactionCount: expenses.length,
-    averageTransactionAmount: Number((context.totalSpending / expenses.length).toFixed(2)),
-    topCategory: topCategory,
-  };
-}
-
-/**
- * Safely builds transaction extremes.
- */
-function buildExtremes(context: AggregationContext) {
-  return {
-    highest: context.highestTx
-      ? {
-          merchant: context.highestTx.merchantName || 'Unknown',
-          amount: context.highestTx.amount,
-          date: context.highestTx.transactionDate,
-          category: context.highestTx.category || 'other',
-        }
-      : null,
-    lowest: context.lowestTx
-      ? {
-          merchant: context.lowestTx.merchantName || 'Unknown',
-          amount: context.lowestTx.amount,
-          date: context.lowestTx.transactionDate,
-          category: context.lowestTx.category || 'other',
-        }
-      : null,
-  };
-}
-
-/**
- * Compiles monthly totals and determines peak spending day.
- */
-function buildTemporalTrends(context: AggregationContext) {
-  const monthlySpending: Record<string, number> = {};
-  const monthKeys = Object.keys(context.monthlyTotals);
-  for (const key of monthKeys) {
-    monthlySpending[key] = Number(context.monthlyTotals[key].toFixed(2));
-  }
-
-  const dailySpending: Record<string, number> = {};
-  const dateKeys = Object.keys(context.dailyTotals);
-  for (const key of dateKeys) {
-    dailySpending[key] = Number(context.dailyTotals[key].toFixed(2));
-  }
-
-  let peakDay = 'None';
-  let peakDayAmount = 0;
-  const dayKeys = Object.keys(context.dayOfWeekSpending) as DayOfWeek[];
-  for (const day of dayKeys) {
-    const amt = context.dayOfWeekSpending[day] || 0;
-    if (amt > peakDayAmount) {
-      peakDayAmount = amt;
-      peakDay = day;
-    }
-  }
-
-  return {
-    monthlySpending: monthlySpending,
-    dailySpending: dailySpending,
-    peakSpendingDayOfWeek: peakDay,
+    averageTransactionAmount: formatCurrency(avg),
+    topCategory: sortedCategories[0] || 'None',
   };
 }
 
 /**
  * Builds spending and share details for categories.
  */
-function buildCategoryBreakdown(context: AggregationContext, sortedCategories: CanonicalExpenseCategory[]) {
-  const breakdown: Record<string, { totalSpending: number; percentageOfTotal: number; transactionCount: number }> = {};
+function buildCategoryBreakdown(
+  context: AggregationContext,
+  sortedCategories: CanonicalExpenseCategory[],
+): Record<string, CategoryMetrics> {
+  const breakdown: Record<string, CategoryMetrics> = {};
   for (const cat of sortedCategories) {
     const catSum = context.categoryTotals[cat] || 0;
     breakdown[cat] = {
-      totalSpending: Number(catSum.toFixed(2)),
-      percentageOfTotal: Number((context.totalSpending > 0 ? (catSum / context.totalSpending) * 100 : 0).toFixed(1)),
+      totalSpending: formatCurrency(catSum),
+      percentageOfTotal: calculatePercentage(catSum, context.totalSpending),
       transactionCount: context.categoryCounts[cat] || 0,
     };
   }
   return breakdown;
-}
-
-/**
- * Builds the list of top merchants based on spending volume.
- */
-function buildTopMerchants(context: AggregationContext) {
-  const sortedMerchants = Object.keys(context.merchantTotals)
-    .sort((a, b) => context.merchantTotals[b] - context.merchantTotals[a])
-    .slice(0, 5);
-
-  const topMerchants = [];
-  for (const m of sortedMerchants) {
-    topMerchants.push({
-      merchant: m,
-      totalSpending: Number(context.merchantTotals[m].toFixed(2)),
-    });
-  }
-  return topMerchants;
-}
-
-/**
- * Builds the list of most visited merchants.
- */
-function buildMostFrequentMerchants(context: AggregationContext) {
-  const sortedMerchants = Object.keys(context.merchantCounts)
-    .sort((a, b) => context.merchantCounts[b] - context.merchantCounts[a])
-    .slice(0, 5);
-
-  const frequentMerchants = [];
-  for (const m of sortedMerchants) {
-    frequentMerchants.push({
-      merchant: m,
-      visitCount: context.merchantCounts[m] || 0,
-    });
-  }
-  return frequentMerchants;
 }
 
 /**
@@ -205,8 +151,8 @@ export function computeExpenseStatsJson(expenses: Expense[]): string {
   if (expenses.length === 0) {
     const emptyData = JSON.stringify({
       summary: { totalSpending: 0, transactionCount: 0, averageTransactionAmount: 0, topCategory: 'None' },
-      extremes: { highest: null, lowest: null },
-      temporal: { monthlySpending: {}, peakSpendingDayOfWeek: 'None' },
+      extremes: {},
+      temporal: { monthlySpending: {}, dailyTrends: {}, peakSpendingDayOfWeek: 'None' },
       categoryBreakdown: {},
       topMerchantsBySpending: [],
       mostFrequentMerchants: [],

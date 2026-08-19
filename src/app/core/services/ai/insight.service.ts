@@ -1,4 +1,6 @@
 import { INSIGHTS_PRIMING_PROMPT, INSIGHTS_USER_PROMPT } from '@/core/consts/insight-prompt.const';
+import { safeDeleteConversation } from '@/core/utils/ai-conversation.utils';
+import { computeExpenseStatsJson } from '@/core/utils/insight-calculator.utils';
 import { AiSessionState } from '@/shared/interfaces/ai-session-state.interface';
 import { Expense } from '@/shared/interfaces/expense.interface';
 import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
@@ -6,8 +8,6 @@ import { computed, inject, OnDestroy, Service, signal } from '@angular/core';
 import { Conversation } from '@litert-lm/core';
 import { jsonrepair } from 'jsonrepair';
 import { GemmaEngineService } from './gemma-engine.service';
-import { safeDeleteConversation } from '@/core/utils/ai-conversation.utils';
-import { computeExpenseStatsJson } from '@/core/utils/insight-calculator.utils';
 
 @Service()
 export class InsightService implements OnDestroy {

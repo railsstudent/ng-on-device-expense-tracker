@@ -37,18 +37,30 @@ The precomputed block will be minified and conform to this precise structure:
       "merchant": "Uber",
       "amount": 120.0,
       "date": "2026-08-15",
-      "category": "Transportation"
+      "category": "travel"
     },
     "lowest": {
       "merchant": "Arcade",
       "amount": 30.0,
       "date": "2026-08-11",
-      "category": "Entertainment"
+      "category": "entertainment"
     }
   },
   "temporal": {
     "monthlySpending": {
       "2026-08": 345.5
+    },
+    "dailyTrends": {
+      "2026-08-15": {
+        "totalSpending": 120.0,
+        "categoryBreakdown": {
+          "travel": {
+            "totalSpending": 120.0,
+            "percentageOfTotal": 100,
+            "transactionCount": 1
+          }
+        }
+      }
     },
     "peakSpendingDayOfWeek": "Saturday"
   },
@@ -66,15 +78,45 @@ The precomputed block will be minified and conform to this precise structure:
 
 ### 2. Modular Calculator Functions
 
-To maintain highly testable and clean code, we avoid single-pass monolithic loops. The precomputation logic inside `core/utils/insight-calculator.utils.ts` is divided into single-responsibility helpers:
+To maintain highly testable and clean code, we avoid single-pass monolithic loops. The precomputation logic is divided into highly focused, single-responsibility files inside `src/app/core/utils/`:
 
-- `aggregateExpenseData(expenses: Expense[]): AggregationContext`: Synthesizes raw category totals, merchant counts, monthly spans, day of week logs, and max/min extremes in a single loop.
+#### A. Core Aggregator: `insight-calculator.utils.ts`
+
+This serves as the public entry-point orchestrator and houses the core loop and fallback-summary generators:
+
+- `createInitialContext()`: Instantiates the default initial state structure of an `AggregationContext`. (Defined inside `src/app/shared/interfaces/aggregation-context.interface.ts` as the canonical default initializer).
+- `aggregateExpenseData(...)`: Synthesizes raw categories, merchants, temporal indexes, daily trends, and transaction extremes in a single clean pass.
+- `accumulateMetrics(...)`: Safe helper to track and dry up duplicate map accumulations.
+- `updateDailyTrends(...)`: Accumulates categories and temporal bounds for daily trend listings.
 - `buildSummary(...)`: Calculates total overall spending, count, average, and top category.
-- `buildExtremes(...)`: Safe-constructs high/low extreme transaction details.
-- `buildTemporalTrends(...)`: Computes monthly totals and identifies peak spending day of week.
 - `buildCategoryBreakdown(...)`: Generates spending, exact percentage share, and counts grouped by category.
+- `computeExpenseStatsJson(...)`: The public facing orchestrator that triggers all calculator pipelines and produces the final serialized JSON.
+
+#### B. Merchant Calculator: `merchant-calculator.utils.ts`
+
+Specifically isolates all merchant metrics and ranking logic:
+
+- `getTopKeys(...)`: Retrieves descending sorted keys limited to a specified rank quantity.
 - `buildTopMerchants(...)`: Resolves the top 5 merchants based on aggregate spending sums.
-- `buildMostFrequentMerchants(...)`: Resolves the top 5 merchants visited based on visit frequency.
+- `buildMostFrequentMerchants(...)`: Resolves the top 5 merchants based on visit frequency.
+
+#### C. Temporal Calculator: `temporal-calculator.utils.ts`
+
+Handles monthly and daily distribution math:
+
+- `serializeMonthlyTotals(...)`: Standardizes and formats overall monthly sums.
+- `serializeDailyCategoryTotals(...)`: Computes specific daily category shares.
+- `serializeDailyTrends(...)`: Computes chronological daily-level spending aggregates.
+- `getPeakSpendingDayOfWeek(...)`: Identifies the day of the week with the maximum accumulated spending.
+- `buildTemporalTrends(...)`: Aggregates and returns the entire time-based metrics tree.
+
+#### D. Extreme Calculator: `extreme-calculator.utils.ts`
+
+Tracks high and low outlier transactions:
+
+- `updateExtremes(...)`: Live comparative helper tracking the highest and lowest transactions in the stream.
+- `formatExtremeExpense(...)`: Formats transaction limits into clean, stringified `ExtremeExpense` structures.
+- `buildExtremes(...)`: Resolves overall high and low outliers.
 
 ### 3. Strict Math Guardrails & Fallbacks
 

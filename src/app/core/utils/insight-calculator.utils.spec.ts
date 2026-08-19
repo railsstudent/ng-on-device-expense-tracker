@@ -15,12 +15,10 @@ describe('computeExpenseStatsJson - Empty State', () => {
         averageTransactionAmount: 0,
         topCategory: 'None',
       },
-      extremes: {
-        highest: null,
-        lowest: null,
-      },
+      extremes: {},
       temporal: {
         monthlySpending: {},
+        dailyTrends: {},
         peakSpendingDayOfWeek: 'None',
       },
       categoryBreakdown: {},
@@ -98,12 +96,37 @@ describe('computeExpenseStatsJson - Aggregation and Sorting Analysis', () => {
       '2026-08': 185.5,
       '2026-07': 30.0,
     });
-    expect(parsed.temporal.dailySpending).toEqual({
-      '2026-08-10': 5.5,
-      '2026-08-11': 10.0,
-      '2026-08-15': 50.0,
-      '2026-08-16': 120.0,
-      '2026-07-20': 30.0,
+    expect(parsed.temporal.dailyTrends).toEqual({
+      '2026-08-10': {
+        totalSpending: 5.5,
+        categoryBreakdown: {
+          dining: { totalSpending: 5.5, percentageOfTotal: 100, transactionCount: 1 },
+        },
+      },
+      '2026-08-11': {
+        totalSpending: 10,
+        categoryBreakdown: {
+          dining: { totalSpending: 10, percentageOfTotal: 100, transactionCount: 1 },
+        },
+      },
+      '2026-08-15': {
+        totalSpending: 50,
+        categoryBreakdown: {
+          travel: { totalSpending: 50, percentageOfTotal: 100, transactionCount: 1 },
+        },
+      },
+      '2026-08-16': {
+        totalSpending: 120,
+        categoryBreakdown: {
+          travel: { totalSpending: 120, percentageOfTotal: 100, transactionCount: 1 },
+        },
+      },
+      '2026-07-20': {
+        totalSpending: 30,
+        categoryBreakdown: {
+          shopping: { totalSpending: 30, percentageOfTotal: 100, transactionCount: 1 },
+        },
+      },
     });
     expect(parsed.temporal.peakSpendingDayOfWeek).toBe('Sunday');
 
