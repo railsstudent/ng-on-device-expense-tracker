@@ -20,10 +20,12 @@ export const routes: Routes = [
   },
   {
     path: ROUTE_PATHS.EXTRACT,
+    title: 'Extract Expense',
     loadComponent: () => import('./features/expense/components/extract-expense/extract-expense.component'),
   },
   {
     path: ROUTE_PATHS.HISTORY,
+    title: 'History Insights',
     loadComponent: () => import('./features/history-insights/components/history-insights/history-insights.component'),
   },
   {
