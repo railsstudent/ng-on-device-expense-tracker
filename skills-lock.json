@@ -13,12 +13,6 @@
       "skillPath": "skills/engineering/domain-modeling/SKILL.md",
       "computedHash": "363cb0f53b0b431e7c00086ad1f823500b7e1b70b5616ee969c979f0934e9e6e"
     },
-    "gemma-dev": {
-      "source": "google-gemma/gemma-skills",
-      "sourceType": "github",
-      "skillPath": "skills/gemma-dev/SKILL.md",
-      "computedHash": "960d34fdb2a34daa98f3f3756994389a811797c80161324b5fb3483b8c4ffaf4"
-    },
     "grill-with-docs": {
       "source": "mattpocock/skills",
       "sourceType": "github",

@@ -39,7 +39,10 @@ module.exports = defineConfig([
           skipComments: true,
         },
       ],
-
+      "prefer-const": ["error", {
+          "destructuring": "any",
+          "ignoreReadBeforeAssign": false
+      }]
     },
   },
   {
