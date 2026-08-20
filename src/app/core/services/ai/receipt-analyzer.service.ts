@@ -1,5 +1,4 @@
 import { RECEIPT_SYSTEM_PROMPT } from '@/core/consts/receipt-prompt.const';
-import { WINDOW } from '@/core/consts/window.const';
 import { sanitizeJsonString } from '@/core/utils/json.utils';
 import { runOcr } from '@/core/utils/ocr.utils';
 import {
@@ -19,7 +18,6 @@ import { GemmaEngineService } from './gemma-engine.service';
 @Service()
 export class ReceiptAnalyzerService {
   readonly #engineService = inject(GemmaEngineService);
-  readonly #window = inject(WINDOW);
   readonly #document = inject(DOCUMENT);
 
   // Single backing state signal
@@ -74,8 +72,9 @@ export class ReceiptAnalyzerService {
 
     try {
       this.#state.set(createProcessingAnalysisState('scanning'));
-      const origin = this.#window?.location?.origin || '';
-      const localLangPath = origin ? `${origin}/assets/tessdata/` : '/assets/tessdata/';
+      const baseUri = this.#document?.baseURI || '/';
+      console.log('Base URI for Tesseract language data:', baseUri);
+      const localLangPath = `${baseUri}/assets/tessdata/`;
       const ocrText = await runOcr(imageFile, ['eng', 'chi_tra', 'chi_sim'], localLangPath, this.#document);
       console.log('Tesseract OCR Raw Text Result:\n', ocrText);
 
