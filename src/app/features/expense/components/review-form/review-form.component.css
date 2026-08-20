@@ -1,5 +1,9 @@
 @reference "../../../../../styles.css";
 
+:host {
+  @apply block w-full;
+}
+
 .review-details-card {
   container-type: inline-size;
   container-name: form-container;
@@ -98,6 +102,11 @@
   .form-actions {
     @apply flex-row;
   }
+
+  .save-btn,
+  .reset-btn {
+    @apply flex-1;
+  }
 }
 
 .save-btn {
@@ -145,7 +154,7 @@
 
 .reset-btn {
   font-family: 'Geist', sans-serif;
-  @apply h-[46px] px-4 bg-transparent border border-slate-300 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer flex justify-center items-center gap-1.5 transition-all duration-200;
+  @apply w-full h-[46px] bg-transparent border border-slate-300 rounded-lg text-[13px] font-semibold text-slate-500 cursor-pointer flex justify-center items-center gap-1.5 transition-all duration-200;
 }
 
 .reset-btn:hover:not(:disabled) {
