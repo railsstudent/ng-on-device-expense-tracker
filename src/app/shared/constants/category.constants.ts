@@ -13,14 +13,3 @@ export const EXPENSE_CATEGORIES: readonly CategoryDefinition[] = [
   { key: 'shopping', label: 'Shopping & Entertainment / 購物與娛樂' },
   { key: 'other', label: 'Other / 其他' },
 ];
-
-export const OCR_CATEGORY_MAP: Readonly<Record<string, CanonicalExpenseCategory>> = {
-  Food: 'dining',
-  Groceries: 'shopping',
-  Transport: 'travel',
-  Entertainment: 'shopping',
-  Shopping: 'shopping',
-  Utilities: 'utilities',
-  Medical: 'other',
-  Others: 'other',
-};

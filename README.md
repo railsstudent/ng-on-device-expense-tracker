@@ -3,19 +3,16 @@
 [![Deploy to GitHub Pages](https://github.com/railsstudent/ng-on-device-expense-tracker/actions/workflows/deploy.yml/badge.svg)](https://github.com/railsstudent/ng-on-device-expense-tracker/actions/workflows/deploy.yml)
 🚀 **Live App:** [https://railsstudent.github.io/ng-on-device-expense-tracker/](https://railsstudent.github.io/ng-on-device-expense-tracker/)
 
-An ultra-private, premium, offline-first on-device AI receipt scanner and expense manager. By utilizing standard client-side hardware, this application scans receipts, extracts semantic details, categorizes transactions, and saves data securely in your local browser—**ensuring 100% user data privacy with zero external server calls.**
+An ultra-private, premium, offline-first receipt manager and on-device AI transaction analyzer. This application lets you upload receipt photos for side-by-side manual input visual references, log transactions securely, and chat completely offline with local AI about your expense ledger—**ensuring 100% user data privacy with zero external server calls.**
 
 ---
 
 ## ✨ Features
 
-- **🔒 100% Client-Side Privacy:** Your personal receipts, financial figures, and merchant names never leave your machine.
-- **🤖 Local Gemma 4 Model:** Leverages Google's lightweight `gemma-4-E2B-it-litert-lm` (~2.4GB) model for advanced semantic parsing and classification.
-- **👁️ Hybrid Two-Stage OCR-LLM Pipeline:**
-  - **Stage 1 (OCR):** Runs `tesseract.js` in standard CPU WebWorker threads to capture high-fidelity text lines.
-  - **Stage 2 (Inference):** Feeds extracted raw text to the Gemma 4 E2B model running directly on your graphics card via WebGPU.
-- **⚖️ Human-in-the-Loop Validation:** Review, edit, or clear AI-extracted values before committing them to the local database.
-- **📱 Container-Aware Sizing:** Fully responsive cards styled with Tailwind CSS v4 and modern **CSS Container Queries** (`@container`), adapting alignment and stacking dynamically based on localized space rather than global viewports.
+- **🔒 100% Client-Side Privacy:** Your receipts, financial figures, and expense details never leave your machine.
+- **🖼️ High-Fidelity Visual Reference:** Drag & drop receipt photos into a premium, responsive uploader card on the left to easily review your physical receipts side-by-side while typing details on the right.
+- **🤖 Local Gemma 4 Q&A Chat:** Run Google's lightweight `gemma-4-E2B-it-litert-lm` (~2.4GB) model directly in your browser via WebGPU to query, analyze, and gain insights from your expense history.
+- **📱 Container-Aware Sizing:** Fully responsive form card styled with Tailwind CSS v4 and modern **CSS Container Queries** (`@container`), adapting padding, fields, and stacking dynamically based on localized space rather than global viewports.
 - **🗄️ IndexedDB Local Storage:** Fast, structured local data persistence managed by a lightweight `ExpenseService` wrapper utilizing **Dexie.js**.
 
 ---
@@ -26,35 +23,29 @@ This application is built with modern frontend best practices and rigorous scopi
 
 ```mermaid
 graph TD
-    A[Receipt Photo] -->|Drop / Upload| B(Tesseract.js OCR WebWorker)
-    B -->|Raw Text Lines| C{Safety Stemmer Guardrail}
-    C -->|Off-Topic Check| D[Block Prompt / Show Warning]
-    C -->|Valid Finance Query| E(LiteRT-LM WebGPU Engine)
-    E -->|Local Gemma 4 Inference| F[Bilingual JSON Structured Output]
-    F -->|Signal Binding| G(Human-in-the-Loop Signal Form)
-    G -->|Validation & User Edits| H(Dexie.js Facade)
-    H -->|Secure Persistence| I[(Browser IndexedDB)]
+    A[Receipt Photo] -->|Drag & Drop| B(Visual Reference Uploader)
+    B -->|Side-by-Side Reference| C(Manual Signal Form)
+    C -->|Validate & Save| D(Dexie.js Facade)
+    D -->|Secure Persistence| E[(Browser IndexedDB)]
+    E -->|Analyze Ledger| F(LiteRT-LM WebGPU Engine)
+    F -->|Query & Chart| G(History & Insights AI Chat)
 ```
 
 ### 🧠 On-Device Hardware & Memory Constraints
 
-- **32-bit Wasm 4GB Limit Bypass:** Standard browsers enforce a strict 32-bit **4GB RAM allocation limit** inside WebAssembly environments. Selecting the compact `Gemma 4 E2B` (~2.4GB) model instead of larger formats (`E4B`, `12B`) guarantees that active KV-caches and tokenizer processes fit safely within browser memory allocation thresholds, avoiding abrupt page crashes.
-- **Token Optimization (Compact CSV Transmission):** Real-time records are translated to the model as super-compact, pipe-delimited CSV formats (`Date|Category|Merchant|Amount`). This reduces raw row weight from ~18 tokens down to only **~7 tokens per line (a 61% token saving)**, preserving valuable context space.
+- **32-bit Wasm 4GB Limit Bypass:** Standard browsers enforce a strict 32-bit **4GB RAM allocation limit** inside WebAssembly environments. Selecting the compact `Gemma 4 E2B` (~2.4GB) model instead of larger formats (`E4B`, `12B`) guarantees that active KV-caches and tokenizer processes fit safely within browser memory allocation thresholds, avoiding abrupt page crashes during chat sessions.
+- **Token Optimization (Compact CSV Transmission):** Real-time records are translated to the chat model as super-compact, pipe-delimited CSV formats (`Date|Category|Merchant|Amount`). This reduces raw row weight from ~18 tokens down to only **~7 tokens per line (a 61% token saving)**, preserving valuable context space.
 
 ### 🛡️ NLP Safety Guardrails (Porter Stemmer)
 
-- **In-House Lemmatizer & Porter Stemmer:** Natural language inputs are normalized and tokenized entirely offline using a first-party, strongly typed **Porter Stemmer algorithm** and irregular lemma lookup map (converting inflections like `spending`/`spent`/`spends` -> `spend` and `traveling` -> `travel`).
-- **Off-Topic Prompt Blocking:** User prompts are evaluated against whitelisted financial stems in $O(N)$ linear time. Off-topic requests are blocked immediately before they hit the GPU, protecting local WebGPU device resources from being wasted on on-off queries.
+- **In-House Lemmatizer & Porter Stemmer:** Chat queries are normalized and tokenized entirely offline using a first-party, strongly typed **Porter Stemmer algorithm** and irregular lemma lookup map (converting inflections like `spending`/`spent`/`spends` -> `spend` and `traveling` -> `travel`).
+- **Off-Topic Prompt Blocking:** Chat inputs are evaluated against whitelisted financial stems in $O(N)$ linear time. Off-topic requests are blocked immediately before they hit the GPU, protecting local WebGPU device resources from being wasted on off-topic queries.
 
 ### ⏱️ Stable Chat Slicing Window (31-Day Boundary)
 
 - **31-Day Search Limit:** Enforces a strict **31-day search date range filter** in the user interface. By keeping dataset payloads bound to ~30 to 120 rows, WebGPU prefill latency is guaranteed to remain **under 3 seconds** on standard consumer devices with no silent page hangs.
 - **Turn-Based Auto-Reset (3-Turn Cap):** Tracks active chatTurns in memory. Once a chat session hits **3 turns**, the context is automatically cleared to stay within the model's sequence threshold.
 - **Sliding 2-Question Memory:** Maintains a sliding memory of the last 2 user queries. After a session reset, these are silently injected as contextual threads, preserving natural multi-turn pronoun flow.
-
-### 🔄 Transparent Parsing Retry Loop
-
-- **2-Attempt Robust Parsing:** The `ReceiptAnalyzerService` wraps Gemma's structured output block with a transparent **2-attempt retry loop**. If the model emits a truncated or syntactically invalid JSON structure on attempt 1, the pipeline immediately runs a second attempt. It only raises a user-facing error if both attempts fail.
 
 ### 💻 Code Quality Constraints
 

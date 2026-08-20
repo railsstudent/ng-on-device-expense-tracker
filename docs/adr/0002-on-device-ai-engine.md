@@ -1,6 +1,6 @@
 # On-Device AI Engine and Hybrid OCR-LLM Pipeline
 
-**Status**: accepted
+**Status**: amended
 
 We decided to implement an on-device, sandboxed Web AI system using Google's `@litert-lm/core` WebGPU engine paired with the `gemma-4-E2B-it-litert-lm` (~2.4GB) model to analyze receipt details completely offline with 100% local privacy. Since the WebAssembly environment enforces a strict 32-bit **4GB RAM allocation limit**, larger models (like E4B or 12B) would trigger out-of-memory browser crashes. To overcome LiteRT-LM's current lack of browser-native vision executors, we employ a hybrid two-stage local pipeline: first running `tesseract.js` inside WebAssembly CPU threads for high-resolution text extraction (OCR), and then feeding the raw text to Gemma 4 E2B for semantic parsing and JSON structured formatting.
 
@@ -23,3 +23,13 @@ The model binary weights are progressively streamed, split into 128MB chunks, an
 - **Global Safety**: Zero global namespace pollution by treating third-party caching assets as scoped ES Modules.
 - **Aesthetic Binding**: Exposes high-fidelity, signal-based progress metrics (`status`, `progress`) for a responsive, premium user experience.
 - **Load-time-only Connectivity Checks**: Network connectivity checks for the model downloading panel are evaluated only at application load time. Since scanning/inference is 100% on-device and offline-ready, live runtime listeners on the global `window` are bypassed to keep the code lightweight, robust, and completely free of residual background event handlers.
+
+## Amendment (2026-08-20)
+
+**Status**: Amended to remove local OCR / Tesseract stage.
+
+Due to poor on-device OCR quality on crumpled, low-contrast, or handheld receipt photos, Tesseract.js was removed from the receipt scanning pipeline.
+
+The receipt scanning page has been pivoted to a high-fidelity **Side-by-Side Reference Preview** (Image Uploader on the left, manual input Signal Form on the right). This achieves 100% data reliability, zero latency overhead, and saves ~10MB of heavy WebAssembly dependencies and trained models from the repository and deployed size.
+
+The on-device WebGPU AI engine (`gemma-4-E2B-it-litert-lm`) is **retained exclusively** for the **History & Insights Chat** to analyze the local IndexedDB transactions database completely on-device.

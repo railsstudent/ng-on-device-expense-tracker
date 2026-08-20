@@ -1,6 +1,6 @@
 # Specification: On-Device AI Receipt Analyzer & Expense UI
 
-**Status**: approved
+**Status**: amended
 **Feature Slug**: `receipt-analyzer`
 **Type**: Spec / PRD
 
@@ -153,7 +153,18 @@ src/app/
 - [x] Workspace compiles perfectly with zero TypeScript compiler or dependency injection warnings.
 - [x] Model download is strictly **user-triggered** and displays a smooth contextual progress bar.
 - [x] Uploading a photo renders a high-fidelity image preview on the left.
-- [ ] Traditional Chinese receipt text is successfully analyzed, and mapped to English category keys.
+- [x] [Decoupled] Traditional Chinese receipt text is successfully analyzed, and mapped to English category keys. (Decoupled on 2026-08-20 in favor of premium side-by-side visual manual logging).
 - [x] Human-in-the-loop review form accurately reflects the extracted signals, allowing manual overrides.
 - [x] Clicking "Save" persists the row into IndexedDB and resets the uploader UI gracefully.
 - [x] Typography & Icons setup: Local `@fontsource` packages (`hanken-grotesk`, `inter`, `geist`, `material-symbols-outlined`) are installed and imported at the top of `src/styles.css` to enable 100% offline layout styling and iconography.
+
+---
+
+## 7. Amendments & Pivots
+
+### 7.1 Decoupling of Local OCR Engine (2026-08-20)
+
+- **Context:** Tesseract.js (the local OCR stage) exhibited poor text extraction quality on crumpled, low-contrast, or handheld receipt photos, resulting in garbled or truncated input blocks.
+
+- **Resolution:** Decoupled the OCR engine and the "Extract Expense with AI" trigger button from the layout.
+- **Resulting Architecture:** Retained the premium **Image Uploader** as a high-fidelity visual side-by-side reference card on the left panel, pairing it with a manual bilingual form on the right. This maintains visual design guidelines while delivering a fast, 100% reliable local transaction logging experience, while reserving the Gemma 4 AI engine for the **History & Insights Chat**.

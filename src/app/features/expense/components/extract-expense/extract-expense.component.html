@@ -3,26 +3,10 @@
     <!-- Left Area (Image Zone - 5 Columns) -->
     <div class="left-panel">
       <!-- On-Device AI Cache Downloader -->
-      <app-model-downloader></app-model-downloader>
+      <app-model-downloader />
 
       <!-- Standalone Image Uploader Widget -->
-      <app-image-uploader (imageSelected)="onImageSelected($event)"></app-image-uploader>
-
-      <!-- Manual AI Scan Action Button -->
-      <button
-        class="ocr-trigger-button"
-        [disabled]="!selectedImageBase64() || isProcessing()"
-        (click)="triggerLocalOcr()"
-      >
-        <span class="material-symbols-outlined" [class.rotating]="isProcessing()">analytics</span>
-        {{ isProcessing() ? 'EXTRACTING WITH AI...' : 'Extract Expense with AI' }}
-      </button>
-
-      @if (isProcessing()) {
-        <div class="ocr-status-text">
-          {{ statusText() }}
-        </div>
-      }
+      <app-image-uploader (imageSelected)="onImageSelected($event)" />
     </div>
 
     <!-- Right Area (Form Zone - 7 Columns) -->
@@ -33,7 +17,7 @@
         [isSaving]="isSaving()"
         (saved)="onFormSaved($event)"
         (cleared)="onFormCleared()"
-      ></app-review-form>
+      />
     </div>
   </div>
 </div>
