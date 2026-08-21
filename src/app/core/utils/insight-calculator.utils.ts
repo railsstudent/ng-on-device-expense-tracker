@@ -47,12 +47,14 @@ function updateDailyTrends(
     if (!dailyTrends[e.transactionDate]) {
       dailyTrends[e.transactionDate] = {
         totalSpending: 0,
+        transactionCount: 0,
         categoryBreakdown: {},
       };
     }
 
     const trend = dailyTrends[e.transactionDate];
     trend.totalSpending = trend.totalSpending + amount;
+    trend.transactionCount = trend.transactionCount + 1;
 
     if (!trend.categoryBreakdown[cat]) {
       trend.categoryBreakdown[cat] = {

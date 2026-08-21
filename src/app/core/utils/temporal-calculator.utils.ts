@@ -53,16 +53,14 @@ function serializeDailyCategoryTotals(
 /**
  * Safely serializes daily trend entries with percentage distributions.
  */
-function serializeDailyTrends(
-  dailyTrends: Record<DateKey, DailyTrendEntry>,
-): Record<DateKey, { totalSpending: number; categoryBreakdown: Record<string, DailyCategoryTrend> }> {
-  const serialized: Record<DateKey, { totalSpending: number; categoryBreakdown: Record<string, DailyCategoryTrend> }> =
-    {};
+function serializeDailyTrends(dailyTrends: Record<DateKey, DailyTrendEntry>): Record<DateKey, DailyTrendEntry> {
+  const serialized: Record<DateKey, DailyTrendEntry> = {};
   const trendKeys = Object.keys(dailyTrends);
   for (const key of trendKeys) {
     const trend = dailyTrends[key];
     serialized[key] = {
       totalSpending: formatCurrency(trend.totalSpending),
+      transactionCount: trend.transactionCount,
       categoryBreakdown: serializeDailyCategoryTotals(trend.categoryBreakdown, trend.totalSpending),
     };
   }

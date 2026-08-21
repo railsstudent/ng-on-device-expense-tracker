@@ -10,6 +10,7 @@ export type DateKey = string;
 
 export interface DailyTrendEntry {
   totalSpending: number;
+  transactionCount: number;
   categoryBreakdown: Partial<Record<CanonicalExpenseCategory, CategoryMetrics>>;
 }
 

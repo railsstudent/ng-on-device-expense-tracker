@@ -99,30 +99,35 @@ describe('computeExpenseStatsJson - Aggregation and Sorting Analysis', () => {
     expect(parsed.temporal.dailyTrends).toEqual({
       '2026-08-10': {
         totalSpending: 5.5,
+        transactionCount: 1,
         categoryBreakdown: {
           dining: { totalSpending: 5.5, percentageOfTotal: 100, transactionCount: 1 },
         },
       },
       '2026-08-11': {
         totalSpending: 10,
+        transactionCount: 1,
         categoryBreakdown: {
           dining: { totalSpending: 10, percentageOfTotal: 100, transactionCount: 1 },
         },
       },
       '2026-08-15': {
         totalSpending: 50,
+        transactionCount: 1,
         categoryBreakdown: {
           travel: { totalSpending: 50, percentageOfTotal: 100, transactionCount: 1 },
         },
       },
       '2026-08-16': {
         totalSpending: 120,
+        transactionCount: 1,
         categoryBreakdown: {
           travel: { totalSpending: 120, percentageOfTotal: 100, transactionCount: 1 },
         },
       },
       '2026-07-20': {
         totalSpending: 30,
+        transactionCount: 1,
         categoryBreakdown: {
           shopping: { totalSpending: 30, percentageOfTotal: 100, transactionCount: 1 },
         },

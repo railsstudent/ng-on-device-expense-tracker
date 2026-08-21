@@ -1,7 +1,8 @@
 /**
  * Represents the definitive set of standard expense categories.
  */
-export type CanonicalExpenseCategory = 'dining' | 'travel' | 'office' | 'utilities' | 'shopping' | 'other';
+export type CanonicalExpenseCategory =
+  'dining' | 'groceries' | 'travel' | 'office' | 'utilities' | 'shopping' | 'other';
 
 /**
  * Represents the structured expense metadata extracted from a receipt image.
