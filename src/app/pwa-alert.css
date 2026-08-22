@@ -1,0 +1,37 @@
+@reference "../styles.css";
+
+.pwa-alert-container {
+  @apply fixed bottom-6 right-6 z-50 flex items-center gap-4 bg-white/95 backdrop-blur-md text-slate-800 px-4 py-3 rounded-xl shadow-xl border border-slate-100/80 pointer-events-auto;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.pwa-alert-icon {
+  @apply text-indigo-600 flex-shrink-0;
+}
+
+.pwa-alert-text {
+  @apply text-sm font-medium text-slate-700 leading-snug;
+}
+
+.pwa-alert-actions {
+  @apply flex items-center gap-2 ml-4 flex-shrink-0;
+}
+
+.pwa-alert-btn-reload {
+  @apply px-3 py-1.5 text-xs bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold cursor-pointer transition-colors duration-150 shadow-sm shadow-indigo-500/10;
+}
+
+.pwa-alert-btn-dismiss {
+  @apply p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg cursor-pointer transition-all duration-150;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(1rem) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}

@@ -1,14 +1,17 @@
 <div class="min-h-screen flex flex-col bg-slate-50">
   <!-- Pinned Top Nav Bar -->
-  <app-navigation></app-navigation>
+  <app-navigation />
 
   <!-- Main Routed Page Content -->
   <main class="flex-grow">
-    <router-outlet></router-outlet>
+    <router-outlet />
   </main>
 
+  <!-- PWA Update Toast Alert -->
+  <app-pwa-alert />
+
   <!-- Sticky Bottom Footer -->
-  <app-footer></app-footer>
+  <app-footer />
 
   <!-- Global Toaster Container -->
   <app-toast-container />
