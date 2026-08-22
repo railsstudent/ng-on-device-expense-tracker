@@ -21,6 +21,7 @@ describe('DatabaseService', () => {
   const mockAppDatabase = {
     expenses: mockTable,
     open: vi.fn().mockResolvedValue(undefined),
+    close: vi.fn(),
   };
 
   function createService(): DatabaseService {
@@ -55,5 +56,24 @@ describe('DatabaseService', () => {
 
     const rangeResult = await service.selectByDateRange('2026-08-01', '2026-08-15');
     expect(rangeResult.length).toBe(1);
+  });
+
+  it('should close connection explicitly and via ngOnDestroy', async () => {
+    const service = createService();
+    mockAppDatabase.close.mockClear();
+
+    await service.initialize();
+    expect(service.isConnected()).toBe(true);
+
+    service.close();
+    expect(service.isConnected()).toBe(false);
+    expect(mockAppDatabase.close).toHaveBeenCalledTimes(1);
+
+    await service.initialize();
+    expect(service.isConnected()).toBe(true);
+
+    service.ngOnDestroy();
+    expect(service.isConnected()).toBe(false);
+    expect(mockAppDatabase.close).toHaveBeenCalledTimes(2);
   });
 });

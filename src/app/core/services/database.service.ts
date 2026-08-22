@@ -1,9 +1,9 @@
 import { APP_DATABASE_TOKEN } from '@/core/consts/app-database.const';
 import { Expense, ExtractedExpense } from '@/shared/interfaces/expense.interface';
-import { Service, inject, signal } from '@angular/core';
+import { OnDestroy, Service, inject, signal } from '@angular/core';
 
 @Service()
-export class DatabaseService {
+export class DatabaseService implements OnDestroy {
   #db = inject(APP_DATABASE_TOKEN);
   #isConnected = signal(false);
   public readonly isConnected = this.#isConnected.asReadonly();
@@ -60,5 +60,22 @@ export class DatabaseService {
    */
   public async selectByDateRange(startDate: string, endDate: string): Promise<Expense[]> {
     return this.#db.expenses.where('transactionDate').between(startDate, endDate, true, true).toArray();
+  }
+
+  /**
+   * Closes the IndexedDB database connection.
+   */
+  public close(): void {
+    console.log('IndexedDB: Closing database connection...');
+    this.#db.close();
+    this.#isConnected.set(false);
+    console.log('IndexedDB: Connection closed successfully.');
+  }
+
+  /**
+   * Automatically cleans up the connection on service destruction.
+   */
+  public ngOnDestroy(): void {
+    this.close();
   }
 }
