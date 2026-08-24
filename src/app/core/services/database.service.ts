@@ -13,21 +13,12 @@ export class DatabaseService implements OnDestroy {
    */
   public async initialize(): Promise<void> {
     try {
-      console.log('IndexedDB: Opening database connection...');
       await this.#db.open();
       this.#isConnected.set(true);
-      console.log('IndexedDB: Connection successfully verified and active!');
     } catch (err) {
       console.error('IndexedDB: Connection failed during startup:', err);
       throw err;
     }
-  }
-
-  /**
-   * Selects and returns all expense entries in the database.
-   */
-  public async select(): Promise<Expense[]> {
-    return this.#db.expenses.toArray();
   }
 
   /**
@@ -63,19 +54,12 @@ export class DatabaseService implements OnDestroy {
   }
 
   /**
-   * Closes the IndexedDB database connection.
+   * Automatically cleans up the connection on service destruction.
    */
-  public close(): void {
+  public ngOnDestroy(): void {
     console.log('IndexedDB: Closing database connection...');
     this.#db.close();
     this.#isConnected.set(false);
     console.log('IndexedDB: Connection closed successfully.');
-  }
-
-  /**
-   * Automatically cleans up the connection on service destruction.
-   */
-  public ngOnDestroy(): void {
-    this.close();
   }
 }
