@@ -130,4 +130,41 @@ describe('InsightService', () => {
     expect(mockEngine.createConversation).toHaveBeenCalledTimes(1);
     expect(mockConversation.sendMessage).toHaveBeenCalledTimes(1);
   });
+
+  it('should auto-recover from streaming/WebGPU crashes by resetting the broken session state', async () => {
+    // 1. Prime and stream successfully on first call
+    const firstGenerator = service.streamInsights('Valid query', dummyExpenses);
+    for await (const chunk of firstGenerator) {
+      expect(chunk).toBeDefined();
+    }
+    expect(mockEngine.createConversation).toHaveBeenCalledTimes(1);
+
+    // 2. Simulate a mid-stream WebGPU device crash during the second query
+    const streamError = new Error('WebGPU Device Lost');
+    mockConversation.sendMessageStreaming.mockRejectedValueOnce(streamError);
+
+    const secondGenerator = service.streamInsights('Crashed query', dummyExpenses);
+    await expect(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for await (const _ of secondGenerator) {
+        // No chunks should be yielded
+      }
+    }).rejects.toThrow('WebGPU Device Lost');
+
+    // State should now transition to failed and session tracking is cleanly reset
+    expect(service.status()).toBe('failed');
+    expect(service.error()).toBe(streamError.message);
+
+    // 3. The next query should recognize that the session was reset, re-prime a new conversation, and succeed
+    mockEngine.createConversation.mockClear();
+    const thirdGenerator = service.streamInsights('Recovery query', dummyExpenses);
+    for await (const chunk of thirdGenerator) {
+      expect(chunk).toBeDefined();
+    }
+
+    // Since the previous crash reset the session, a fresh conversation is successfully created!
+    expect(mockEngine.createConversation).toHaveBeenCalledTimes(1);
+    expect(service.status()).toBe('ready');
+    expect(service.error()).toBeUndefined();
+  });
 });

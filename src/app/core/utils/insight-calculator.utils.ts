@@ -151,7 +151,7 @@ function buildCategoryBreakdown(
  */
 export function computeExpenseStatsJson(expenses: Expense[]): string {
   if (expenses.length === 0) {
-    const emptyData = JSON.stringify({
+    return JSON.stringify({
       summary: { totalSpending: 0, transactionCount: 0, averageTransactionAmount: 0, topCategory: 'None' },
       extremes: {},
       temporal: { monthlySpending: {}, dailyTrends: {}, peakSpendingDayOfWeek: 'None' },
@@ -159,9 +159,6 @@ export function computeExpenseStatsJson(expenses: Expense[]): string {
       topMerchantsBySpending: [],
       mostFrequentMerchants: [],
     });
-
-    console.log('computeExpenseStatsJson - Empty expenses list, returning default JSON:', emptyData); // Debugging log
-    return emptyData;
   }
 
   const context = aggregateExpenseData(expenses);
@@ -169,7 +166,7 @@ export function computeExpenseStatsJson(expenses: Expense[]): string {
     (a, b) => (context.categoryTotals[b] || 0) - (context.categoryTotals[a] || 0),
   );
 
-  const data = JSON.stringify({
+  return JSON.stringify({
     summary: buildSummary(expenses, context, sortedCategories),
     extremes: buildExtremes(context),
     temporal: buildTemporalTrends(context),
@@ -177,7 +174,4 @@ export function computeExpenseStatsJson(expenses: Expense[]): string {
     topMerchantsBySpending: buildTopMerchants(context),
     mostFrequentMerchants: buildMostFrequentMerchants(context),
   });
-
-  console.log('computeExpenseStatsJson - Final JSON Output:', data); // Debugging log
-  return data;
 }

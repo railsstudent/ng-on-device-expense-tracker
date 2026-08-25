@@ -127,6 +127,12 @@ export class InsightService implements OnDestroy {
     }
   }
 
+  private resetSession(): void {
+    this.#conversation = null;
+    this.#lastPrimedExpenses = null;
+    this.#turnsCount = 0;
+  }
+
   /**
    * Core generator function to stream insights on-demand.
    * Lazily checks if context needs to be primed before executing streaming queries.
@@ -161,6 +167,7 @@ export class InsightService implements OnDestroy {
       this.#state.set({ status: 'ready' });
     } catch (err) {
       console.error('Error streaming insights:', err);
+      this.resetSession();
       const msg = err instanceof Error ? err.message : 'Error generating insights.';
       this.#state.set({ status: 'failed', error: msg });
       throw err;
@@ -169,8 +176,7 @@ export class InsightService implements OnDestroy {
 
   public async ngOnDestroy(): Promise<void> {
     await safeDeleteConversation(this.#conversation);
-    this.#conversation = null;
-    this.#lastPrimedExpenses = null;
+    this.resetSession();
     this.#state.set({ status: 'idle' });
   }
 }
