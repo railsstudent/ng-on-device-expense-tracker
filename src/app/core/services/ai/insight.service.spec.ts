@@ -99,4 +99,35 @@ describe('InsightService', () => {
     expect(rePrimingPrompt).toContain('Third query');
     expect(rePrimingPrompt).not.toContain('First query'); // Shifted out of sliding window!
   });
+
+  it('should handle engine initialization failures and allow successful retries once resolved', async () => {
+    // 1. Simulate un-cached model weights by forcing getEngine to reject on the first call
+    const initError = new Error('Gemma 4 local weights are not cached in the browser yet. Please download them first.');
+    mockGemmaEngineService.getEngine.mockRejectedValueOnce(initError);
+
+    // 2. Trigger streamInsights and verify it propagates the error
+    const firstGenerator = service.streamInsights('Show me analytics', dummyExpenses);
+    await expect(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      for await (const _ of firstGenerator) {
+        // No chunks should be yielded on failure
+      }
+    }).rejects.toThrow('Gemma 4 local weights are not cached');
+
+    // Verify service transitions to a failed state and records the error
+    expect(service.status()).toBe('failed');
+    expect(service.error()).toBe(initError.message);
+
+    // 3. Subsequent calls should succeed (simulating that the user downloaded the weights and retried)
+    const secondGenerator = service.streamInsights('Show me analytics', dummyExpenses);
+    for await (const chunk of secondGenerator) {
+      expect(chunk).toBeDefined();
+    }
+
+    // Verify status recovers to 'ready' and succeeds
+    expect(service.status()).toBe('ready');
+    expect(service.error()).toBeUndefined();
+    expect(mockEngine.createConversation).toHaveBeenCalledTimes(1);
+    expect(mockConversation.sendMessage).toHaveBeenCalledTimes(1);
+  });
 });

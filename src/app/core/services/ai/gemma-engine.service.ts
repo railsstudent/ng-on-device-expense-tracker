@@ -21,21 +21,27 @@ export class GemmaEngineService implements OnDestroy {
     }
 
     this.#initPromise = (async () => {
-      const localBlobUrl = await this.#cacheService.getModelUrl();
-      if (!localBlobUrl) {
-        throw new Error('Gemma 4 local weights are not cached in the browser yet. Please download them first.');
+      try {
+        const localBlobUrl = await this.#cacheService.getModelUrl();
+        if (!localBlobUrl) {
+          throw new Error('Gemma 4 local weights are not cached in the browser yet. Please download them first.');
+        }
+
+        const instance = await Engine.create({
+          model: localBlobUrl,
+          mainExecutorSettings: {
+            maxNumTokens: 4096,
+          },
+        });
+
+        this.#engine = instance;
+        this.#initPromise = null;
+        return instance;
+      } catch (err) {
+        console.error('Error initializing LiteRT-LM engine:', err);
+        this.#initPromise = null;
+        throw err;
       }
-
-      const instance = await Engine.create({
-        model: localBlobUrl,
-        mainExecutorSettings: {
-          maxNumTokens: 4096,
-        },
-      });
-
-      this.#engine = instance;
-      this.#initPromise = null;
-      return instance;
     })();
 
     return this.#initPromise;

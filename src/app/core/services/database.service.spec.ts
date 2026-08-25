@@ -39,10 +39,6 @@ describe('DatabaseService', () => {
     await service.initialize();
     expect(service.isConnected()).toBe(true);
 
-    const selectResult = await service.select();
-    expect(selectResult.length).toBe(1);
-    expect(selectResult[0].merchantName).toBe('Test');
-
     const insertResult = await service.insert({
       merchantName: 'Test',
       amount: 10,

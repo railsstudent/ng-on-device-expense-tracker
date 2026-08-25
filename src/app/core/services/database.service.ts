@@ -53,13 +53,17 @@ export class DatabaseService implements OnDestroy {
     return this.#db.expenses.where('transactionDate').between(startDate, endDate, true, true).toArray();
   }
 
-  /**
-   * Automatically cleans up the connection on service destruction.
-   */
-  public ngOnDestroy(): void {
+  public close(): void {
     console.log('IndexedDB: Closing database connection...');
     this.#db.close();
     this.#isConnected.set(false);
     console.log('IndexedDB: Connection closed successfully.');
+  }
+
+  /**
+   * Automatically cleans up the connection on service destruction.
+   */
+  public ngOnDestroy(): void {
+    this.close();
   }
 }
