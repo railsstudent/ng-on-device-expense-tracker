@@ -9,6 +9,10 @@ import { Conversation } from '@litert-lm/core';
 import { jsonrepair } from 'jsonrepair';
 import { GemmaEngineService } from './gemma-engine.service';
 
+function isStreamChunk(chunk: unknown): chunk is { content: unknown } {
+  return typeof chunk === 'object' && chunk !== null && 'content' in chunk;
+}
+
 @Service()
 export class InsightService implements OnDestroy {
   readonly #engineService = inject(GemmaEngineService);
@@ -110,9 +114,8 @@ export class InsightService implements OnDestroy {
     let buffer = '';
 
     for await (const chunk of stream) {
-      const typedChunk = chunk as { content?: unknown };
-      if (typedChunk && typedChunk.content) {
-        buffer = buffer + this.extractChunkText(typedChunk.content);
+      if (isStreamChunk(chunk)) {
+        buffer = buffer + this.extractChunkText(chunk.content);
         try {
           const repairedJson = jsonrepair(buffer);
           const parsed = JSON.parse(repairedJson);
