@@ -31,14 +31,13 @@ export default class HistoryInsightsComponent {
   readonly expenses = signal<Expense[]>([]);
   readonly hasSearched = signal(false);
   readonly streamingResponse = signal<InsightsResponse>({ insights: [] });
-  readonly streamingInsights = computed(() => this.streamingResponse().insights ?? []);
   readonly pendingDeleteExpense = signal<Expense | null>(null);
 
   // Compute reactive AiChatState parameter object (Rule 5 arrow shortcut)
   readonly aiState = computed<AiChatState>(() => ({
     status: this.vm.aiStatus(),
     error: this.vm.aiError() ?? null,
-    streamingInsights: this.streamingInsights(),
+    streamingInsights: this.streamingResponse().insights ?? [],
   }));
 
   // Derived properties for status checking (Rule 5 arrow shortcut)

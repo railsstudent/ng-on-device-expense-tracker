@@ -42,14 +42,18 @@ export default defineConfig([
           skipComments: true,
         },
       ],
-      "prefer-const": ["error", {
-          "destructuring": "any",
-          "ignoreReadBeforeAssign": false
-      }],
-      "curly": ["error", "all"],
-      "no-plusplus": ["error"],
-      "arrow-body-style": ["error", "as-needed"],
-      'no-restricted-imports': ['error',
+      'prefer-const': [
+        'error',
+        {
+          destructuring: 'any',
+          ignoreReadBeforeAssign: false,
+        },
+      ],
+      curly: ['error', 'all'],
+      'no-plusplus': ['error'],
+      'arrow-body-style': ['error', 'as-needed'],
+      'no-restricted-imports': [
+        'error',
         {
           patterns: [
             {
@@ -59,17 +63,18 @@ export default defineConfig([
           ],
         },
       ],
-      'complexity' : ['error', { max: 10 }],
-      'unicorn/prefer-switch': ["error", {"minimumCases": 4}],
-      '@typescript-eslint/explicit-member-accessibility': ['error',
+      complexity: ['error', { max: 10 }],
+      'unicorn/prefer-switch': ['error', { minimumCases: 4 }],
+      '@typescript-eslint/explicit-member-accessibility': [
+        'error',
         {
           accessibility: 'no-public', // Default accessibility for class members is 'public'
           overrides: {
-            properties: 'off',         // Keep 'off' so native '#' private fields do not throw errors
-            parameterProperties: 'off'
-          }
-        }
-      ]
+            properties: 'off', // Keep 'off' so native '#' private fields do not throw errors
+            parameterProperties: 'off',
+          },
+        },
+      ],
     },
   },
   {
