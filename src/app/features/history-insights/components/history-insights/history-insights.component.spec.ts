@@ -53,7 +53,7 @@ describe('HistoryInsightsComponent', () => {
     it('should initialize with empty states', () => {
       expect(component.expenses().length).toBe(0);
       expect(component.hasSearched()).toBe(false);
-      expect(component.streamingInsights().length).toBe(0);
+      expect(component.aiState().streamingInsights.length).toBe(0);
       expect(component.pendingDeleteExpense()).toBeNull();
     });
 
@@ -63,7 +63,7 @@ describe('HistoryInsightsComponent', () => {
       expect(mockService.loadExpenses).toHaveBeenCalledWith('2026-08-01', '2026-08-10');
       expect(component.expenses().length).toBe(2);
       expect(component.hasSearched()).toBe(true);
-      expect(component.streamingInsights().length).toBe(0);
+      expect(component.aiState().streamingInsights.length).toBe(0);
     });
 
     it('should open and handle delete confirmations', async () => {
@@ -91,8 +91,8 @@ describe('HistoryInsightsComponent', () => {
 
       await component.onAskGemma('check my coffee habits');
       expect(mockService.streamInsights).toHaveBeenCalledWith('check my coffee habits', component.expenses());
-      expect(component.streamingInsights().length).toBe(1);
-      expect(component.streamingInsights()[0].title).toBe('Coffee Spend');
+      expect(component.aiState().streamingInsights.length).toBe(1);
+      expect(component.aiState().streamingInsights[0].title).toBe('Coffee Spend');
     });
 
     it('should clear previous insights and only display the current query stream results', async () => {
@@ -111,7 +111,7 @@ describe('HistoryInsightsComponent', () => {
 
       await component.onAskGemma('Tell me more');
 
-      const results = component.streamingInsights();
+      const results = component.aiState().streamingInsights;
       expect(results.length).toBe(2);
       expect(results[0].title).toBe('Second Query');
       expect(results[1].title).toBe('Second Query Done');

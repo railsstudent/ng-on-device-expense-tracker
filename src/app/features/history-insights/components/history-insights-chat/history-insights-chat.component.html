@@ -2,7 +2,7 @@
   <h2 class="chat-title">Intelligence / 智慧分析</h2>
 
   <!-- Unified Local WebGPU Model Load Status Indicators (Sub-component) -->
-  <app-history-insights-status [status]="state().status" [error]="state().error"></app-history-insights-status>
+  <app-history-insights-status [status]="status()" [error]="error()" />
 </header>
 
 <!-- Prompt Input Container -->
@@ -35,8 +35,8 @@
 
 <!-- Streaming Insight Cards Display Grid (Sub-component) -->
 <app-history-insights-list
-  [insights]="state().streamingInsights"
-  [status]="state().status"
+  [insights]="streamingInsights()"
+  [status]="status()"
   [showWelcomeBox]="showWelcomeBox()"
   [isQueryUnsafe]="isQueryUnsafe()"
-></app-history-insights-list>
+/>

@@ -6,7 +6,7 @@
         <h2 class="section-title">Ledger / 交易紀錄</h2>
 
         <!-- Search Form child component -->
-        <app-history-search-form (searchSubmit)="onSearch($event)"></app-history-search-form>
+        <app-history-search-form (searchSubmit)="onSearch($event)" />
 
         <!-- Divider -->
         <hr class="section-divider" />
@@ -16,7 +16,7 @@
           [expenses]="expenses()"
           [hasSearched]="hasSearched()"
           (deleteRequest)="openDeleteConfirmation($event)"
-        ></app-history-result-table>
+        />
       </div>
     </section>
 
@@ -29,7 +29,7 @@
           [hasSearched]="hasSearched()"
           [hasExpenses]="hasExpenses()"
           (askGemma)="onAskGemma($event)"
-        ></app-history-insights-chat>
+        />
       </div>
     </section>
   </div>

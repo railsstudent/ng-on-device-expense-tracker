@@ -16,6 +16,10 @@ export class HistoryInsightsChatComponent {
   readonly hasSearched = input.required<boolean>();
   readonly hasExpenses = input.required<boolean>();
 
+  readonly streamingInsights = computed(() => this.state().streamingInsights);
+  readonly status = computed(() => this.state().status);
+  readonly error = computed(() => this.state().error);
+
   readonly askGemma = output<string>();
 
   // Local Signal-based Form state with localized query (Rule 9 & Rule 12 compliant)
@@ -27,8 +31,7 @@ export class HistoryInsightsChatComponent {
   protected readonly chatForm = form(this.formModel, (s) => {
     debounce(s.query, 300);
     disabled(s.query, {
-      when: () =>
-        !this.hasSearched() || !this.hasExpenses() || ['priming', 'initializing'].includes(this.state().status),
+      when: () => !this.hasSearched() || !this.hasExpenses() || ['priming', 'initializing'].includes(this.status()),
     });
   });
 
@@ -45,7 +48,7 @@ export class HistoryInsightsChatComponent {
       this.isQueryUnsafe() ||
       !this.hasSearched() ||
       !this.hasExpenses() ||
-      ['thinking', 'priming', 'initializing'].includes(this.state().status),
+      ['thinking', 'priming', 'initializing'].includes(this.status()),
   );
 
   // Computed signal to determine when to show the initial welcome box (Rule 5 arrow shortcut)
@@ -53,9 +56,9 @@ export class HistoryInsightsChatComponent {
     () =>
       this.hasSearched() &&
       this.hasExpenses() &&
-      this.state().streamingInsights.length === 0 &&
+      this.streamingInsights().length === 0 &&
       !this.isQueryUnsafe() &&
-      this.state().status === 'ready',
+      this.status() === 'ready',
   );
 
   protected onSubmit(event: Event): void {
