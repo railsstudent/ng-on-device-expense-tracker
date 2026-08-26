@@ -59,9 +59,17 @@ const SFX_S_SINGLE = /^(.+?)([^s])s$/;
 const STEP4_SFX = /^(.+?)(al|ance|ence|er|ic|able|ible|ant|ement|ment|ent|ou|ism|ate|iti|ous|ive|ize)$/;
 
 /**
+ * A type-safe generic pipe helper for functional composition.
+ */
+const pipe =
+  <T>(...fns: ((arg: T) => T)[]) =>
+  (initialValue: T): T =>
+    fns.reduce((value, fn) => fn(value), initialValue);
+
+/**
  * Handles Step 1 suffix reductions (Step 1a, 1b, and 1c).
  */
-function stemStep1(stem: string): string {
+function stemStep1A(stem: string): string {
   let s = stem;
 
   // STEP 1A: Plural stripping
@@ -71,6 +79,31 @@ function stemStep1(stem: string): string {
     s = s.replace(SFX_S_SINGLE, '$1$2');
   }
 
+  return s;
+}
+
+function stemEdOrIng(s: string): string {
+  const matches = s.match(SFX_ED_OR_ING);
+  if (matches && VOWEL_IN_STEM.test(matches[1])) {
+    let stemPart = matches[1];
+    if (SFX_AT_OR_BL_OR_IZ.test(stemPart)) {
+      stemPart += 'e';
+    } else if (stemPart.length > 1 && stemPart.charAt(stemPart.length - 1) === stemPart.charAt(stemPart.length - 2)) {
+      const lastChar = stemPart.charAt(stemPart.length - 1);
+      if (lastChar !== 'l' && lastChar !== 's' && lastChar !== 'z') {
+        stemPart = stemPart.slice(0, -1);
+      }
+    } else if (CONSONANT_LIKE.test(stemPart)) {
+      stemPart += 'e';
+    }
+    return stemPart;
+  }
+  return s;
+}
+
+function stemStep1B(stem: string): string {
+  let s = stem;
+
   // STEP 1B: Past tense and continuous stripping
   if (SFX_EED.test(s)) {
     const fp = s.match(SFX_EED);
@@ -78,21 +111,14 @@ function stemStep1(stem: string): string {
       s = s.replace(SFX_EED, '$1ee');
     }
   } else if (SFX_ED_OR_ING.test(s)) {
-    const matches = s.match(SFX_ED_OR_ING);
-    if (matches && VOWEL_IN_STEM.test(matches[1])) {
-      s = matches[1];
-      if (SFX_AT_OR_BL_OR_IZ.test(s)) {
-        s += 'e';
-      } else if (s.length > 1 && s.charAt(s.length - 1) === s.charAt(s.length - 2)) {
-        const lastChar = s.charAt(s.length - 1);
-        if (lastChar !== 'l' && lastChar !== 's' && lastChar !== 'z') {
-          s = s.slice(0, -1);
-        }
-      } else if (CONSONANT_LIKE.test(s)) {
-        s += 'e';
-      }
-    }
+    s = stemEdOrIng(s);
   }
+
+  return s;
+}
+
+function stemStep1C(stem: string): string {
+  let s = stem;
 
   // STEP 1C: Y suffix mapping
   if (SFX_Y.test(s)) {
@@ -104,6 +130,11 @@ function stemStep1(stem: string): string {
 
   return s;
 }
+
+/**
+ * Handles Step 1 suffix reductions (Step 1a, 1b, and 1c).
+ */
+const stemStep1 = pipe(stemStep1A, stemStep1B, stemStep1C);
 
 /**
  * Handles Step 2 and Step 3 double and simple suffix reductions.
@@ -138,7 +169,7 @@ function stemSteps2And3(stem: string): string {
 /**
  * Handles Step 4 and Step 5 suffix stripping.
  */
-function stemSteps4And5(stem: string): string {
+function stemStep4(stem: string): string {
   let s = stem;
 
   // STEP 4: Suffix stripping based on measure m > 1
@@ -153,6 +184,12 @@ function stemSteps4And5(stem: string): string {
       s = matches[1];
     }
   }
+
+  return s;
+}
+
+function stemStep5(stem: string): string {
+  let s = stem;
 
   // STEP 5A: E stripping based on measure and consonant-like stems
   if (SFX_E.test(s)) {
@@ -172,6 +209,11 @@ function stemSteps4And5(stem: string): string {
 
   return s;
 }
+
+/**
+ * Handles Step 4 and Step 5 suffix stripping.
+ */
+const stemSteps4And5 = pipe(stemStep4, stemStep5);
 
 /**
  * Strongly typed Porter Stemmer algorithm ported from words/stemmer.

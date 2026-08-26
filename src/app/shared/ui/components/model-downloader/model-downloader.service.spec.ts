@@ -5,11 +5,9 @@ import { ModelDownloaderService } from './model-downloader.service';
 import { AiModelCacheService } from '@/core/services/ai/ai-model-cache.service';
 import { NAVIGATOR } from '@/core/consts/window.const';
 
-vi.mock('@/assets/FileProxyCache.min.js', () => {
-  return {
-    default: class {},
-  };
-});
+vi.mock('@/assets/FileProxyCache.min.js', () => ({
+  default: class {},
+}));
 
 describe('ModelDownloaderService', () => {
   let mockCacheService: {

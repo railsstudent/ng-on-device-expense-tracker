@@ -7,7 +7,7 @@ export class HistoryResultTableService {
   /**
    * Sorts the provided list of expenses based on a specific column and sort direction.
    */
-  public sortExpenses(expenses: Expense[], { column, direction }: TableSortState): Expense[] {
+  sortExpenses(expenses: Expense[], { column, direction }: TableSortState): Expense[] {
     if (!column || direction === 'none') {
       return expenses;
     }
@@ -38,7 +38,7 @@ export class HistoryResultTableService {
   /**
    * Extracts a specific page slice from the array of sorted expenses.
    */
-  public paginateExpenses(expenses: Expense[], pageSize: number, currentPage: number): Expense[] {
+  paginateExpenses(expenses: Expense[], pageSize: number, currentPage: number): Expense[] {
     const startIdx = (currentPage - 1) * pageSize;
     return expenses.slice(startIdx, startIdx + pageSize);
   }
@@ -46,7 +46,7 @@ export class HistoryResultTableService {
   /**
    * Cycles through the sort direction states: none -> asc -> desc -> none.
    */
-  public getNextSortDirection(current: SortDirection): SortDirection {
+  getNextSortDirection(current: SortDirection): SortDirection {
     const nextMap: Partial<Record<SortDirection, SortDirection>> = {
       none: 'asc',
       asc: 'desc',
@@ -57,7 +57,7 @@ export class HistoryResultTableService {
   /**
    * Generates a fully compiled map of sort icons for all columns.
    */
-  public getSortIconMap(sort: TableSortState): Record<keyof Expense, string> {
+  getSortIconMap(sort: TableSortState): Record<keyof Expense, string> {
     return {
       id: this.getSortIcon('id', sort),
       merchantName: this.getSortIcon('merchantName', sort),
@@ -81,7 +81,7 @@ export class HistoryResultTableService {
   /**
    * Calculates the current item range display label.
    */
-  public getItemRangeLabel(currentPage: number, pageSize: number, totalCount: number): string {
+  getItemRangeLabel(currentPage: number, pageSize: number, totalCount: number): string {
     if (totalCount === 0) {
       return '0–0';
     }

@@ -23,9 +23,9 @@ export class AiModelCacheService {
   readonly #initPromise: Promise<void>;
 
   // Public read-only computed signals (fully backward-compatible with UI templates)
-  public readonly status = computed(() => this.#state().status);
+  readonly status = computed(() => this.#state().status);
 
-  public readonly progress = computed(() => this.#state().progress);
+  readonly progress = computed(() => this.#state().progress);
 
   constructor() {
     // Standard Angular-native check: only run cache setup and storage inspection in browser environments
@@ -90,7 +90,7 @@ export class AiModelCacheService {
    * Downloads and caches the model using the local vendored FileProxyCache library.
    * Updates progress signals in real-time.
    */
-  public async downloadModel(): Promise<string> {
+  async downloadModel(): Promise<string> {
     // 1. Await background initialization to prevent race conditions
     await this.#initPromise;
 
@@ -127,7 +127,7 @@ export class AiModelCacheService {
   /**
    * Fast getter to retrieve the cached model's local blob URL if it exists.
    */
-  public async getModelUrl(): Promise<string | null> {
+  async getModelUrl(): Promise<string | null> {
     // Await background initialization to ensure the cache state is correct
     await this.#initPromise;
 

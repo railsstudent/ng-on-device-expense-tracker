@@ -10,7 +10,7 @@ import { ImageUploaderState } from './interfaces/image-uploader-state.interface'
 })
 export class ImageUploaderComponent {
   // Output event using modern output signal
-  public readonly imageSelected = output<string>();
+  readonly imageSelected = output<string>();
 
   // Single source of truth writable state signal
   private readonly state = signal<ImageUploaderState>({});

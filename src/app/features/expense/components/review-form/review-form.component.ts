@@ -11,16 +11,16 @@ import { EXPENSE_CATEGORIES } from '@/shared/constants/category.constants';
 })
 export class ReviewFormComponent {
   // Enforce compile-time parent binding contract
-  public readonly initialData = input.required<ExtractedExpense | null>();
+  readonly initialData = input.required<ExtractedExpense | null>();
 
   // State driven strictly by parent database save cycle
-  public readonly isSaving = input(false);
+  readonly isSaving = input(false);
 
   // Modern output emitting the domain-specific ExtractedExpense type
-  public readonly saved = output<ExtractedExpense>();
+  readonly saved = output<ExtractedExpense>();
 
   // Output notifying parent when the user requests a manual form clear
-  public readonly cleared = output<void>();
+  readonly cleared = output<void>();
 
   // Centralized single-source-of-truth categories list
   protected readonly categories = EXPENSE_CATEGORIES;
@@ -55,7 +55,7 @@ export class ReviewFormComponent {
     this.cleared.emit();
   }
 
-  public resetForm(): void {
+  resetForm(): void {
     this.formModel.set({
       merchantName: this.initialData()?.merchantName || '',
       amount: this.initialData()?.amount || 0,

@@ -9,10 +9,10 @@ import { Expense } from '@/shared/interfaces/expense.interface';
 })
 export class HistoryMobileSortComponent {
   // Accept dynamic headers list to enforce a single source of truth
-  public readonly headers = input.required<HeaderConfig[]>();
+  readonly headers = input.required<HeaderConfig[]>();
 
   // Emits the exact unified state to assign directly to the parent's sortState signal
-  public readonly sortChange = output<TableSortState>();
+  readonly sortChange = output<TableSortState>();
 
   protected onSelectChange(event: Event): void {
     const target = event.target as HTMLSelectElement;

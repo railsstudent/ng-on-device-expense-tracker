@@ -36,7 +36,7 @@ export class GemmaEngineService implements OnDestroy {
    * Lazily initializes and returns the shared singleton WebGPU Engine instance.
    * Leverages a cached Promise lock to prevent concurrent overlapping model loads.
    */
-  public getEngine(): Promise<Engine> {
+  getEngine(): Promise<Engine> {
     if (this.#engine) {
       return Promise.resolve(this.#engine);
     }
@@ -51,7 +51,7 @@ export class GemmaEngineService implements OnDestroy {
   /**
    * Releases the shared Engine WebGPU and Web Worker resources cleanly.
    */
-  public async deleteEngine(): Promise<void> {
+  async deleteEngine(): Promise<void> {
     if (this.#engine) {
       try {
         await this.#engine.delete();
@@ -63,7 +63,7 @@ export class GemmaEngineService implements OnDestroy {
     this.#initPromise = null;
   }
 
-  public async ngOnDestroy(): Promise<void> {
+  async ngOnDestroy(): Promise<void> {
     await this.deleteEngine();
   }
 }

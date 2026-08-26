@@ -6,12 +6,12 @@ import { OnDestroy, Service, inject, signal } from '@angular/core';
 export class DatabaseService implements OnDestroy {
   #db = inject(APP_DATABASE_TOKEN);
   #isConnected = signal(false);
-  public readonly isConnected = this.#isConnected.asReadonly();
+  readonly isConnected = this.#isConnected.asReadonly();
 
   /**
    * Initializes the IndexedDB database connection via Dexie.js.
    */
-  public async initialize(): Promise<void> {
+  async initialize(): Promise<void> {
     try {
       await this.#db.open();
       this.#isConnected.set(true);
@@ -24,7 +24,7 @@ export class DatabaseService implements OnDestroy {
   /**
    * Inserts a new expense log into the database and returns its new auto-incremented primary key id.
    */
-  public async insert(expense: ExtractedExpense): Promise<number> {
+  async insert(expense: ExtractedExpense): Promise<number> {
     const data = { ...expense } as Expense;
     if ('id' in data) {
       delete data.id;
@@ -35,25 +35,25 @@ export class DatabaseService implements OnDestroy {
   /**
    * Updates an existing expense entry matching the specified id.
    */
-  public async update(id: number, expense: Partial<ExtractedExpense>): Promise<void> {
+  async update(id: number, expense: Partial<ExtractedExpense>): Promise<void> {
     await this.#db.expenses.update(id, expense);
   }
 
   /**
    * Deletes an expense entry matching the specified id.
    */
-  public async delete(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     await this.#db.expenses.delete(id);
   }
 
   /**
    * Selects expenses matching a specific inclusive transaction date range (YYYY-MM-DD).
    */
-  public async selectByDateRange(startDate: string, endDate: string): Promise<Expense[]> {
+  async selectByDateRange(startDate: string, endDate: string): Promise<Expense[]> {
     return this.#db.expenses.where('transactionDate').between(startDate, endDate, true, true).toArray();
   }
 
-  public close(): void {
+  close(): void {
     console.log('IndexedDB: Closing database connection...');
     this.#db.close();
     this.#isConnected.set(false);
@@ -63,7 +63,7 @@ export class DatabaseService implements OnDestroy {
   /**
    * Automatically cleans up the connection on service destruction.
    */
-  public ngOnDestroy(): void {
+  ngOnDestroy(): void {
     this.close();
   }
 }

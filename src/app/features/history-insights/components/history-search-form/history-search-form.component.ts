@@ -11,10 +11,10 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
   styleUrls: ['./history-search-form.component.css'],
 })
 export class HistorySearchFormComponent {
-  public readonly searchSubmit = output<DateRangeSearch>();
+  readonly searchSubmit = output<DateRangeSearch>();
 
   // Localized state validation error (Rule 9 Signal Localization compliant)
-  public readonly dateRangeError = signal('');
+  readonly dateRangeError = signal('');
 
   protected readonly formModel = signal({
     startDate: '',

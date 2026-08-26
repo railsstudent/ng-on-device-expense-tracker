@@ -1,6 +1,6 @@
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
-import { APP_DATABASE_TOKEN } from '../consts/app-database.const';
+import { APP_DATABASE_TOKEN } from '@/core/consts/app-database.const';
 import { DatabaseService } from './database.service';
 
 describe('DatabaseService', () => {

@@ -12,11 +12,11 @@ import { debounce, disabled, form, FormField, submit } from '@angular/forms/sign
   styleUrls: ['./history-insights-chat.component.css'],
 })
 export class HistoryInsightsChatComponent {
-  public readonly state = input.required<AiChatState>();
-  public readonly hasSearched = input.required<boolean>();
-  public readonly hasExpenses = input.required<boolean>();
+  readonly state = input.required<AiChatState>();
+  readonly hasSearched = input.required<boolean>();
+  readonly hasExpenses = input.required<boolean>();
 
-  public readonly askGemma = output<string>();
+  readonly askGemma = output<string>();
 
   // Local Signal-based Form state with localized query (Rule 9 & Rule 12 compliant)
   protected readonly formModel = signal({
@@ -33,13 +33,13 @@ export class HistoryInsightsChatComponent {
   });
 
   // Local reactive guardrail computed check (Rule 5 arrow shortcut compliant)
-  public readonly isQueryUnsafe = computed(() => {
+  readonly isQueryUnsafe = computed(() => {
     const q = this.formModel().query.trim();
     return q.length > 0 && !isQuerySafeAndRelevant(q);
   });
 
   // Computed signals for submit button disabled state (Rule 5 arrow shortcut)
-  public readonly isSubmitDisabled = computed(
+  readonly isSubmitDisabled = computed(
     () =>
       !this.formModel().query.trim() ||
       this.isQueryUnsafe() ||
@@ -49,7 +49,7 @@ export class HistoryInsightsChatComponent {
   );
 
   // Computed signal to determine when to show the initial welcome box (Rule 5 arrow shortcut)
-  public readonly showWelcomeBox = computed(
+  readonly showWelcomeBox = computed(
     () =>
       this.hasSearched() &&
       this.hasExpenses() &&

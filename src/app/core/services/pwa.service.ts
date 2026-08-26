@@ -10,7 +10,7 @@ export class PwaService {
 
   // Expose a read-only reactive signal of the PWA status
   readonly #status = signal<string>('Checking...');
-  public readonly status = this.#status.asReadonly();
+  readonly status = this.#status.asReadonly();
 
   // Promise-Init Lock: tracks background service worker and update subscription flow
   readonly #initPromise: Promise<void>;
@@ -53,7 +53,7 @@ export class PwaService {
   /**
    * Safe check for background updates, awaiting the boot initialization lock first.
    */
-  public async checkForUpdates(): Promise<boolean> {
+  async checkForUpdates(): Promise<boolean> {
     await this.#initPromise;
     if (this.#swUpdate.isEnabled) {
       return this.#swUpdate.checkForUpdate();

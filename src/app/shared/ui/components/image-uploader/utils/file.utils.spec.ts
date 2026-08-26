@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { calculateFileSize } from './file.utils';
-import { SIZE_KB, SIZE_MB } from '../consts/image-uploader.const';
+import { SIZE_KB, SIZE_MB } from '@/shared/ui/components/image-uploader/consts/image-uploader.const';
 
 describe('file.utils', () => {
   it('should format bytes below 0.1MB into KB', () => {

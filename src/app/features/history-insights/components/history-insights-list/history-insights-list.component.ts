@@ -44,10 +44,10 @@ import { Component, computed, input } from '@angular/core';
   styleUrl: './history-insights-list.component.css',
 })
 export class HistoryInsightsListComponent {
-  public readonly insights = input.required<Insight[]>();
-  public readonly status = input.required<AiChatState['status']>();
-  public readonly showWelcomeBox = input.required<boolean>();
-  public readonly isQueryUnsafe = input.required<boolean>();
+  readonly insights = input.required<Insight[]>();
+  readonly status = input.required<AiChatState['status']>();
+  readonly showWelcomeBox = input.required<boolean>();
+  readonly isQueryUnsafe = input.required<boolean>();
 
   // Lookup map to associate categories to Material symbols (Rule 11 lookup pattern)
   protected readonly iconMap: Partial<Record<Insight['type'], string>> = {
@@ -57,7 +57,7 @@ export class HistoryInsightsListComponent {
   };
 
   // Resolve icons using mapped lookup (Rule 5 arrow shortcut is fully satisfied)
-  public readonly insightsWithIcons = computed(() =>
+  readonly insightsWithIcons = computed(() =>
     this.insights().map((insight) => ({
       ...insight,
       icon: this.iconMap[insight.type] ?? 'info',

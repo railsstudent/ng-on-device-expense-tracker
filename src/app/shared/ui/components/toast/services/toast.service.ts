@@ -7,10 +7,10 @@ import { timer } from 'rxjs';
 export class ToastService {
   readonly #isBrowser = inject(IS_BROWSER);
   readonly #toasts = signal<ToastMessage[]>([]);
-  public readonly toasts = this.#toasts.asReadonly();
+  readonly toasts = this.#toasts.asReadonly();
   #nextId = 1;
 
-  public show(message: string, type: ToastType = 'info', duration = 3000): void {
+  show(message: string, type: ToastType = 'info', duration = 3000): void {
     const id = this.#nextId;
     this.#nextId = this.#nextId + 1; // Explicit arithmetic assignment
 
@@ -22,15 +22,15 @@ export class ToastService {
     }
   }
 
-  public success(message: string, duration = 3000): void {
+  success(message: string, duration = 3000): void {
     this.show(message, 'success', duration);
   }
 
-  public error(message: string, duration = 4000): void {
+  error(message: string, duration = 4000): void {
     this.show(message, 'error', duration);
   }
 
-  public remove(id: number): void {
+  remove(id: number): void {
     this.#toasts.update((current) => current.filter((t) => t.id !== id));
   }
 }

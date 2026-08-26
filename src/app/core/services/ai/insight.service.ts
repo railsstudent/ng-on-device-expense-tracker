@@ -26,8 +26,8 @@ export class InsightService implements OnDestroy {
   #turnsCount = 0;
   #previousQueries: string[] = [];
 
-  public readonly status = computed(() => this.#state().status);
-  public readonly error = computed(() => this.#state().error);
+  readonly status = computed(() => this.#state().status);
+  readonly error = computed(() => this.#state().error);
 
   /**
    * Helper to format raw expenses into a compact pipe-delimited CSV structure.
@@ -140,7 +140,7 @@ export class InsightService implements OnDestroy {
    * Core generator function to stream insights on-demand.
    * Lazily checks if context needs to be primed before executing streaming queries.
    */
-  public async *streamInsights(userQuery: string, expenses: Expense[]): AsyncGenerator<InsightsResponse> {
+  async *streamInsights(userQuery: string, expenses: Expense[]): AsyncGenerator<InsightsResponse> {
     const isContextDifferent = this.#lastPrimedExpenses !== expenses;
     const isContextExhausted = this.#turnsCount >= 3;
 
@@ -177,7 +177,7 @@ export class InsightService implements OnDestroy {
     }
   }
 
-  public async ngOnDestroy(): Promise<void> {
+  async ngOnDestroy(): Promise<void> {
     await safeDeleteConversation(this.#conversation);
     this.resetSession();
     this.#state.set({ status: 'idle' });

@@ -21,8 +21,8 @@ import { Component, input } from '@angular/core';
   styleUrl: './history-insights-status.component.css',
 })
 export class HistoryInsightsStatusComponent {
-  public readonly status = input.required<AiChatState['status']>();
-  public readonly error = input<string | null>(null);
+  readonly status = input.required<AiChatState['status']>();
+  readonly error = input<string | null>(null);
 
   protected readonly statusConfigs: StatusConfig[] = [
     { status: 'initializing', class: 'initializing', label: 'Loading Gemma 4...' },

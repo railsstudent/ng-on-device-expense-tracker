@@ -15,14 +15,14 @@ export class HistoryResultTableComponent {
   readonly #tableService = inject(HistoryResultTableService);
 
   // Pure data input; table state, paging, and sorting are completely encapsulated internally
-  public readonly expenses = input.required<Expense[]>();
-  public readonly hasSearched = input.required<boolean>();
+  readonly expenses = input.required<Expense[]>();
+  readonly hasSearched = input.required<boolean>();
 
-  public readonly deleteRequest = output<Expense>();
+  readonly deleteRequest = output<Expense>();
 
-  public readonly pageSizes = [5, 10, 20, 50];
+  readonly pageSizes = [5, 10, 20, 50];
 
-  public readonly headers: HeaderConfig[] = [
+  readonly headers: HeaderConfig[] = [
     { key: 'merchantName', label: 'Merchant / 商家' },
     { key: 'amount', label: 'Amount / 金額', alignRight: true },
     { key: 'transactionDate', label: 'Date / 交易日期' },
@@ -30,20 +30,20 @@ export class HistoryResultTableComponent {
   ];
 
   // Local state signal for coupled sorting parameters
-  public readonly sortState = signal<TableSortState>({ column: '', direction: 'none' });
+  readonly sortState = signal<TableSortState>({ column: '', direction: 'none' });
 
   // Local state signal for page size
-  public readonly pageSize = signal(10);
+  readonly pageSize = signal(10);
 
   // Derive and sort expenses internally (Rule 5)
-  public readonly sortedExpenses = computed(() => this.#tableService.sortExpenses(this.expenses(), this.sortState()));
+  readonly sortedExpenses = computed(() => this.#tableService.sortExpenses(this.expenses(), this.sortState()));
 
   // Derived properties for template
-  public readonly totalCount = computed(() => this.sortedExpenses().length);
-  public readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize())));
+  readonly totalCount = computed(() => this.sortedExpenses().length);
+  readonly totalPages = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize())));
 
   // Use state-of-the-art linkedSignal to self-correct/clamp the active currentPage when records or page sizes change
-  public readonly currentPage = linkedSignal<{ count: number; size: number }, number>({
+  readonly currentPage = linkedSignal<{ count: number; size: number }, number>({
     source: () => ({ count: this.totalCount(), size: this.pageSize() }),
     computation: (source, previous) => {
       if (!previous) {
@@ -54,16 +54,16 @@ export class HistoryResultTableComponent {
     },
   });
 
-  public readonly paginatedExpenses = computed(() =>
+  readonly paginatedExpenses = computed(() =>
     this.#tableService.paginateExpenses(this.sortedExpenses(), this.pageSize(), this.currentPage()),
   );
 
-  public readonly itemRangeLabel = computed(() =>
+  readonly itemRangeLabel = computed(() =>
     this.#tableService.getItemRangeLabel(this.currentPage(), this.pageSize(), this.totalCount()),
   );
 
   // Pre-computed dictionary map of column sort icons to prevent unnecessary cycle evaluations in template (Rule 5)
-  public readonly sortIcons = computed(() => this.#tableService.getSortIconMap(this.sortState()));
+  readonly sortIcons = computed(() => this.#tableService.getSortIconMap(this.sortState()));
 
   protected onSort(col: keyof Expense): void {
     const current = this.sortState();

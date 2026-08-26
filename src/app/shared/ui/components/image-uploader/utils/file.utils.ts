@@ -1,4 +1,4 @@
-import { SIZE_KB, SIZE_MB } from '../consts/image-uploader.const';
+import { SIZE_KB, SIZE_MB } from '@/shared/ui/components/image-uploader/consts/image-uploader.const';
 
 export function calculateFileSize(file: File) {
   const sizeInMb = file.size / SIZE_MB;

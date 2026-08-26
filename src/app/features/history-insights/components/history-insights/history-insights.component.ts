@@ -1,13 +1,13 @@
-import { Component, computed, inject, signal, viewChild } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
-import { ConfirmDialogComponent } from '@/shared/ui/components/confirm-dialog/confirm-dialog.component';
-import { HistoryInsightsService } from './services/history-insights.service';
-import { HistorySearchFormComponent } from '../history-search-form/history-search-form.component';
-import { HistoryResultTableComponent } from '../history-result-table/history-result-table.component';
-import { HistoryInsightsChatComponent } from '../history-insights-chat/history-insights-chat.component';
-import { Expense } from '@/shared/interfaces/expense.interface';
+import { HistoryInsightsChatComponent } from '@/features/history-insights/components/history-insights-chat/history-insights-chat.component';
+import { HistoryResultTableComponent } from '@/features/history-insights/components/history-result-table/history-result-table.component';
+import { HistorySearchFormComponent } from '@/features/history-insights/components/history-search-form/history-search-form.component';
 import { AiChatState, DateRangeSearch } from '@/features/history-insights/interfaces/history-insights-state.interface';
+import { Expense } from '@/shared/interfaces/expense.interface';
 import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
+import { ConfirmDialogComponent } from '@/shared/ui/components/confirm-dialog/confirm-dialog.component';
+import { CurrencyPipe } from '@angular/common';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { HistoryInsightsService } from './services/history-insights.service';
 
 @Component({
   selector: 'app-history-insights',
@@ -28,23 +28,23 @@ export default class HistoryInsightsComponent {
   protected readonly confirmDialog = viewChild(ConfirmDialogComponent);
 
   // Presentational/View States (Rule 9 Signal Localization)
-  public readonly expenses = signal<Expense[]>([]);
-  public readonly hasSearched = signal(false);
-  public readonly streamingResponse = signal<InsightsResponse>({ insights: [] });
-  public readonly streamingInsights = computed(() => this.streamingResponse().insights ?? []);
-  public readonly pendingDeleteExpense = signal<Expense | null>(null);
+  readonly expenses = signal<Expense[]>([]);
+  readonly hasSearched = signal(false);
+  readonly streamingResponse = signal<InsightsResponse>({ insights: [] });
+  readonly streamingInsights = computed(() => this.streamingResponse().insights ?? []);
+  readonly pendingDeleteExpense = signal<Expense | null>(null);
 
   // Compute reactive AiChatState parameter object (Rule 5 arrow shortcut)
-  public readonly aiState = computed<AiChatState>(() => ({
+  readonly aiState = computed<AiChatState>(() => ({
     status: this.vm.aiStatus(),
     error: this.vm.aiError() ?? null,
     streamingInsights: this.streamingInsights(),
   }));
 
   // Derived properties for status checking (Rule 5 arrow shortcut)
-  public readonly hasExpenses = computed(() => this.expenses().length > 0);
+  readonly hasExpenses = computed(() => this.expenses().length > 0);
 
-  public async onSearch(criteria: DateRangeSearch): Promise<void> {
+  async onSearch(criteria: DateRangeSearch): Promise<void> {
     try {
       const list = await this.vm.loadExpenses(criteria.startDate, criteria.endDate);
       this.expenses.set(list);
@@ -55,12 +55,12 @@ export default class HistoryInsightsComponent {
     }
   }
 
-  public openDeleteConfirmation(expense: Expense): void {
+  openDeleteConfirmation(expense: Expense): void {
     this.pendingDeleteExpense.set(expense);
     this.confirmDialog()?.open();
   }
 
-  public async onDeleteConfirmed(): Promise<void> {
+  async onDeleteConfirmed(): Promise<void> {
     const expense = this.pendingDeleteExpense();
     if (expense && expense.id !== undefined) {
       try {
@@ -76,11 +76,11 @@ export default class HistoryInsightsComponent {
     }
   }
 
-  public onDeleteCancelled(): void {
+  onDeleteCancelled(): void {
     this.pendingDeleteExpense.set(null);
   }
 
-  public async onAskGemma(query: string): Promise<void> {
+  async onAskGemma(query: string): Promise<void> {
     const trimmed = query.trim();
     if (!trimmed) {
       return;
