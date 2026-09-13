@@ -43,3 +43,35 @@ Issues and specs live as local markdown files under `.scratch/`. See `docs/agent
 ### Domain docs
 
 Domain documentation layout is single-context. See `docs/agents/domain.md`.
+
+## Documentation & MCP Research Protocols
+
+When researching framework/platform APIs, architecture, or resolving errors:
+
+1. **Angular Questions (`angular-cli` MCP)**:
+   - Primary: Query the `angular-cli` MCP server (`search_documentation`, `get_best_practices`, `ai_tutor`) targeting the project's current major Angular version (`22`).
+   - Fallback: Use web search if the MCP server is unavailable or returns no results.
+
+2. **General Third-Party Tools (Tailwind v4, Vitest, etc.)**:
+   - Use web search directly for libraries outside the official Angular.
+
+## Testing & Command Verification Loop
+
+When editing, creating, or testing files in this repository, you MUST follow these constraints:
+
+1. **Targeted Testing via Angular CLI MCP Server**:
+   - During feature development and refactoring, use the `angular-cli` MCP server (`run_target`) with `target: "test"` to run tests against specifically modified files or component directories.
+   - To run targeted tests with coverage, pass key-value options such as:
+
+     ```json
+     {
+       "coverage": true,
+       "include": ["src/app/features/dashboard/components/tags-display/tags-display.component.spec.ts"]
+     }
+     ```
+
+2. **Defer Full-Suite Verification to End-of-Task**:
+   - Do NOT run full repo-wide commands (`npm run lint`, `npm run format`, `npm test`, full `npm run test:once`, `npm run build`) recursively after every individual contiguous block edit. Gather all contiguous and related edits, apply them first, and run full validation commands EXACTLY ONCE at the end of the complete task milestone.
+
+3. **ESLint Compliance in Spec Files**:
+   - When generating or updating unit tests (`*.spec.ts`), ensure they adhere to the project's ESLint config. Avoid common violations like relative imports in TypeScript (always use absolute path aliases starting with `@/` for TS files; relative paths are strictly for CSS `@reference` directives) and missing curly braces. Do not use legacy reactive forms or custom test classes that expand member visibility just for testing.
