@@ -28,16 +28,17 @@ We leverage a declarative configuration file (`ngsw-config.json`) to define cach
 - **App Shell (`prefetch` group)**: Pre-caches essential startup files (`index.html`, root stylesheets, critical JS bundles, local web fonts like Geist, Inter, Hanken Grotesk, and Material Symbols ligatures). This ensures the app boots instantly on repeat visits without network roundtrips.
 - **Assets and Graphics (`lazy` group)**: Lazily caches secondary resources, icons, and non-critical assets upon first access to minimize initial load bandwidth.
 
-### 2. State-Driven `PwaService` Facade
+### 2. State-Driven `PwaService` Facade & Alert Lifecycle
 
 We encapsulate Service Worker lifecycle monitoring inside a unified `PwaService` singleton located in `src/app/core/services/pwa.service.ts`:
 
-- **Signal State Exposure**: Exposes a read-only reactive `status()` Signal, which components can bind to directly to render current PWA status or warning banners in the UI.
-- **Non-Blocking Dynamic Version Updates**:
-  - Subscribes to `SwUpdate.versionUpdates` to detect and monitor background deployments.
-  - When a new version is compiled and available (`VERSION_READY`), the service transitions its state to `"Update Available! Please reload."`.
-  - This lets the UI display a polite, non-blocking reload banner instead of interrupting active user form entries.
-- **Promise-Init Lock Security**: All dynamic update and checking methods are protected by a background `#initPromise` lock to ensure the service worker is fully registered in the browser before check tasks can execute.
+- **Configurable Polling Lifecycle**:
+  - Waits for initial application stabilization (`ApplicationRef.isStable`) before initiating update checks to avoid slowing down bootstrap.
+  - Periodically polls for background bundle updates (`checkForUpdate()`) on an interval governed by the root `PWA_CHECK_INTERVAL` `InjectionToken`.
+- **Signal-Based Notification**:
+  - Exposes a reactive `updateAvailable` boolean signal derived from `SwUpdate.versionUpdates` (`VERSION_READY`).
+  - Consumed by `PwaAlertComponent` (`app-pwa-alert`), which provides non-blocking "Reload" and "Dismiss" actions.
+  - Manages `isDismissed` using Angular's `linkedSignal({ source: this.updateAvailable, computation: () => false })` to dismiss the prompt while automatically resetting when new updates arrive.
 
 ### 3. Separation of Concerns & SSR Shielding
 

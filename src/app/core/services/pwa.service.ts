@@ -1,63 +1,66 @@
-import { NAVIGATOR, IS_BROWSER } from '@/core/consts/window.const';
-import { inject, Service, signal } from '@angular/core';
+import { PWA_CHECK_INTERVAL } from '@/core/consts/pwa.constant';
+import { WINDOW } from '@/core/consts/window.const';
+import { ApplicationRef, DestroyRef, inject, Service } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { SwUpdate } from '@angular/service-worker';
+import { catchError, concat, EMPTY, exhaustMap, filter, from, interval, map, take } from 'rxjs';
 
 @Service()
 export class PwaService {
-  readonly #isBrowser = inject(IS_BROWSER);
   readonly #swUpdate = inject(SwUpdate);
-  readonly #navigator = inject(NAVIGATOR);
+  readonly #win = inject(WINDOW);
+  readonly #destroyRef$ = inject(DestroyRef);
+  readonly #pwaCheckInterval = inject(PWA_CHECK_INTERVAL);
+  readonly #appRef = inject(ApplicationRef);
 
-  // Expose a read-only reactive signal of the PWA status
-  readonly #status = signal<string>('Checking...');
-  readonly status = this.#status.asReadonly();
-
-  // Promise-Init Lock: tracks background service worker and update subscription flow
-  readonly #initPromise: Promise<void>;
+  updateAvailable = toSignal(
+    this.#win && this.#swUpdate.isEnabled
+      ? this.#swUpdate.versionUpdates.pipe(
+          filter((evt) => evt.type === 'VERSION_READY'),
+          map(() => true),
+        )
+      : EMPTY,
+    { initialValue: false },
+  );
 
   constructor() {
-    if (this.#isBrowser) {
-      this.#initPromise = this.initializePwaTracker();
-    } else {
-      this.#status.set('Not Supported (SSR Mode)');
-      this.#initPromise = Promise.resolve();
+    if (this.#win && this.#swUpdate.isEnabled) {
+      this.#swUpdate.unrecoverable
+        .pipe(takeUntilDestroyed(this.#destroyRef$))
+        .subscribe(() => this.#win?.location?.reload());
+
+      const isAppStable$ = this.#appRef.isStable.pipe(
+        filter((isStable) => isStable),
+        take(1),
+      );
+      const polling$ = interval(this.#pwaCheckInterval);
+
+      concat(isAppStable$, polling$)
+        .pipe(
+          exhaustMap(() =>
+            from(this.#swUpdate.checkForUpdate()).pipe(
+              catchError((e) => {
+                console.error(e);
+                return EMPTY;
+              }),
+            ),
+          ),
+          takeUntilDestroyed(this.#destroyRef$),
+        )
+        .subscribe();
     }
   }
 
-  private async initializePwaTracker(): Promise<void> {
-    if (!this.#navigator || !('serviceWorker' in this.#navigator)) {
-      this.#status.set('Not Supported by Browser');
-      return;
-    }
-
-    try {
-      const registration = await this.#navigator.serviceWorker.getRegistration();
-      if (registration) {
-        this.#status.set(`Active (Scope: ${registration.scope})`);
-      } else {
-        this.#status.set('Ready (Registered upon Production Build)');
-      }
-
+  reloadApp(): void {
+    if (this.#win) {
       if (this.#swUpdate.isEnabled) {
-        this.#swUpdate.versionUpdates.subscribe((evt) => {
-          if (evt.type === 'VERSION_READY') {
-            this.#status.set('Update Available! Please reload.');
-          }
-        });
+        try {
+          this.#swUpdate.activateUpdate();
+        } catch (error) {
+          console.error('Failed to activate service worker update:', error);
+        }
       }
-    } catch {
-      this.#status.set('Failed to check Service Worker');
+      this.#win.location?.reload();
     }
-  }
-
-  /**
-   * Safe check for background updates, awaiting the boot initialization lock first.
-   */
-  async checkForUpdates(): Promise<boolean> {
-    await this.#initPromise;
-    if (this.#swUpdate.isEnabled) {
-      return this.#swUpdate.checkForUpdate();
-    }
-    return false;
   }
 }

@@ -19,6 +19,10 @@ Everything runs entirely inside the user's browser—providing 100% offline func
   - `items`: Individual line-items (optional).
 - **On-Device Database (SQLite Wasm)**: A local SQL database stored inside the browser's persistent storage (Origin Private File System / OPFS) using SQLite Wasm.
 - **Insight Engine**: A reporting module executing standard SQL queries against SQLite Wasm to generate trends, metrics, and visualization charts.
+- **PWA Update Lifecycle**:
+  - **Update Check**: Periodic background verification against the Service Worker cache for newer bundles, triggered after initial app stabilization and on a recurring schedule configured via `PWA_CHECK_INTERVAL`.
+  - **PWA Alert (Toaster)**: User-facing prompt presenting **Reload** (activates the update and refreshes) and **Dismiss** (closes the alert).
+  - **Dismissal**: Setting `isDismissed` suppresses the alert for the current update and automatically resets when a newer update version is detected.
 
 ## Core User Workflows
 

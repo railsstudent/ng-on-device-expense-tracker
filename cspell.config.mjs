@@ -31,7 +31,7 @@ export default defineConfig({
     'multimodal',
     'Tesseract',
     'sandboxed',
-    'coep'
+    'coep',
   ],
   ignorePaths: [
     'node_modules',
@@ -45,6 +45,6 @@ export default defineConfig({
     'ngsw-config.json',
     'firebase.config',
     'skills-lock.json',
-    'stemmer.ts'
+    'stemmer.ts',
   ],
 });
