@@ -38,12 +38,12 @@ function serializeDailyCategoryTotals(
   const serialized: Record<string, DailyCategoryTrend> = {};
   const categories = Object.keys(categoryTotals) as CanonicalExpenseCategory[];
   for (const category of categories) {
-    const accum = categoryTotals[category];
-    if (accum !== undefined) {
+    const accumulate = categoryTotals[category];
+    if (accumulate !== undefined) {
       serialized[category] = {
-        totalSpending: formatCurrency(accum.totalSpending),
-        percentageOfTotal: calculatePercentage(accum.totalSpending, dayTotal),
-        transactionCount: accum.transactionCount,
+        totalSpending: formatCurrency(accumulate.totalSpending),
+        percentageOfTotal: calculatePercentage(accumulate.totalSpending, dayTotal),
+        transactionCount: accumulate.transactionCount,
       };
     }
   }

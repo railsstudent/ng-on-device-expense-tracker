@@ -64,9 +64,9 @@ function updateDailyTrends(
       };
     }
 
-    const catAccum = trend.categoryBreakdown[cat]!;
-    catAccum.totalSpending = catAccum.totalSpending + amount;
-    catAccum.transactionCount = catAccum.transactionCount + 1;
+    const catBreakdown = trend.categoryBreakdown[cat]!;
+    catBreakdown.totalSpending = catBreakdown.totalSpending + amount;
+    catBreakdown.transactionCount = catBreakdown.transactionCount + 1;
   }
 }
 
