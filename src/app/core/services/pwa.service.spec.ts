@@ -1,7 +1,7 @@
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
 import { ApplicationRef } from '@angular/core';
-import { SwUpdate, VersionReadyEvent, UnrecoverableStateEvent } from '@angular/service-worker';
+import { SwUpdate, VersionReadyEvent, VersionEvent, UnrecoverableStateEvent } from '@angular/service-worker';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { PwaService } from './pwa.service';
@@ -10,14 +10,14 @@ import { WINDOW } from '@/core/consts/window.const';
 
 describe('PwaService', () => {
   let service: PwaService;
-  let versionUpdates$: Subject<any>;
+  let versionUpdates$: Subject<VersionEvent>;
   let unrecoverable$: Subject<UnrecoverableStateEvent>;
   let isStable$: BehaviorSubject<boolean>;
   let mockSwUpdate: Partial<SwUpdate>;
   let mockWindow: { location: { reload: ReturnType<typeof vi.fn> } };
 
   beforeEach(() => {
-    versionUpdates$ = new Subject<any>();
+    versionUpdates$ = new Subject<VersionEvent>();
     unrecoverable$ = new Subject<UnrecoverableStateEvent>();
     isStable$ = new BehaviorSubject<boolean>(false);
 
@@ -36,7 +36,11 @@ describe('PwaService', () => {
     };
   });
 
-  function setupTest(swUpdateMock = mockSwUpdate, windowMock: any = mockWindow, checkInterval = 1000) {
+  function setupTest(
+    swUpdateMock = mockSwUpdate,
+    windowMock: { location: { reload: ReturnType<typeof vi.fn> } } | null = mockWindow,
+    checkInterval = 1000,
+  ) {
     TestBed.configureTestingModule({
       providers: [
         PwaService,
@@ -60,10 +64,10 @@ describe('PwaService', () => {
       setupTest();
       expect(service.updateAvailable()).toBe(false);
 
-      const event: Partial<VersionReadyEvent> = {
+      const event: VersionReadyEvent = {
         type: 'VERSION_READY',
-        currentVersion: { hash: 'v1' },
-        latestVersion: { hash: 'v2' },
+        currentVersion: { hash: 'v1', appData: undefined },
+        latestVersion: { hash: 'v2', appData: undefined },
       };
       versionUpdates$.next(event);
 
@@ -73,17 +77,26 @@ describe('PwaService', () => {
     it('should ignore non-VERSION_READY update events', () => {
       setupTest();
 
-      versionUpdates$.next({ type: 'VERSION_DETECTED', version: { hash: 'v2' } });
+      versionUpdates$.next({ type: 'VERSION_DETECTED', version: { hash: 'v2', appData: undefined } });
       expect(service.updateAvailable()).toBe(false);
 
-      versionUpdates$.next({ type: 'VERSION_INSTALLATION_FAILED', version: { hash: 'v2' }, error: 'failed' });
+      versionUpdates$.next({
+        type: 'VERSION_INSTALLATION_FAILED',
+        version: { hash: 'v2', appData: undefined },
+        error: 'failed',
+      });
       expect(service.updateAvailable()).toBe(false);
     });
 
     it('should keep updateAvailable false if SwUpdate is disabled or window is missing', () => {
       setupTest({ ...mockSwUpdate, isEnabled: false });
 
-      versionUpdates$.next({ type: 'VERSION_READY' });
+      const event: VersionReadyEvent = {
+        type: 'VERSION_READY',
+        currentVersion: { hash: 'v1', appData: undefined },
+        latestVersion: { hash: 'v2', appData: undefined },
+      };
+      versionUpdates$.next(event);
       expect(service.updateAvailable()).toBe(false);
     });
   });
@@ -100,7 +113,9 @@ describe('PwaService', () => {
     });
 
     it('should catch and handle errors from checkForUpdate() gracefully', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        // Suppress expected test console error
+      });
       mockSwUpdate.checkForUpdate = vi.fn().mockRejectedValue(new Error('Network offline'));
 
       setupTest();
@@ -126,7 +141,9 @@ describe('PwaService', () => {
     });
 
     it('should catch errors during activateUpdate and still reload window', () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {
+        // Suppress expected test console error
+      });
       mockSwUpdate.activateUpdate = vi.fn().mockImplementation(() => {
         throw new Error('Activation error');
       });

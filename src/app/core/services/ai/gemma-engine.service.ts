@@ -1,16 +1,19 @@
-import { OnDestroy, Service, inject } from '@angular/core';
+import { injectAsync, onIdle, OnDestroy, Service } from '@angular/core';
 import { Engine } from '@litert-lm/core';
-import { AiModelCacheService } from './ai-model-cache.service';
 
 @Service()
 export class GemmaEngineService implements OnDestroy {
-  readonly #cacheService = inject(AiModelCacheService);
+  readonly #getCacheService = injectAsync(
+    () => import('@/core/services/ai/ai-model-cache.service').then((m) => m.AiModelCacheService),
+    { prefetch: onIdle },
+  );
   #engine: Engine | null = null;
   #initPromise: Promise<Engine> | null = null;
 
   private async initializeEngine(): Promise<Engine> {
     try {
-      const localBlobUrl = await this.#cacheService.getModelUrl();
+      const cacheService = await this.#getCacheService();
+      const localBlobUrl = await cacheService.getModelUrl();
       if (!localBlobUrl) {
         throw new Error('Gemma 4 local weights are not cached in the browser yet. Please download them first.');
       }

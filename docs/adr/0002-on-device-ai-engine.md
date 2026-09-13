@@ -33,3 +33,16 @@ Due to poor on-device OCR quality on crumpled, low-contrast, or handheld receipt
 The receipt scanning page has been pivoted to a high-fidelity **Side-by-Side Reference Preview** (Image Uploader on the left, manual input Signal Form on the right). This achieves 100% data reliability, zero latency overhead, and saves ~10MB of heavy WebAssembly dependencies and trained models from the repository and deployed size.
 
 The on-device WebGPU AI engine (`gemma-4-E2B-it-litert-lm`) is **retained exclusively** for the **History & Insights Chat** to analyze the local IndexedDB transactions database completely on-device.
+
+## Amendment (2026-09-13)
+
+**Status**: Amended for Lazy Injection and Code-Splitting via `injectAsync`.
+
+To eliminate initial bundle overhead and prevent unnecessary cache inspections during routine expense browsing, the AI service stack is refactored to use Angular 22's `injectAsync` primitive with `{ prefetch: onIdle }`:
+
+1. **Lazy Service Resolution**:
+   - `InsightService` resolves `GemmaEngineService` lazily via `injectAsync(() => import('@/core/services/ai/gemma-engine.service').then(m => m.GemmaEngineService), { prefetch: onIdle })`.
+   - `GemmaEngineService` resolves `AiModelCacheService` lazily via `injectAsync(() => import('@/core/services/ai/ai-model-cache.service').then(m => m.AiModelCacheService), { prefetch: onIdle })`.
+2. **Chunk Splitting & Idle Prefetching**:
+   - Automatically isolates `@litert-lm/core` and vendored caching modules into an independent, asynchronously loaded JavaScript chunk.
+   - Prefetches the chunk during browser idle time (`onIdle`) to ensure zero-latency interaction when users first submit an insight prompt, without instantiating WebGPU memory or evaluating Cache Storage checks upfront.

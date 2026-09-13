@@ -4,10 +4,9 @@ import { computeExpenseStatsJson } from '@/core/utils/insight-calculator.utils';
 import { AiSessionState } from '@/shared/interfaces/ai-session-state.interface';
 import { Expense } from '@/shared/interfaces/expense.interface';
 import { InsightsResponse } from '@/shared/interfaces/insights-response.interface';
-import { computed, inject, OnDestroy, Service, signal } from '@angular/core';
+import { computed, injectAsync, onIdle, OnDestroy, Service, signal } from '@angular/core';
 import { Conversation } from '@litert-lm/core';
 import { jsonrepair } from 'jsonrepair';
-import { GemmaEngineService } from './gemma-engine.service';
 
 function isStreamChunk(chunk: unknown): chunk is { content: unknown } {
   return typeof chunk === 'object' && chunk !== null && 'content' in chunk;
@@ -15,7 +14,10 @@ function isStreamChunk(chunk: unknown): chunk is { content: unknown } {
 
 @Service()
 export class InsightService implements OnDestroy {
-  readonly #engineService = inject(GemmaEngineService);
+  readonly #getEngineService = injectAsync(
+    () => import('@/core/services/ai/gemma-engine.service').then((m) => m.GemmaEngineService),
+    { prefetch: onIdle },
+  );
 
   readonly #state = signal<AiSessionState>({ status: 'idle' });
   #conversation: Conversation | null = null;
@@ -55,7 +57,8 @@ export class InsightService implements OnDestroy {
     this.#state.set({ status: 'priming' });
 
     try {
-      const engine = await this.#engineService.getEngine();
+      const engineService = await this.#getEngineService();
+      const engine = await engineService.getEngine();
 
       await safeDeleteConversation(this.#conversation);
       this.#conversation = null;
