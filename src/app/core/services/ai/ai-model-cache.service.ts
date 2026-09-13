@@ -1,6 +1,6 @@
 import FileProxyCache from '@/assets/FileProxyCache.min.js';
 import { AI_CACHE_NAME, DEFAULT_MODEL_FILENAME, GEMMA_MODEL_URL } from '@/core/consts/ai-model.const';
-import { CACHE_STORAGE, IS_BROWSER, WINDOW } from '@/core/consts/window.const';
+import { CACHE_STORAGE, WINDOW } from '@/core/consts/window.const';
 import { createCachedState, createDownloadingState, createNotDownloadedState } from '@/core/utils/cache-state.utils';
 import { sha256 } from '@/core/utils/crypto.utils';
 import { parseProgressPercentage } from '@/core/utils/progress.utils';
@@ -9,7 +9,6 @@ import { computed, inject, Service, signal } from '@angular/core';
 
 @Service()
 export class AiModelCacheService {
-  readonly #isBrowser = inject(IS_BROWSER);
   readonly #window = inject(WINDOW);
   readonly #cacheStorage = inject(CACHE_STORAGE);
 
@@ -29,7 +28,7 @@ export class AiModelCacheService {
 
   constructor() {
     // Standard Angular-native check: only run cache setup and storage inspection in browser environments
-    if (this.#isBrowser) {
+    if (this.#window) {
       FileProxyCache.setCacheName(AI_CACHE_NAME);
       // Kick off background cache check and capture its promise
       this.#initPromise = this.checkInitialCacheState();
