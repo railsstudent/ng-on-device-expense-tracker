@@ -11,7 +11,7 @@
     "lint": "ng lint",
     "prepare": "husky",
     "cspell": "cspell --no-must-find-files --config cspell.config.mjs .",
-    "preview": "npx serve dist/ng-on-device-expense-tracker/browser -p 8080",
+    "preview": "npx serve dist/ng-on-device-expense-tracker/browser -p 8080 -s",
     "format": "prettier --write \"{src,firebase}/**/*.{ts,js,html}\" \"*.{mjs,json}\""
   },
   "private": true,
