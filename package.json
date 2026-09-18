@@ -12,7 +12,10 @@
     "prepare": "husky",
     "cspell": "cspell --no-must-find-files --config cspell.config.mjs .",
     "preview": "npx serve dist/ng-on-device-expense-tracker/browser -p 8080 -s",
-    "format": "prettier --write \"{src,firebase}/**/*.{ts,js,html}\" \"*.{mjs,json}\""
+    "format": "prettier --write \"{src,firebase}/**/*.{ts,js,html}\" \"*.{mjs,json}\"",
+    "chrome:debug": "node scripts/chrome-debug.mjs start",
+    "chrome:debug:stop": "node scripts/chrome-debug.mjs stop",
+    "chrome:debug:status": "node scripts/chrome-debug.mjs status"
   },
   "private": true,
   "packageManager": "npm@11.17.0",

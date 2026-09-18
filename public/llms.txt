@@ -1,0 +1,14 @@
+# NG On Device Expense Tracker
+
+> Privacy-first on-device AI expense tracker and receipt extractor built with Angular and WebAssembly.
+
+## Overview
+
+NG On Device Expense Tracker allows users to track expenses, extract receipt details completely locally on device without sending sensitive financial data to external servers, and visualize spending patterns.
+
+## Pages & Features
+
+- [Dashboard](/dashboard): Main overview of expenses and spending analytics.
+- [Extract Expense](/extract): On-device receipt and invoice scanner.
+- [Expense History](/history): Comprehensive transaction history and insights.
+- [Settings](/settings): Configuration, backup, and AI model controls.
