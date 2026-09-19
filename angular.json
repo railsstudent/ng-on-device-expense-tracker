@@ -25,6 +25,21 @@
                 "input": "public"
               },
               {
+                "glob": "inter-latin-400-normal.woff2",
+                "input": "node_modules/@fontsource/inter/files",
+                "output": "fonts"
+              },
+              {
+                "glob": "inter-latin-600-normal.woff2",
+                "input": "node_modules/@fontsource/inter/files",
+                "output": "fonts"
+              },
+              {
+                "glob": "material-symbols-outlined-latin-400-normal.woff2",
+                "input": "node_modules/@fontsource/material-symbols-outlined/files",
+                "output": "fonts"
+              },
+              {
                 "glob": "**/*",
                 "input": "node_modules/@sqlite.org/sqlite-wasm/dist",
                 "output": "assets/sqlite-wasm"

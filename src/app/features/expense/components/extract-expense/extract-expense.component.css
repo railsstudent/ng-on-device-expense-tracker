@@ -1,5 +1,10 @@
 @reference "../../../../../styles.css";
 
+:host {
+  display: block;
+  contain: layout style;
+}
+
 .split-layout-grid {
   @apply grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-6;
 }
