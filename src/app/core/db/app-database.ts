@@ -1,9 +1,11 @@
+import { Service } from '@angular/core';
 import Dexie, { type Table } from 'dexie';
 import { Expense } from '@/shared/interfaces/expense.interface';
 
 /**
  * AppDatabase class: Dexie-based schema definition.
  */
+@Service()
 export class AppDatabase extends Dexie {
   public expenses!: Table<Expense, number>;
 

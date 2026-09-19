@@ -33,6 +33,12 @@ jobs:
         run: npx ng build --configuration production --base-href /ng-on-device-expense-tracker/
       - name: Create 404 Routing Fallback
         run: cp dist/ng-on-device-expense-tracker/browser/index.html dist/ng-on-device-expense-tracker/browser/404.html
+      - name: Create Route Folders for 200 OK Status
+        run: |
+          mkdir -p dist/ng-on-device-expense-tracker/browser/extract
+          cp dist/ng-on-device-expense-tracker/browser/index.html dist/ng-on-device-expense-tracker/browser/extract/index.html
+          mkdir -p dist/ng-on-device-expense-tracker/browser/history
+          cp dist/ng-on-device-expense-tracker/browser/index.html dist/ng-on-device-expense-tracker/browser/history/index.html
 
       - name: Upload Static Pages Artifact
         uses: actions/upload-pages-artifact@v3
