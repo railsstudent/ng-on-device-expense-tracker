@@ -1,7 +1,7 @@
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
-import { APP_DATABASE_TOKEN } from '@/core/consts/app-database.const';
-import { DatabaseService } from './database.service';
+import { AppDatabase } from '@/core/db/app-database';
+import { DatabaseService } from '@/core/services/database.service';
 
 describe('DatabaseService', () => {
   // Mock variables representing the Database structures
@@ -20,6 +20,7 @@ describe('DatabaseService', () => {
 
   const mockAppDatabase = {
     expenses: mockTable,
+    isOpen: vi.fn().mockReturnValue(false),
     open: vi.fn().mockResolvedValue(undefined),
     close: vi.fn(),
   };
@@ -27,49 +28,46 @@ describe('DatabaseService', () => {
   function createService(): DatabaseService {
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      providers: [DatabaseService, { provide: APP_DATABASE_TOKEN, useValue: mockAppDatabase }],
+      providers: [DatabaseService, { provide: AppDatabase, useValue: mockAppDatabase }],
     });
     return TestBed.inject(DatabaseService);
   }
 
-  it('should establish connection and perform CRUD operations', async () => {
+  it('should lazily connect on-demand and perform CRUD operations', async () => {
     const service = createService();
     expect(service.isConnected()).toBe(false);
 
-    await service.initialize();
-    expect(service.isConnected()).toBe(true);
-
-    const insertResult = await service.insert({
-      merchantName: 'Test',
-      amount: 10,
+    const id = await service.insert({
+      merchantName: 'Test Coffee',
+      amount: 4.5,
       transactionDate: '2026-08-10',
       category: 'dining',
     });
-    expect(insertResult).toBe(1);
+    expect(id).toBe(1);
+    expect(service.isConnected()).toBe(true);
 
-    await service.update(1, { amount: 15 });
+    await service.update(1, { amount: 5.0 });
     await service.delete(1);
 
-    const rangeResult = await service.selectByDateRange('2026-08-01', '2026-08-15');
-    expect(rangeResult.length).toBe(1);
+    const list = await service.selectByDateRange('2026-08-01', '2026-08-15');
+    expect(list.length).toBe(1);
   });
 
-  it('should close connection explicitly and via ngOnDestroy', async () => {
+  it('should handle connection teardown explicitly and via DestroyRef onDestroy', async () => {
     const service = createService();
     mockAppDatabase.close.mockClear();
 
-    await service.initialize();
+    await service.selectByDateRange('2026-08-01', '2026-08-15');
     expect(service.isConnected()).toBe(true);
 
     service.close();
     expect(service.isConnected()).toBe(false);
     expect(mockAppDatabase.close).toHaveBeenCalledTimes(1);
 
-    await service.initialize();
+    await service.selectByDateRange('2026-08-01', '2026-08-15');
     expect(service.isConnected()).toBe(true);
 
-    service.ngOnDestroy();
-    expect(service.isConnected()).toBe(false);
+    TestBed.resetTestingModule();
     expect(mockAppDatabase.close).toHaveBeenCalledTimes(2);
   });
 });
