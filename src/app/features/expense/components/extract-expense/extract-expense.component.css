@@ -11,7 +11,7 @@
 
 /* Left panel gets 12 columns on mobile, 6 on tablet, 5 on desktop */
 .left-panel {
-  @apply col-span-full md:col-span-6 lg:col-span-5 flex flex-col gap-6;
+  @apply col-span-full md:col-span-6 lg:col-span-5 flex flex-col gap-4 md:gap-6;
 }
 
 /* Right panel gets 12 columns on mobile, 6 on tablet, 7 on desktop */

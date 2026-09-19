@@ -1,7 +1,13 @@
 @reference "../../../../../styles.css";
 
 .split-container {
-  @apply mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start;
+  @apply mx-auto grid grid-cols-1 lg:grid-cols-12 gap-5 items-start;
+}
+
+@media (min-width: 768px) {
+  .split-container {
+    @apply gap-8;
+  }
 }
 
 .ledger-zone {
@@ -13,7 +19,19 @@
 }
 
 .card-glass {
-  @apply p-6 rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col gap-5 min-h-[620px];
+  @apply p-4 rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col gap-5;
+}
+
+@media (min-width: 768px) {
+  .card-glass {
+    @apply p-6;
+  }
+}
+
+@media (min-width: 1024px) {
+  .card-glass {
+    min-height: 620px;
+  }
 }
 
 .section-title {

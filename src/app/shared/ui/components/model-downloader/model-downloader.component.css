@@ -1,11 +1,23 @@
 @reference "../../../../../styles.css";
 
 .model-status-card {
-  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm;
+  @apply bg-white border border-slate-200 rounded-xl p-4 shadow-sm;
+}
+
+@media (min-width: 768px) {
+  .model-status-card {
+    @apply p-6;
+  }
 }
 
 .card-header {
-  @apply flex justify-between items-start mb-5;
+  @apply flex justify-between items-start mb-3;
+}
+
+@media (min-width: 768px) {
+  .card-header {
+    @apply mb-5;
+  }
 }
 
 .header-title {
@@ -25,7 +37,13 @@
 }
 
 .status-box {
-  @apply bg-slate-50 rounded-lg p-4 flex flex-col gap-4;
+  @apply bg-slate-50 rounded-lg p-3 flex flex-col gap-3;
+}
+
+@media (min-width: 768px) {
+  .status-box {
+    @apply p-4 gap-4;
+  }
 }
 
 .progress-zone {

@@ -5,7 +5,13 @@
 }
 
 .table-empty-box {
-  @apply flex flex-col items-center justify-center p-12 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-center gap-2;
+  @apply flex flex-col items-center justify-center py-8 px-4 bg-slate-50 border border-dashed border-slate-300 rounded-2xl text-center gap-2;
+}
+
+@media (min-width: 768px) {
+  .table-empty-box {
+    @apply p-12;
+  }
 }
 
 .table-empty-icon {

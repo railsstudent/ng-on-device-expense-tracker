@@ -1,7 +1,13 @@
 @reference "../../../../../styles.css";
 
 .image-uploader-card {
-  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col gap-4 transition-colors duration-200;
+  @apply bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex flex-col gap-4 transition-colors duration-200;
+}
+
+@media (min-width: 768px) {
+  .image-uploader-card {
+    @apply p-6;
+  }
 }
 
 .card-header {
@@ -14,7 +20,13 @@
 
 /* Dropzone Area */
 .dropzone-area {
-  @apply border-2 border-dashed border-slate-300 rounded-lg p-12 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-200 relative min-h-[180px];
+  @apply border-2 border-dashed border-slate-300 rounded-lg py-6 px-4 flex flex-col items-center justify-center text-center cursor-pointer transition-colors duration-200 relative min-h-[110px];
+}
+
+@media (min-width: 768px) {
+  .dropzone-area {
+    @apply p-12 min-h-[180px];
+  }
 }
 
 .dropzone-area:hover {
@@ -31,7 +43,13 @@
 }
 
 .upload-icon {
-  @apply text-4xl text-indigo-600 mb-3;
+  @apply text-3xl mb-1.5 text-indigo-600;
+}
+
+@media (min-width: 768px) {
+  .upload-icon {
+    @apply text-4xl mb-3;
+  }
 }
 
 .dropzone-title {
